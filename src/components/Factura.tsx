@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import styles from './Factura.module.css';
-import { Trash2, Upload } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Dropzone } from './Dropzone';
 
 import * as pdfjsLib from 'pdfjs-dist';
@@ -18,15 +18,7 @@ interface FacturaItem {
     aplicaIva: boolean;
 }
 
-interface FacturaData {
-    id?: number;
-    n_siniestro: string;
-    punto_venta: string;
-    numero_factura: string;
-    fecha_emision: string;
-    cae: string;
-    items: FacturaItem[];
-}
+
 
 interface FacturaProps {
     nSiniestro: string;
@@ -156,7 +148,8 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
     const totals = calculateTotals();
 
     // Updated for Dropzone (accepts File directly)
-    const handleFileDrop = async (file: File) => {
+    const handleFileDrop = async (files: File[]) => {
+        const file = files[0];
         if (!file) return;
 
         try {

@@ -124,6 +124,14 @@ export const Reportes = () => {
         });
     }, [filteredCasos]);
 
+    if (loading) return (
+        <Layout>
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted-color)' }}>
+                Cargando métricas...
+            </div>
+        </Layout>
+    );
+
     return (
         <Layout>
             <div className={styles.topBar}>

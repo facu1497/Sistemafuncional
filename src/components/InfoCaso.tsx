@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './InfoCaso.module.css';
-import { Mic, Upload, ChevronDown, ChevronUp, FileAudio } from 'lucide-react';
+import { Upload, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface InfoCasoProps {
     caso: any;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './Checklist.module.css';
-import { Plus, Trash2, CheckSquare } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface ChecklistItem {
     text: string;

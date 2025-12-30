@@ -21,7 +21,7 @@ const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/Sistemafuncional">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/detalle/:id" element={

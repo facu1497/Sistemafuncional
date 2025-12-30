@@ -1,0 +1,195 @@
+.wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.pdfBox {
+    background: rgba(33, 150, 243, 0.1);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pdfLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64b5f6;
+    text-transform: uppercase;
+}
+
+.pdfButton {
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pdfButton:hover {
+    background: #1565c0;
+}
+
+.gridHeader {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted-color);
+    font-weight: 600;
+}
+
+.input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--line-color);
+    color: var(--text-color);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+}
+
+.input:focus {
+    border-color: var(--primary-color);
+}
+
+.sectionTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line-color);
+}
+
+.titleText {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.btnAdd {
+    background: var(--muted-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btnAdd:hover {
+    opacity: 0.9;
+}
+
+.tableContainer {
+    border: 1px solid var(--line-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.table th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted-color);
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--line-color);
+}
+
+.table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+}
+
+.table td:last-child {
+    border-bottom: none;
+}
+
+.inputCell {
+    background: transparent;
+    border: 1px solid transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.inputCell:hover,
+.inputCell:focus {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: var(--line-color);
+}
+
+.btnDel {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnDel:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.totalsRow td {
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 2px solid var(--line-color);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btnSave {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.btnSave:hover {
+    background: #2563eb;
+}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PROYECTO SISTEMA - Panel principal</title>
+
+  <link rel="stylesheet" href="layout-common.css">
+</head>
+
+<body>
+  <header>
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú lateral">☰</button>
+      <div class="logo">
+        <img src="logo-estudio-hm-gibert.svg" alt="Logo Estudio HM Gibert" />
+        <div class="titulo">PROYECTO SISTEMA - Inicio</div>
+      </div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>PROYECTO SISTEMA</h1>
+        <span>Liquidador de siniestros</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="active" data-page="index" href="index.html"><span class="dot"></span>Inicio</a>
+      <a data-page="lista" href="lista.html"><span class="dot"></span>Listado de Casos</a>
+      <a data-page="tareas" href="tareas.html"><span class="dot"></span>Tareas</a>
+      <a data-page="reportes" href="reportes.html"><span class="dot"></span>Reportes</a>
+      <a data-page="facturacion" href="facturacion.html"><span class="dot"></span>Facturación</a>
+      <a data-page="administracion" href="administracion.html"><span class="dot"></span>Administración</a>
+    </nav>
+    
+    <div class="footer-card">
+       <div id="infoUsuarioSidebar"></div>
+    </div>
+
+  </nav>
+
+    <main class="content main" id="content">
+      
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2>Inicio</h2>
+          <p>
+            Panel principal del sistema. Desde aquí podés acceder a las distintas secciones de trabajo.
+          </p>
+        </div>
+        <div class="actions-row"></div>
+      </div>
+
+
+      <div class="grid">
+        <section class="card">
+          <h3>Accesos rápidos</h3>
+          <p>
+            Accedé al listado de casos para consultar, editar o cargar nuevos siniestros.
+          </p>
+          <a class="btn primary" href="lista.html">Ir al listado de casos</a>
+        </section>
+
+        <section class="card">
+          <h3>Tareas pendientes</h3>
+          <p>
+            Visualizá y gestioná tus tareas asociadas a los distintos casos.
+          </p>
+          <a class="btn primary" href="tareas.html">Ver tareas</a>
+        </section>
+
+        <section class="card">
+          <h3>Reportes y facturación</h3>
+          <p>
+            Secciones reservadas para reportes, estadísticas e información contable del estudio.
+          </p>
+          <a class="btn primary" href="reportes.html">Reportes</a>
+          <a class="btn primary" href="facturacion.html">Facturación</a>
+        </section>
+
+        <section class="card">
+          <h3>Administración del sistema</h3>
+          <p>
+            Alta y mantenimiento de catálogos: compañías, analistas, tipos de cobertura,
+            causas, estados, usuarios, y otros valores maestros.
+          </p>
+          <a class="btn primary" href="administracion.html">Ir a Administración</a>
+        </section>
+      </div>
+    </main>
+  <script src="layout-common.js"></script>
+  <script>
+    initCommonLayout({ activePage: "index" });
+  </script>
+
+</body>
+</html>

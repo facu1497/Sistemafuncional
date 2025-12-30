@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PROYECTO SISTEMA - Tareas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="layout-common.css">
+  <style>
+    /* ===== CONTENIDO TAREAS (MISMA LÓGICA) ===== */
+    .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .filtros input,
+    .filtros select {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, .25);
+      color: var(--text);
+    }
+
+    .tabla-wrapper {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(34, 197, 94, .15);
+      position: sticky;
+      top: 0;
+    }
+
+    th,
+    td {
+      padding: 7px;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: rgba(34, 197, 94, .08)
+    }
+
+    .estado-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .estado-pendiente {
+      background: rgba(239, 68, 68, .25);
+      border: 1px solid rgba(239, 68, 68, .4);
+    }
+
+    .estado-hecha {
+      background: rgba(34, 197, 94, .25);
+      border: 1px solid rgba(34, 197, 94, .4);
+    }
+
+    .link-caso a {
+      color: #86efac;
+      text-decoration: none;
+      font-size: 11px;
+    }
+
+    .sin-registros {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .resumen {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú lateral">☰</button>
+      <div class="logo">
+        <img src="logo-estudio-hm-gibert.svg" alt="Logo Estudio HM Gibert" />
+        <div class="titulo">PROYECTO SISTEMA - Tareas</div>
+      </div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>PROYECTO SISTEMA</h1>
+        <span>Liquidador de siniestros</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a data-page="index" href="index.html"><span class="dot"></span>Inicio</a>
+      <a data-page="lista" href="lista.html"><span class="dot"></span>Listado de Casos</a>
+      <a class="active" data-page="tareas" href="tareas.html"><span class="dot"></span>Tareas</a>
+      <a data-page="reportes" href="reportes.html"><span class="dot"></span>Reportes</a>
+      <a data-page="facturacion" href="facturacion.html"><span class="dot"></span>Facturación</a>
+      <a data-page="administracion" href="administracion.html"><span class="dot"></span>Administración</a>
+    </nav>
+
+    <div class="footer-card">
+      <div id="infoUsuarioSidebar"></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="content main" id="content">
+    <div class="topbar">
+      <div>
+        <h2>Tareas pendientes</h2>
+        <p>Tareas cargadas desde los casos</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+
+        <!-- filtros -->
+        <section class="panel">
+          <div class="filtros">
+            <input type="text" id="buscador" placeholder="Buscar..." />
+            <select id="filtroEstado">
+              <option value="pendientes">Solo pendientes</option>
+              <option value="todas">Todas</option>
+              <option value="hechas">Solo hechas</option>
+            </select>
+            <label id="lblSoloMias">
+              <input type="checkbox" id="soloMias" checked /> Solo mis casos
+            </label>
+            <button id="btnReset">Limpiar</button>
+          </div>
+        </section>
+
+        <!-- tabla -->
+        <section class="tabla-wrapper">
+          <table id="tablaTareas">
+            <thead>
+              <tr>
+                <th data-col="numeroSiniestro">Siniestro</th>
+                <th data-col="asegurado">Asegurado</th>
+                <th data-col="analista">Analista</th>
+                <th data-col="texto">Tarea</th>
+                <th data-col="fecha">Fecha</th>
+                <th data-col="estado">Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="sinRegistros" class="sin-registros" style="display:none;"></div>
+        </section>
+
+        <div class="resumen" id="resumenTareas"></div>
+
+      </section>
+    </div>
+  </main>
+  <script src="datos.js"></script>
+  <script src="layout-common.js"></script>
+
+  <script>
+    // === UTILIDADES FECHAS ===
+    function formatearFecha(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const dia = String(d.getDate()).padStart(2, "0");
+      const mes = String(d.getMonth() + 1).padStart(2, "0");
+      const anio = d.getFullYear();
+      return dia + "/" + mes + "/" + anio;
+    }
+
+    function formatearHoraDesdeIso(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return hh + ":" + mm;
+    }
+
+    let todasLasTareas = [];
+    let tareasFiltradas = [];
+    let currentAnalista = null;
+
+    async function inicializar() {
+      await initCommonLayout({ activePage: "tareas" });
+
+      // Obtener usuario actual desde el layout (si existe)
+      const user = (await window.supabaseClient.auth.getUser()).data.user;
+      if (user) {
+        // Intentamos obtener el nombre del analista si está en metadatos
+        currentAnalista = user.user_metadata?.nombre || user.email;
+      }
+
+      const chkSoloMias = document.getElementById("soloMias");
+      const lblSoloMias = document.getElementById("lblSoloMias");
+      if (!currentAnalista) {
+        if (lblSoloMias) lblSoloMias.style.display = "none";
+      }
+
+      await cargarDatos();
+
+      document.getElementById("btnReset").addEventListener("click", () => {
+        document.getElementById("buscador").value = "";
+        document.getElementById("filtroEstado").value = "pendientes";
+        if (chkSoloMias) chkSoloMias.checked = !!currentAnalista;
+        aplicarFiltros();
+      });
+
+      document.getElementById("buscador").addEventListener("input", aplicarFiltros);
+      document.getElementById("filtroEstado").addEventListener("change", aplicarFiltros);
+      if (chkSoloMias) chkSoloMias.addEventListener("change", aplicarFiltros);
+
+      document.querySelectorAll("#tablaTareas thead th").forEach(th => {
+        const col = th.getAttribute("data-col");
+        if (!col || col === "acciones") return;
+        th.addEventListener("click", () => ordenarPor(col));
+      });
+    }
+
+    async function cargarDatos() {
+      try {
+        const data = await window.db.getTareas(null);
+        todasLasTareas = data.map(t => ({
+          id: t.id,
+          nSiniestro: t.n_siniestro,
+          numeroSiniestro: String(t.n_siniestro),
+          asegurado: t.casos?.asegurado || "",
+          analista: t.casos?.analista || "",
+          texto: t.texto,
+          fecha: t.fecha,
+          hora: t.hora,
+          creadaEn: t.creada_en,
+          creadaPor: t.creada_por_nombre || "",
+          hecha: !!t.hecha
+        }));
+
+        aplicarFiltros();
+      } catch (err) {
+        console.error("Error cargando tareas de Supabase:", err);
+      }
+    }
+
+    function aplicarFiltros() {
+      const texto = document.getElementById("buscador").value.trim().toLowerCase();
+      const modoEstado = document.getElementById("filtroEstado").value;
+      const chkSoloMias = document.getElementById("soloMias");
+      const soloMias = chkSoloMias ? chkSoloMias.checked : false;
+
+      tareasFiltradas = todasLasTareas.filter(t => {
+        // Filtro texto
+        const matchTexto =
+          !texto ||
+          (t.numeroSiniestro && t.numeroSiniestro.toLowerCase().includes(texto)) ||
+          (t.asegurado && t.asegurado.toLowerCase().includes(texto)) ||
+          (t.texto && t.texto.toLowerCase().includes(texto)) ||
+          (t.analista && t.analista.toLowerCase().includes(texto));
+
+        if (!matchTexto) return false;
+
+        // Filtro estado
+        if (modoEstado === "pendientes" && t.hecha) return false;
+        if (modoEstado === "hechas" && !t.hecha) return false;
+
+        // Filtro "solo mis casos"
+        if (soloMias && currentAnalista) {
+          if ((t.analista || "").toLowerCase() !== currentAnalista.toLowerCase()) return false;
+        }
+
+        return true;
+      });
+
+      renderTabla();
+    }
+
+    let ordenActual = { columna: null, direccion: 1 };
+
+    function ordenarPor(col) {
+      if (ordenActual.columna === col) {
+        ordenActual.direccion = -ordenActual.direccion;
+      } else {
+        ordenActual.columna = col;
+        ordenActual.direccion = 1;
+      }
+
+      tareasFiltradas.sort((a, b) => {
+        let va = a[col];
+        let vb = b[col];
+
+        if (col === "fecha") {
+          const da = a.fecha ? new Date(a.fecha) : new Date(0);
+          const db = b.fecha ? new Date(b.fecha) : new Date(0);
+          return (da - db) * ordenActual.direccion;
+        }
+
+        if (col === "estado") {
+          const ea = a.hecha ? 1 : 0;
+          const eb = b.hecha ? 1 : 0;
+          return (ea - eb) * ordenActual.direccion;
+        }
+
+        if (va == null) va = "";
+        if (vb == null) vb = "";
+        if (typeof va === "string") va = va.toLowerCase();
+        if (typeof vb === "string") vb = vb.toLowerCase();
+
+        if (va < vb) return -1 * ordenActual.direccion;
+        if (va > vb) return 1 * ordenActual.direccion;
+        return 0;
+      });
+
+      renderTabla();
+    }
+
+    function renderTabla() {
+      const tbody = document.querySelector("#tablaTareas tbody");
+      const sinRegistrosEl = document.getElementById("sinRegistros");
+      const resumenEl = document.getElementById("resumenTareas");
+
+      tbody.innerHTML = "";
+
+      if (!todasLasTareas.length) {
+        sinRegistrosEl.style.display = "block";
+        sinRegistrosEl.textContent = "No hay tareas registradas en el sistema.";
+        resumenEl.textContent = "";
+        return;
+      }
+
+      if (!tareasFiltradas.length) {
+        sinRegistrosEl.style.display = "block";
+        sinRegistrosEl.textContent = "No se encontraron tareas con los filtros seleccionados.";
+        resumenEl.textContent = `Total de tareas: ${todasLasTareas.length}.`;
+        return;
+      }
+
+      sinRegistrosEl.style.display = "none";
+
+      tareasFiltradas.forEach(t => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+        <td>${t.numeroSiniestro}</td>
+        <td>${t.asegurado}</td>
+        <td>${t.analista}</td>
+        <td>${t.texto}</td>
+        <td>
+           <div><strong>Asignada:</strong> ${t.fecha ? formatearFecha(t.fecha) : "-"}${t.hora ? " " + t.hora : ""}</div>
+           <div><small>Creada: ${formatearFecha(t.creadaEn)} ${formatearHoraDesdeIso(t.creadaEn)}${t.creadaPor ? " - por " + t.creadaPor : ""}</small></div>
+        </td>
+        <td><span class="estado-pill ${t.hecha ? "estado-hecha" : "estado-pendiente"}">${t.hecha ? "HECHA" : "PENDIENTE"}</span></td>
+        <td class="link-caso">
+           <input type="checkbox" ${t.hecha ? "checked" : ""} class="chk-tarea">
+           <a href="detalle.html?sin=${encodeURIComponent(t.nSiniestro)}">Ver caso</a>
+        </td>
+      `;
+
+        const chk = tr.querySelector(".chk-tarea");
+        chk.addEventListener("change", async () => {
+          t.hecha = chk.checked;
+          await window.db.upsertTarea({ id: t.id, hecha: t.hecha });
+          // Re-aplicar filtros para que si estaba en "Solo pendientes" desaparezca
+          aplicarFiltros();
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      const total = todasLasTareas.length;
+      const visibles = tareasFiltradas.length;
+      const pendientes = todasLasTareas.filter(x => !x.hecha).length;
+      resumenEl.textContent = `Mostrando ${visibles} tarea(s). Pendientes: ${pendientes}. Total registradas: ${total}.`;
+    }
+
+    document.addEventListener("DOMContentLoaded", inicializar);
+  </script>
+
+</body>
+
+</html>

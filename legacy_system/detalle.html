@@ -1,0 +1,2495 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PROYECTO SISTEMA - Detalle de caso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* ====== BASE GENERAL (MISMA FACHADA QUE TAREAS) ====== */
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #0b4f3f;
+      color: #fff;
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header .logo img {
+      height: 36px;
+      width: auto;
+    }
+
+    header .titulo {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    header .usuario {
+      font-size: 13px;
+      opacity: 0.9;
+      text-align: right;
+    }
+
+    .volver {
+      margin: 10px 20px 0;
+      font-size: 12px;
+    }
+
+    .volver a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    .volver a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 10px 20px 30px 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+
+    .subtitulo {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    /* Contenedor principal blanco tipo “tarjeta” */
+    .wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      padding: 15px 20px 20px;
+      border: 1px solid #ddd;
+    }
+
+    /* ====== ESTILOS ORIGINALES DE DETALLE, AJUSTADOS ====== */
+
+    /* --- BUSCADOR --- */
+    .buscador {
+      border: 1px solid #ccc;
+      margin: 5px 0 15px;
+      padding: 10px 20px 20px;
+      position: relative;
+      border-radius: 4px;
+      background-color: #fafafa;
+    }
+
+    .buscador-title {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      padding: 0 10px;
+      font-weight: bold;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      border: 1px solid #ccc;
+      border-radius: 999px;
+    }
+
+    .buscador-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 40px;
+      row-gap: 10px;
+      margin-top: 15px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .campo-label {
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .campo {
+      display: flex;
+      align-items: center;
+    }
+
+    .campo input {
+      flex: 1;
+      border: 1px solid #999;
+      padding: 2px 4px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    .campo input.short {
+      max-width: 70px;
+    }
+
+    .buscador-button {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .buscador-button button {
+      padding: 4px 25px;
+      border: 1px solid #999;
+      background: #d9d9d9;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    .buscador-button button:hover {
+      filter: brightness(0.95);
+    }
+
+    /* --- TABS --- */
+    .tabs-container {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-top: 10px;
+      background-color: #fff;
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      background-color: #101a17;
+    }
+
+    .tab-btn {
+      flex: 1 1 0;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 12px;
+      background: transparent;
+      border: none;
+      border-right: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .tab-btn:last-child {
+      border-right: none;
+    }
+
+    .tab-btn.active {
+      background: #d0d0d0;
+      font-weight: bold;
+    }
+
+    .tab-badge {
+      display: none;
+      margin-left: 4px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      border: 1px solid #990000;
+      background: #ffcccc;
+      color: #990000;
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: bold;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 15px 25px 30px;
+      min-height: 260px;
+      font-size: 13px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .info-row {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    /* Layout de la pestaña INFO: izquierda datos, derecha comentarios */
+    .info-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr;
+      /* izquierda / derecha */
+      column-gap: 40px;
+      align-items: flex-start;
+    }
+
+    .info-left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .info-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info-box {
+      border-radius: 20px;
+      padding: 8px 10px 10px;
+      border: 2px solid #0d1513;
+      /* si querés más suave podés bajar a 1px */
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .info-box-title {
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .info-box textarea {
+      width: 100%;
+      height: 80px;
+      resize: vertical;
+      font-size: 12px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: inherit;
+    }
+
+    @media (max-width: 900px) {
+      .info-layout {
+        grid-template-columns: 1fr;
+        /* en pantallas chicas se apila */
+        row-gap: 15px;
+      }
+    }
+
+    .info-label {
+      width: 90px;
+      font-weight: bold;
+    }
+
+    .info-value {
+      margin-left: 30px;
+    }
+
+    .small {
+      font-size: 11px;
+      color: #555;
+    }
+
+    /* ----- CHECKLIST ----- */
+    .check-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .check-label {
+      width: 220px;
+      text-align: right;
+      margin-right: 50px;
+    }
+
+    .check-input {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ----- COMENTARIOS ----- */
+    .comentarios-wrapper {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .comentarios-input-row {
+      display: grid;
+      grid-template-columns: 4fr 1fr;
+      column-gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    #nuevo-comentario {
+      width: 100%;
+      resize: vertical;
+      min-height: 30px;
+      max-height: 80px;
+      border: 1px solid #999;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-family: inherit;
+      border-radius: 3px;
+    }
+
+    #btn-agregar-comentario {
+      border: 1px solid #999;
+      background: #d9d9d9;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    #btn-agregar-comentario:hover {
+      filter: brightness(0.95);
+    }
+
+    .comentarios-list {
+      border-top: 1px solid #ddd;
+      margin-top: 5px;
+      padding-top: 10px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .comentario-item {
+      border: 1px solid #ddd;
+      padding: 4px 6px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      border-radius: 3px;
+      background-color: #fafafa;
+    }
+
+    .comentario-header {
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .comentario-texto {
+      white-space: pre-wrap;
+    }
+
+    /* ----- DOCUMENTACIÓN ----- */
+    .docs-wrapper {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .docs-top-row {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1fr;
+      column-gap: 10px;
+      align-items: center;
+      margin: 0 auto 20px;
+      max-width: 650px;
+    }
+
+    #doc-nombre-mostrado {
+      width: 100%;
+      border: 1px solid #999;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-family: inherit;
+      text-align: center;
+      background: #f5f5f5;
+      border-radius: 3px;
+    }
+
+    .docs-btn {
+      border: 1px solid #999;
+      background: #d9d9d9;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .docs-btn.eliminar {
+      background: #ffe5d9;
+    }
+
+    .docs-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .docs-confirm-row {
+      margin: 10px auto 25px;
+      max-width: 250px;
+    }
+
+    #btn-doc-confirmar {
+      width: 100%;
+      border: 1px solid #999;
+      background: #c0c0c0;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    #btn-doc-confirmar:hover {
+      filter: brightness(0.95);
+    }
+
+    .docs-list {
+      margin: 0 auto;
+      max-width: 650px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-top: 5px;
+    }
+
+    .docs-item {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      column-gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .docs-file,
+    .docs-date {
+      border: 1px solid #ddd;
+      padding: 4px 6px;
+      text-align: center;
+      background: #f5f5f5;
+      border-radius: 3px;
+    }
+
+    .docs-date {
+      min-width: 90px;
+    }
+
+    /* ----- TAREAS ----- */
+    .tareas-wrapper {
+      margin-top: 10px;
+    }
+
+    .tareas-top-row {
+      display: grid;
+      grid-template-columns: 4fr 1.5fr 1fr 0.8fr;
+      /* desc, fecha, hora, botón */
+      column-gap: 10px;
+      align-items: center;
+      max-width: 700px;
+      margin: 0 auto 15px;
+    }
+
+    #tarea-descripcion {
+      border: 1px solid #999;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-family: inherit;
+      border-radius: 3px;
+    }
+
+    #tarea-fecha,
+    #tarea-hora {
+      border: 1px solid #999;
+      padding: 3px 4px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    #btn-tarea-agregar {
+      border: 1px solid #999;
+      background: #d9d9d9;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    #btn-tarea-agregar:hover {
+      filter: brightness(0.95);
+    }
+
+    .tareas-list {
+      max-width: 700px;
+      margin: 0 auto;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-top: 5px;
+    }
+
+    .tarea-item {
+      display: grid;
+      grid-template-columns: 0.4fr 3.3fr 1.8fr 0.8fr;
+      column-gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .tarea-check {
+      text-align: center;
+    }
+
+    .tarea-check input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .tarea-desc {
+      border: 1px solid #ddd;
+      padding: 4px 6px;
+      background: #f5f5f5;
+      border-radius: 3px;
+    }
+
+    .tarea-fecha {
+      border: 1px solid #ddd;
+      padding: 4px 6px;
+      text-align: left;
+      background: #f5f5f5;
+      min-width: 90px;
+      border-radius: 3px;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .tarea-fecha strong {
+      font-size: 11px;
+    }
+
+    .tarea-fecha small {
+      font-size: 10px;
+      color: #555;
+    }
+
+    .tarea-actions {
+      text-align: center;
+    }
+
+    .btn-tarea-del {
+      border: 1px solid #999;
+      background: #ffe5d9;
+      padding: 2px 6px;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .btn-tarea-del:hover {
+      filter: brightness(0.95);
+    }
+
+    .tarea-desc.hecha {
+      text-decoration: line-through;
+      color: #555;
+    }
+
+    /* ----- TABLA DE DAÑOS ----- */
+    .td-wrapper {
+      margin-top: 10px;
+    }
+
+    .td-top {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    #btn-td-agregar-cobertura {
+      border: 1px solid #999;
+      background: #d9d9d9;
+      padding: 4px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    #btn-td-agregar-cobertura:hover {
+      filter: brightness(0.95);
+    }
+
+    #td-coberturas {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .td-cobertura {
+      border: 1px solid #ddd;
+      padding: 10px 12px 8px;
+      background: #f7f7f7;
+      border-radius: 4px;
+    }
+
+    .td-cabecera {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr;
+      column-gap: 20px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .td-cabecera input {
+      border: 1px solid #999;
+      padding: 3px 6px;
+      font-size: 12px;
+      width: 100%;
+      border-radius: 3px;
+    }
+
+    .td-cobertura-nombre {
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .td-suma {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .td-suma-input {
+      max-width: 150px;
+      text-align: right;
+    }
+
+    .td-tabla {
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 6px;
+    }
+
+    .td-row {
+      display: grid;
+      grid-template-columns: 3fr 1.5fr 1.5fr 0.5fr;
+      column-gap: 4px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .td-row>div {
+      padding: 3px 4px;
+    }
+
+    .td-header {
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+      background: #e0e0e0;
+    }
+
+    .td-row input {
+      width: 100%;
+      border: 1px solid #999;
+      padding: 2px 4px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    .td-row input.td-monto-conv,
+    .td-row input.td-monto-indem {
+      text-align: right;
+    }
+
+    .td-total {
+      border-top: 1px solid #ccc;
+      background: #f0f0f0;
+      font-weight: bold;
+    }
+
+    .td-total div:first-child {
+      text-align: left;
+    }
+
+    .td-total div:nth-child(3) {
+      text-align: right;
+    }
+
+    .td-btn-del {
+      border: 1px solid #999;
+      background: #ffe5d9;
+      font-size: 11px;
+      padding: 1px 4px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .td-acciones {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .td-btn-item,
+    .td-btn-cobertura-del {
+      border: 1px solid #999;
+      background: #d9d9d9;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .td-btn-cobertura-del {
+      background: #ffe5d9;
+    }
+
+    .td-btn-item:hover,
+    .td-btn-cobertura-del:hover {
+      filter: brightness(0.95);
+    }
+
+    #td-total-global {
+      margin-top: 12px;
+      font-weight: bold;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    /* ----- GESTION ----- */
+    .gestion-wrapper {
+      margin-top: 15px;
+    }
+
+    .gestion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px 30px;
+      max-width: 750px;
+      margin: 0 auto;
+    }
+
+    .gestion-col h4 {
+      text-align: center;
+      margin: 0 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #777;
+      padding-bottom: 3px;
+    }
+
+    .gestion-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .gestion-btn {
+      border: 1px solid #999;
+      background: #d9d9d9;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      text-align: center;
+      border-radius: 3px;
+    }
+
+    .gestion-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    /* Un poco de responsivo básico para el buscador */
+    @media (max-width: 900px) {
+      .buscador-grid {
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 20px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .buscador-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =========================
+       OVERRIDES FACHADA INDEX (SAFE)
+       - NO toca HTML ni JS
+       - Solo estiliza para parecerse a index.html
+       ========================= */
+    :root {
+      --bg: #0e1a17;
+      --panel: #11211e;
+      --card: #11211e;
+      --card2: #132623;
+      --text: #e6edf7;
+      --muted: #a9b7d1;
+      --line: rgba(255, 255, 255, .08);
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --shadow: 0 12px 30px rgba(0, 0, 0, .35);
+      --radius: 14px;
+    }
+
+    body {
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(34, 197, 94, .14), transparent 55%),
+        radial-gradient(900px 500px at 100% 10%, rgba(34, 197, 94, .08), transparent 60%),
+        var(--bg) !important;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif !important;
+    }
+
+    header {
+      background: rgba(255, 255, 255, .03) !important;
+      border-bottom: 1px solid var(--line);
+      color: var(--text) !important;
+      box-shadow: var(--shadow);
+    }
+
+    header .usuario {
+      color: var(--muted) !important;
+      opacity: 1 !important;
+    }
+
+    header .titulo {
+      color: var(--text) !important;
+    }
+
+    /* links arriba */
+    .volver a {
+      color: rgba(134, 239, 172, .95) !important;
+    }
+
+    .volver {
+      color: var(--muted) !important;
+    }
+
+    /* wrapper principal como card */
+    .wrapper {
+      background: rgba(255, 255, 255, .03) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important;
+      color: var(--text) !important;
+    }
+
+    /* paneles y cajas internas */
+    .buscador,
+    .tabs-container,
+    .tab-content,
+    .section,
+    .panel,
+    .box,
+    .resumen-box {
+      background: rgba(255, 255, 255, .03) !important;
+      border-color: var(--line) !important;
+      color: var(--text) !important;
+    }
+
+    .buscador-title {
+      background: var(--card) !important;
+      border-color: var(--line) !important;
+      color: var(--text) !important;
+    }
+
+    /* inputs */
+    input,
+    select,
+    textarea {
+      background: rgba(0, 0, 0, .18) !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+      border-radius: 12px !important;
+      outline: none;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(230, 237, 247, .55) !important;
+    }
+
+    /* botones genéricos del detalle */
+    button,
+    .btn,
+    .boton,
+    .btn-accion,
+    .btn-gest {
+      background: rgba(255, 255, 255, .05) !important;
+      border: 1px solid var(--line) !important;
+      color: var(--text) !important;
+      border-radius: 12px !important;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    button:hover,
+    .btn:hover,
+    .boton:hover,
+    .btn-accion:hover,
+    .btn-gest:hover {
+      background: rgba(255, 255, 255, .08) !important;
+    }
+
+    /* tabs */
+    .tabs {
+      background: transparent !important;
+      border-bottom: 1px solid var(--line) !important;
+    }
+
+    .tab-btn {
+      color: var(--text) !important;
+    }
+
+    .tab-btn.active {
+      background: rgba(34, 197, 94, .12) !important;
+      font-weight: 700 !important;
+    }
+
+    /* tablas */
+    table {
+      color: var(--text) !important;
+    }
+
+    thead {
+      background: rgba(34, 197, 94, .12) !important;
+      color: var(--text) !important;
+    }
+
+    th,
+    td {
+      border-bottom-color: rgba(255, 255, 255, .06) !important;
+    }
+
+    tr:hover td {
+      background: rgba(34, 197, 94, .08) !important;
+    }
+
+    /* pastillas estado */
+    .estado-pill,
+    .pill {
+      background: rgba(255, 255, 255, .06) !important;
+      border: 1px solid rgba(255, 255, 255, .18) !important;
+      color: var(--text) !important;
+    }
+
+    .estado-contactar,
+    .estado-pendiente {
+      background: rgba(239, 68, 68, .22) !important;
+      border-color: rgba(239, 68, 68, .35) !important;
+    }
+
+    .estado-cerrado,
+    .estado-hecha {
+      background: rgba(34, 197, 94, .22) !important;
+      border-color: rgba(34, 197, 94, .35) !important;
+    }
+
+    /* textos base */
+    h1,
+    h2,
+    h3,
+    h4 {
+      color: var(--text) !important;
+    }
+
+    .subtitulo {
+      color: var(--muted) !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="logo-estudio-hm-gibert.svg" alt="Logo Estudio HM Gibert" />
+      <div class="titulo">PROYECTO SISTEMA - Detalle de caso</div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <div class="volver">
+    &larr; <a href="lista.html">Volver al listado</a>
+  </div>
+
+  <main>
+    <h1>Detalle de caso</h1>
+    <div class="subtitulo">
+      Usá el buscador o la lista para localizar el siniestro y gestionarlo desde las pestañas de abajo.
+    </div>
+
+    <div class="wrapper">
+      <section class="buscador">
+        <div class="buscador-title">BUSCADOR</div>
+
+        <form id="searchForm">
+          <div class="buscador-grid">
+            <div class="campo">
+              <span class="campo-label">APELLIDO:</span>
+              <input type="text" name="apellido" />
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">NRO STRO:</span>
+              <input type="text" name="nroStro" />
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">DNI:</span>
+              <input type="text" name="dni" />
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">NRO CASO</span>
+              <input type="text" name="nroCaso" class="short" />
+            </div>
+
+            <div class="buscador-button">
+              <button type="submit">BUSCAR</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="tabs-container">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="info">INFO</button>
+          <button class="tab-btn" data-tab="checklist">CHECKLIST</button>
+          <button class="tab-btn" data-tab="documentacion">DOCUMENTACIÓN</button>
+          <button class="tab-btn" data-tab="tareas">
+            TAREAS <span id="badge-tareas" class="tab-badge"></span>
+          </button>
+          <button class="tab-btn" data-tab="comentarios">COMENTARIOS</button>
+          <button class="tab-btn" data-tab="tabla-danos">TABLA DE DAÑOS</button>
+          <button class="tab-btn" data-tab="factura">FACTURA</button>
+          <button class="tab-btn" data-tab="gestion">GESTION</button>
+        </div>
+
+        <div id="info" class="tab-content active">
+          <p class="small">Mostrando datos del caso seleccionado.</p>
+
+          <div class="info-layout">
+            <div class="info-left">
+
+              <div class="info-row">
+                <div class="info-label">COMPAÑÍA:</div>
+                <div class="info-value" id="info-compania">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">NOMBRE:</div>
+                <div class="info-value" id="info-nombre">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">NRO STRO:</div>
+                <div class="info-value" id="info-nro-stro">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">DNI:</div>
+                <div class="info-value" id="info-dni">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">POLIZA:</div>
+                <div class="info-value" id="info-poliza">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">RAMO:</div>
+                <div class="info-value" id="info-ramo">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">CAUSA:</div>
+                <div class="info-value" id="info-causa">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">MAIL:</div>
+                <div class="info-value" id="info-mail">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">TELÉFONO:</div>
+                <div class="info-value" id="info-tel">-</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">ESTADO:</div>
+                <div class="info-value">
+                  <select id="info-estado" style="padding:2px 4px; font-size:12px;">
+                    <option value="">-</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="info-right">
+
+              <div class="info-box">
+                <div class="info-box-title">COMENTARIOS DE LA COMPAÑÍA</div>
+                <textarea id="info-comentarios-compania" readonly></textarea>
+              </div>
+
+              <div class="info-box">
+                <div class="info-box-title">ANOTACIÓN DE ENTREVISTA</div>
+                <textarea id="info-comentarios-entrevista"></textarea>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+
+        <div id="checklist" class="tab-content">
+          <div id="checklist-container" style="text-align:center; margin-top:20px;">
+            <h3 id="checklist-titulo" style="margin-bottom:25px; font-weight:bold;"></h3>
+            <div id="checklist-items"></div>
+          </div>
+        </div>
+
+        <div id="documentacion" class="tab-content">
+          <div class="docs-wrapper">
+            <div class="docs-top-row">
+              <input type="text" id="doc-nombre-mostrado" placeholder="Adjunto..." readonly />
+              <button type="button" id="btn-doc-adjuntar" class="docs-btn">ADJUNTAR</button>
+              <button type="button" id="btn-doc-limpiar" class="docs-btn eliminar">ELIMINAR</button>
+              <input type="file" id="doc-file-input" style="display:none" multiple />
+            </div>
+
+            <div class="docs-confirm-row">
+              <button type="button" id="btn-doc-confirmar">CONFIRMAR</button>
+            </div>
+
+            <div id="docs-lista" class="docs-list"></div>
+          </div>
+        </div>
+
+        <div id="tareas" class="tab-content">
+          <div class="tareas-wrapper">
+            <div class="tareas-top-row">
+              <input type="text" id="tarea-descripcion" placeholder="Descripción de la tarea..." />
+              <input type="date" id="tarea-fecha" />
+              <input type="time" id="tarea-hora" step="600" />
+              <button type="button" id="btn-tarea-agregar">AGREGAR</button>
+            </div>
+            <div id="tareas-lista" class="tareas-list"></div>
+          </div>
+        </div>
+
+        <div id="comentarios" class="tab-content">
+          <div class="comentarios-wrapper">
+            <div class="comentarios-input-row">
+              <textarea id="nuevo-comentario" placeholder="Agregar comentario..."></textarea>
+              <button id="btn-agregar-comentario" type="button">CONFIRMAR</button>
+            </div>
+            <div id="lista-comentarios" class="comentarios-list"></div>
+          </div>
+        </div>
+
+        <div id="tabla-danos" class="tab-content">
+          <div class="td-wrapper">
+            <div class="td-top">
+              <button type="button" id="btn-td-agregar-cobertura">Agregar cobertura +</button>
+            </div>
+            <div id="td-coberturas"></div>
+            <div id="td-total-global"></div>
+          </div>
+        </div>
+
+
+        <div id="factura" class="tab-content">
+          <p class="small">Carga de datos de facturación del caso. Se guarda automáticamente en <b>Facturación</b>.</p>
+
+          <div class="factura-wrapper" style="max-width: 900px; margin: 0 auto;">
+
+            <div
+              style="background:#e3f2fd; border:1px solid #90caf9; padding:10px; border-radius:4px; margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+              <span style="font-size:12px; font-weight:bold; color:#0d47a1;">AUTO-COMPLETAR:</span>
+              <input type="file" id="fac-pdf-upload" accept="application/pdf" style="font-size:12px;" />
+              <button type="button" id="btn-procesar-pdf"
+                style="border:1px solid #0d47a1; background:#1976d2; color:#fff; padding:4px 10px; border-radius:3px; cursor:pointer; font-size:12px;">
+                Leer PDF y Completar
+              </button>
+            </div>
+            <div class="factura-grid"
+              style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px 14px; align-items:end;">
+              <label style="font-size:12px;">
+                Punto de venta
+                <input type="text" id="fac-punto-venta" placeholder="Ej: 0001"
+                  style="width:100%; border:1px solid #999; padding:4px 6px; font-size:12px; border-radius:3px;" />
+              </label>
+
+              <label style="font-size:12px;">
+                Nro de factura
+                <input type="text" id="fac-nro-factura" placeholder="Ej: 00001234"
+                  style="width:100%; border:1px solid #999; padding:4px 6px; font-size:12px; border-radius:3px;" />
+              </label>
+
+              <label style="font-size:12px;">
+                Fecha de emisión
+                <input type="date" id="fac-fecha-emision"
+                  style="width:100%; border:1px solid #999; padding:3px 6px; font-size:12px; border-radius:3px;" />
+              </label>
+
+              <label style="font-size:12px;">
+                N° CAE
+                <input type="text" id="fac-cae" placeholder="CAE"
+                  style="width:100%; border:1px solid #999; padding:4px 6px; font-size:12px; border-radius:3px;" />
+              </label>
+            </div>
+
+            <div style="margin-top:16px; border-top:1px solid #ddd; padding-top:14px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                <h3 style="margin:0; font-size:14px;">Ítems</h3>
+                <button type="button" id="btn-fac-add-item"
+                  style="border:1px solid #999; background:#d9d9d9; padding:4px 10px; font-size:12px; cursor:pointer; border-radius:3px;">
+                  Agregar ítem +
+                </button>
+              </div>
+
+              <div style="margin-top:10px; overflow:auto; border:1px solid #ddd; border-radius:6px;">
+                <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                  <thead style="background:#e9e9e9;">
+                    <tr>
+                      <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Concepto</th>
+                      <th style="text-align:right; padding:6px; border-bottom:1px solid #ddd;">Neto</th>
+                      <th style="text-align:center; padding:6px; border-bottom:1px solid #ddd;">¿IVA?</th>
+                      <th style="text-align:right; padding:6px; border-bottom:1px solid #ddd;">IVA</th>
+                      <th style="text-align:right; padding:6px; border-bottom:1px solid #ddd;">Total</th>
+                      <th style="text-align:center; padding:6px; border-bottom:1px solid #ddd;">&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fac-items-body">
+                  </tbody>
+                  <tfoot>
+                    <tr style="background:#f7f7f7; font-weight:bold;">
+                      <td style="padding:6px; border-top:1px solid #ddd;">Totales</td>
+                      <td style="padding:6px; border-top:1px solid #ddd; text-align:right;" id="fac-total-neto">$ 0,00
+                      </td>
+                      <td style="padding:6px; border-top:1px solid #ddd; text-align:center;">&nbsp;</td>
+                      <td style="padding:6px; border-top:1px solid #ddd; text-align:right;" id="fac-total-iva">$ 0,00
+                      </td>
+                      <td style="padding:6px; border-top:1px solid #ddd; text-align:right;" id="fac-total-gral">$ 0,00
+                      </td>
+                      <td style="padding:6px; border-top:1px solid #ddd; text-align:center;">&nbsp;</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px; flex-wrap:wrap;">
+                <button type="button" id="btn-fac-ir" class="docs-btn"
+                  style="border:1px solid #999; background:#c0c0c0;">
+                  Ir a Facturación
+                </button>
+                <button type="button" id="btn-fac-guardar" class="docs-btn"
+                  style="border:1px solid #999; background:#d9d9d9;">
+                  Guardar factura
+                </button>
+              </div>
+
+              <p class="small" style="margin-top:10px;">
+                Nota: “Gastos” u otros conceptos pueden ir sin IVA. Marcá/desmarcá la casilla de IVA por ítem.
+              </p>
+            </div>
+          </div>
+        </div>
+
+
+        <div id="gestion" class="tab-content">
+          <div class="gestion-wrapper">
+            <div class="gestion-grid">
+              <div class="gestion-col">
+                <h4>INFORMES</h4>
+                <div class="gestion-buttons">
+                  <button class="gestion-btn" id="btn-informe">INFORME</button>
+                  <button class="gestion-btn" id="btn-informe-desiste">INFORME DESISTE</button>
+                  <button class="gestion-btn" id="btn-preinforme">PREINFORME</button>
+                </div>
+              </div>
+              <div class="gestion-col">
+                <h4>NOTAS</h4>
+                <div class="gestion-buttons">
+                  <button class="gestion-btn" id="btn-nota-desiste">NOTA DESISTE</button>
+                  <button class="gestion-btn" id="btn-nota-desiste-poliza">NOTA DESISTE C/PÓLIZA</button>
+                  <button class="gestion-btn" id="btn-nota-orden-compra">NOTA ORDEN DE COMPRA</button>
+                  <button class="gestion-btn" id="btn-nota-efectivo">NOTA EFECTIVO</button>
+                </div>
+              </div>
+              <div class="gestion-col">
+                <h4>GESTIÓN</h4>
+                <div class="gestion-buttons">
+                  <button class="gestion-btn" id="btn-enviar-informes">ENVIAR A INFORMES</button>
+                  <button class="gestion-btn" id="btn-mail-oncity">MAIL A ONCITY</button>
+                  <button class="gestion-btn" id="btn-declaracion">DECLARACIÓN</button>
+                  <button class="gestion-btn" id="btn-interrupcion">INTERRUPCIÓN DE PLAZOS</button>
+                  <button class="gestion-btn" id="btn-consulta-antecedentes">CONSULTA DE ANTECEDENTES</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="pdf-loader.js"></script>
+
+  <script src="datos.js"></script>
+  <script src="layout-common.js"></script>
+
+  <script>
+    const { jsPDF } = window.jspdf || {};
+
+    // ===========================
+    // VARIABLES / LOCALSTORAGE
+    // ===========================
+    const LS_CASOS_KEY = "casos_extra_v1";
+    const LS_CHECKLIST_KEY = "checklist_siniestros_v1";
+    const LS_COMENT_KEY = "comentarios_siniestros_v1";
+    const LS_DOCS_KEY = "documentacion_siniestros_v1";
+    const LS_TAREAS_KEY = "tareas_siniestros_v1";
+    const LS_DANOS_KEY = "tabla_danos_siniestros_v1";
+    const LS_ESTADOS_KEY = "estados_siniestros_v1";
+    const LS_FACTURAS_KEY = "facturas_siniestros_v1";
+    const LS_ENTREVISTA_KEY = "comentarios_entrevista_v1";
+
+    let casoActual = null;
+    let casoActualKey = null; // nSiniestro como string
+
+    let casosExtra = [];
+    let checklistEstado = {};
+    let comentariosPorCaso = {};
+    let docsPorCaso = {};
+    let tareasPorCaso = {};
+    let danosPorCaso = {};
+    let estadoPorCaso = {};
+    let entrevistaPorCaso = {};
+    let facturasPorCaso = {};
+
+    // ESTADOS (igual que en lista.html)
+    let ESTADOS_CASO = [];
+
+
+    // ===========================
+    // UTILIDADES
+    // ===========================
+    function formatearFecha(fecha) {
+      if (!fecha) return "";
+      const d = new Date(fecha);
+      if (isNaN(d.getTime())) {
+        const partes = String(fecha).split("-");
+        if (partes.length === 3) {
+          const dd = partes[2];
+          const mm = partes[1];
+          const yyyy = partes[0];
+          return dd + "/" + mm + "/" + yyyy;
+        }
+        return "";
+      }
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function formatearHoraDesdeIso(fechaIso) {
+      if (!fechaIso) return "";
+      const d = new Date(fechaIso);
+      if (isNaN(d.getTime())) return "";
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${hh}:${mm}`;
+    }
+
+    function fechaHoyTexto() {
+      const hoy = new Date();
+      const dia = hoy.getDate();
+      const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+      ];
+      const mesNombre = meses[hoy.getMonth()];
+      const anio = hoy.getFullYear();
+      return `${dia} de ${mesNombre} de ${anio}`;
+    }
+
+    function parseMonto(str) {
+      if (!str) return 0;
+      let s = String(str).trim();
+      s = s.replace(/\./g, "");
+      s = s.replace(",", ".");
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatearMonto(num) {
+      if (num == null || isNaN(num)) return "";
+      return num.toLocaleString("es-AR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function numeroALetras(num) {
+      num = Math.floor(Math.abs(num));
+      if (num === 0) return "CERO";
+      // (Se omite la función completa por brevedad, usa la original de tu código)
+      // Para mantener el código funcional al 100%, reinserto la lógica básica:
+      const unidades = ["", "UNO", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE", "DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISÉIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE", "VEINTE"];
+      const decenas = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
+      const centenas = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
+
+      function convertirCentenas(n) {
+        if (n === 0) return "";
+        if (n === 100) return "CIEN";
+        let texto = "";
+        const c = Math.floor(n / 100);
+        const d = Math.floor((n % 100) / 10);
+        const u = n % 10;
+        const resto = n % 100;
+        if (c > 0) texto += centenas[c] + " ";
+        if (resto <= 20) {
+          texto += unidades[resto];
+        } else if (resto >= 21 && resto <= 29) {
+          const suf = unidades[u].toLowerCase();
+          texto += "VEINTI" + (u === 1 ? "ÚN" : suf.toUpperCase());
+        } else {
+          texto += decenas[d];
+          if (u > 0) texto += " Y " + unidades[u];
+        }
+        return texto.trim();
+      }
+
+      function seccion(num, divisor, singular, plural) {
+        const cientos = Math.floor(num / divisor);
+        const resto = num - cientos * divisor;
+        let letras = "";
+        if (cientos > 0) {
+          if (cientos === 1) letras = singular;
+          else letras = convertirCentenas(cientos) + " " + plural;
+        }
+        return { letras, resto };
+      }
+
+      let resultado = "";
+      let datos = seccion(num, 1000000, "UN MILLÓN", "MILLONES");
+      if (datos.letras) resultado += datos.letras;
+      num = datos.resto;
+
+      datos = seccion(num, 1000, "MIL", "MIL");
+      if (datos.letras) {
+        if (resultado) resultado += " ";
+        resultado += datos.letras;
+      }
+      num = datos.resto;
+
+      if (num > 0) {
+        if (resultado) resultado += " ";
+        resultado += convertirCentenas(num);
+      }
+      return resultado.trim();
+    }
+
+    // ===========================
+    // INITS LOCALSTORAGE
+    // ===========================
+    // Supabase maneja la carga de datos.
+
+
+
+    // ===========================
+    // OBTENER CASOS
+    // ===========================
+    function obtenerTodosLosCasos() {
+      const base = (window.casos || []).map(c => ({ ...c, esExtra: false }));
+      const extras = (casosExtra || []).map(c => ({ ...c, esExtra: true }));
+      return [...base, ...extras];
+    }
+
+    // ===========================
+    // CHECKLIST POR CAUSA
+    // ===========================
+    const checklistPorCausa = {
+      "ROBO EN VIA PUBLICA": ["DNI", "DENUNCIA POLICIAL", "BAJA DE IMEI", "ULTIMA ACTIVIDAD"],
+      "DAÑO ELECTRODOMESTICOS": ["DNI", "FACTURA DE COMPRA", "INFORME TÉCNICO", "FOTOS DEL DAÑO"],
+      "VARIACION DE TENSION": ["DNI", "FACTURA DE COMPRA", "INFORME TÉCNICO", "COMPROBANTE DE ESTABILIZADOR"]
+    };
+    const checklistDefault = ["DNI", "DOCUMENTACIÓN RESPALDATORIA", "FOTOS / PRUEBAS", "OBSERVACIONES"];
+
+    function guardarChecklist() {
+      syncCase();
+    }
+
+    function actualizarChecklist(caso) {
+      const titulo = document.getElementById("checklist-titulo");
+      const contenedor = document.getElementById("checklist-items");
+      contenedor.innerHTML = "";
+      if (!caso) { titulo.textContent = ""; return; }
+      const causa = (caso.causa || "").toUpperCase();
+      const items = checklistPorCausa[causa] || checklistDefault;
+      const sinKey = String(caso.nSiniestro);
+      titulo.textContent = causa || "(Sin causa)";
+      const estadoCaso = (checklistEstado[sinKey] && checklistEstado[sinKey][causa]) ? checklistEstado[sinKey][causa] : [];
+
+      items.forEach((texto, index) => {
+        const fila = document.createElement("div");
+        fila.className = "check-row";
+        const checked = !!estadoCaso[index];
+        fila.innerHTML = `<span class="check-label">${texto}</span><input type="checkbox" class="check-input" id="chk_${index}">`;
+        const input = fila.querySelector("input");
+        input.checked = checked;
+        input.addEventListener("change", () => {
+          if (!checklistEstado[sinKey]) checklistEstado[sinKey] = {};
+          if (!checklistEstado[sinKey][causa]) checklistEstado[sinKey][causa] = [];
+          checklistEstado[sinKey][causa][index] = input.checked;
+          guardarChecklist();
+        });
+        contenedor.appendChild(fila);
+      });
+    }
+
+    // ===========================
+    // COMENTARIOS
+    // ===========================
+    function guardarComentarios() { try { localStorage.setItem(LS_COMENT_KEY, JSON.stringify(comentariosPorCaso)); } catch { } }
+
+    function renderComentarios(keyCaso) {
+      const cont = document.getElementById("lista-comentarios");
+      cont.innerHTML = "";
+      if (!keyCaso) return;
+      const lista = comentariosPorCaso[keyCaso] || [];
+      lista.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "comentario-item";
+        div.innerHTML = `<div class="comentario-header">${c.autor || "Gestor"} - ${formatearFecha(c.fecha)}</div><div class="comentario-texto">${c.texto}</div>`;
+        cont.appendChild(div);
+      });
+    }
+
+    async function agregarComentarioNuevo() {
+      if (!casoActual || !casoActualKey) { alert("Primero seleccioná un caso."); return; }
+      const textarea = document.getElementById("nuevo-comentario");
+      const texto = textarea.value.trim();
+      if (!texto) return;
+
+      const nuevo = { nSiniestro: casoActualKey, texto, autor: casoActual.analista || "Gestor" };
+      await window.db.addComentario(nuevo.nSiniestro, nuevo.texto, nuevo.autor);
+
+      textarea.value = "";
+      // Recargar comentarios desde DB para ver el nuevo con ID y fecha real
+      const data = await window.db.getComentarios(casoActualKey);
+      comentariosPorCaso[casoActualKey] = data.map(c => ({
+        autor: c.nombre_autor,
+        fecha: c.creado_en,
+        texto: c.texto
+      }));
+      renderComentarios(casoActualKey);
+    }
+    document.getElementById("btn-agregar-comentario").addEventListener("click", agregarComentarioNuevo);
+    document.getElementById("nuevo-comentario").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); agregarComentarioNuevo(); }
+    });
+
+    // ===========================
+    // DOCUMENTACIÓN
+    // ===========================
+    function guardarDocs() {
+      syncCase();
+    }
+    const inputArchivo = document.getElementById("doc-file-input");
+    const txtNombreAdjunto = document.getElementById("doc-nombre-mostrado");
+    const btnAdjuntar = document.getElementById("btn-doc-adjuntar");
+    const btnLimpiar = document.getElementById("btn-doc-limpiar");
+    const btnConfirmarDoc = document.getElementById("btn-doc-confirmar");
+
+    btnAdjuntar.addEventListener("click", () => { inputArchivo.click(); });
+    inputArchivo.addEventListener("change", () => {
+      if (inputArchivo.files.length === 0) txtNombreAdjunto.value = "";
+      else if (inputArchivo.files.length === 1) txtNombreAdjunto.value = inputArchivo.files[0].name;
+      else txtNombreAdjunto.value = `${inputArchivo.files.length} archivos seleccionados`;
+    });
+    btnLimpiar.addEventListener("click", () => { inputArchivo.value = ""; txtNombreAdjunto.value = ""; });
+
+    function renderDocs(keyCaso) {
+      const cont = document.getElementById("docs-lista");
+      cont.innerHTML = "";
+      if (!keyCaso) return;
+      const lista = docsPorCaso[keyCaso] || [];
+      lista.forEach(d => {
+        const fila = document.createElement("div");
+        fila.className = "docs-item";
+        fila.innerHTML = `<div class="docs-file">${d.nombre}</div><div class="docs-date">${formatearFecha(d.fecha)}</div>`;
+        cont.appendChild(fila);
+      });
+    }
+    btnConfirmarDoc.addEventListener("click", () => {
+      if (!casoActual || !casoActualKey) { alert("Primero seleccioná un caso."); return; }
+      if (inputArchivo.files.length === 0) { alert("Seleccioná al menos un archivo."); return; }
+      if (!docsPorCaso[casoActualKey]) docsPorCaso[casoActualKey] = [];
+      Array.from(inputArchivo.files).forEach(file => {
+        docsPorCaso[casoActualKey].push({ nombre: file.name, fecha: new Date().toISOString() });
+      });
+      guardarDocs();
+      inputArchivo.value = ""; txtNombreAdjunto.value = ""; renderDocs(casoActualKey);
+    });
+
+    // ===========================
+    // TAREAS
+    // ===========================
+    const inputTareaDesc = document.getElementById("tarea-descripcion");
+    const inputTareaFecha = document.getElementById("tarea-fecha");
+    const inputTareaHora = document.getElementById("tarea-hora");
+    const btnTareaAgregar = document.getElementById("btn-tarea-agregar");
+    const contTareas = document.getElementById("tareas-lista");
+    const badgeTareas = document.getElementById("badge-tareas");
+
+    async function guardarTareas(tareaParaSincronizar = null) {
+      if (!casoActualKey) return;
+      if (tareaParaSincronizar) {
+        await window.db.upsertTarea(tareaParaSincronizar);
+      }
+    }
+
+    function actualizarBadgeTareas(keyCaso) {
+      if (!keyCaso) { badgeTareas.textContent = ""; badgeTareas.style.display = "none"; return; }
+      const lista = tareasPorCaso[keyCaso] || [];
+      const pendientes = lista.filter(t => !t.hecha).length;
+      if (pendientes > 0) { badgeTareas.textContent = pendientes; badgeTareas.style.display = "inline-block"; }
+      else { badgeTareas.textContent = ""; badgeTareas.style.display = "none"; }
+    }
+
+    function renderTareas(keyCaso) {
+      contTareas.innerHTML = "";
+      if (!keyCaso) { actualizarBadgeTareas(null); return; }
+      const lista = tareasPorCaso[keyCaso] || [];
+      lista.forEach((tarea, idx) => {
+        const fila = document.createElement("div");
+        fila.className = "tarea-item";
+        const fechaAsignada = tarea.fecha ? formatearFecha(tarea.fecha) : "-";
+        const horaAsignada = tarea.hora || "";
+        const fechaCrea = tarea.creadaEn ? formatearFecha(tarea.creadaEn) : "";
+        const horaCrea = tarea.creadaEn ? formatearHoraDesdeIso(tarea.creadaEn) : "";
+        const infoFechaHtml = `
+          ${fechaAsignada !== "-" || horaAsignada ? `<div><strong>Asignada:</strong> ${fechaAsignada} ${horaAsignada}</div>` : ""}
+          ${fechaCrea || horaCrea ? `<div><small>Creada: ${fechaCrea} ${horaCrea}</small></div>` : ""}
+        `;
+        fila.innerHTML = `
+          <div class="tarea-check"><input type="checkbox" ${tarea.hecha ? "checked" : ""}></div>
+          <div class="tarea-desc ${tarea.hecha ? "hecha" : ""}">${tarea.texto}</div>
+          <div class="tarea-fecha">${infoFechaHtml}</div>
+          <div class="tarea-actions"><button type="button" class="btn-tarea-del">X</button></div>
+        `;
+        const chk = fila.querySelector("input[type='checkbox']");
+        const descDiv = fila.querySelector(".tarea-desc");
+        const btnDel = fila.querySelector(".btn-tarea-del");
+        chk.addEventListener("change", async () => {
+          tarea.hecha = chk.checked;
+          if (tarea.hecha) descDiv.classList.add("hecha"); else descDiv.classList.remove("hecha");
+
+          // Sincronizar con Supabase
+          if (tarea.id) {
+            const tData = {
+              id: tarea.id,
+              n_siniestro: casoActualKey,
+              hecha: tarea.hecha
+            };
+            await window.db.upsertTarea(tData);
+          }
+          actualizarBadgeTareas(keyCaso);
+        });
+        btnDel.addEventListener("click", async () => {
+          if (tarea.id) {
+            await window.db.deleteTarea(tarea.id);
+          }
+          tareasPorCaso[keyCaso].splice(idx, 1);
+          renderTareas(keyCaso);
+        });
+        contTareas.appendChild(fila);
+      });
+      actualizarBadgeTareas(keyCaso);
+    }
+    btnTareaAgregar.addEventListener("click", async () => {
+      if (!casoActual || !casoActualKey) { alert("Primero seleccioná un caso."); return; }
+      const texto = inputTareaDesc.value.trim();
+      const fecha = inputTareaFecha.value;
+      const hora = inputTareaHora.value;
+      if (!texto) { alert("La descripción de la tarea no puede estar vacía."); return; }
+
+      const nueva = {
+        n_siniestro: casoActualKey,
+        texto,
+        fecha: fecha || null,
+        hora: hora || null,
+        hecha: false
+      };
+
+      const id = await window.db.upsertTarea(nueva);
+
+      inputTareaDesc.value = ""; inputTareaFecha.value = ""; inputTareaHora.value = "";
+
+      // Recargar tareas para obtener IDs correctos
+      const data = await window.db.getTareas(casoActualKey);
+      tareasPorCaso[casoActualKey] = data.map(t => ({
+        id: t.id,
+        texto: t.texto,
+        fecha: t.fecha,
+        hora: t.hora,
+        hecha: t.hecha,
+        creadaEn: t.creada_en
+      }));
+      renderTareas(casoActualKey);
+    });
+    inputTareaDesc.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); btnTareaAgregar.click(); } });
+
+    // ===========================
+    // TABLA DE DAÑOS
+    // ===========================
+    function guardarDanos() {
+      syncCase();
+    }
+    const btnAgregarCobertura = document.getElementById("btn-td-agregar-cobertura");
+    const contCoberturas = document.getElementById("td-coberturas");
+    const lblTotalGlobal = document.getElementById("td-total-global");
+
+    btnAgregarCobertura.addEventListener("click", () => {
+      if (!casoActual || !casoActualKey) { alert("Primero seleccioná un caso."); return; }
+      if (!danosPorCaso[casoActualKey]) danosPorCaso[casoActualKey] = { coberturas: [] };
+      danosPorCaso[casoActualKey].coberturas.push({ nombre: "", suma: "", items: [] });
+      guardarDanos(); renderTablaDanos(casoActualKey);
+    });
+
+    function recalcularTotales(keyCaso) {
+      const data = danosPorCaso[keyCaso];
+      if (!data) { lblTotalGlobal.textContent = ""; return; }
+      let totalGlobal = 0;
+      data.coberturas.forEach(c => {
+        let totalCobertura = 0;
+        c.items.forEach(it => { totalCobertura += parseMonto(it.montoIndemnizacion || 0); });
+        c.total = totalCobertura;
+        totalGlobal += totalCobertura;
+      });
+      lblTotalGlobal.textContent = totalGlobal ? "TOTAL GLOBAL INDEMNIZACIÓN: $ " + formatearMonto(totalGlobal) : "";
+    }
+
+    function obtenerTotalIndemnizacion(keyCaso) {
+      const data = danosPorCaso[keyCaso];
+      if (!data || !Array.isArray(data.coberturas)) return 0;
+      let total = 0;
+      data.coberturas.forEach(cob => {
+        (cob.items || []).forEach(it => { total += parseMonto(it.montoIndemnizacion || 0); });
+      });
+      return total;
+    }
+
+    function renderTablaDanos(keyCaso) {
+      contCoberturas.innerHTML = ""; lblTotalGlobal.textContent = "";
+      if (!keyCaso) return;
+      const data = danosPorCaso[keyCaso] || { coberturas: [] };
+      if (!danosPorCaso[keyCaso]) danosPorCaso[keyCaso] = data;
+
+      data.coberturas.forEach((cob, idxCob) => {
+        const div = document.createElement("div");
+        div.className = "td-cobertura";
+        div.innerHTML = `
+          <div class="td-cabecera">
+            <div><div class="td-cobertura-nombre">COBERTURA</div><input type="text" class="td-cobertura-nombre-input" value="${cob.nombre || ""}"></div>
+            <div class="td-suma"><span>Suma asegurada:</span><input type="text" class="td-suma-input" value="${cob.suma || ""}"></div>
+          </div>
+          <div class="td-tabla">
+            <div class="td-row td-header"><div>Concepto</div><div>Monto convenido</div><div>Monto indemnización</div><div>Acción</div></div>
+            <div class="td-items"></div>
+            <div class="td-row td-total"><div>Total cobertura</div><div></div><div class="td-total-monto"></div><div></div></div>
+          </div>
+          <div class="td-acciones">
+            <button type="button" class="td-btn-item">Agregar ítem +</button>
+            <button type="button" class="td-btn-cobertura-del">Eliminar cobertura</button>
+          </div>
+        `;
+        const inputNombre = div.querySelector(".td-cobertura-nombre-input");
+        const inputSuma = div.querySelector(".td-suma-input");
+        const contItems = div.querySelector(".td-items");
+        const lblTotalCob = div.querySelector(".td-total-monto");
+        const btnAddItem = div.querySelector(".td-btn-item");
+        const btnDelCob = div.querySelector(".td-btn-cobertura-del");
+
+        function renderItems() {
+          contItems.innerHTML = ""; let totalCob = 0;
+          cob.items.forEach((it, idxIt) => {
+            const fila = document.createElement("div");
+            fila.className = "td-row";
+            fila.innerHTML = `
+              <div><input type="text" class="td-concepto" value="${it.concepto || ""}"></div>
+              <div><input type="text" class="td-monto-conv" value="${it.montoConvenido || ""}"></div>
+              <div><input type="text" class="td-monto-indem" value="${it.montoIndemnizacion || ""}"></div>
+              <div style="text-align:center;"><button type="button" class="td-btn-del">X</button></div>
+            `;
+            const inpConcepto = fila.querySelector(".td-concepto");
+            const inpConv = fila.querySelector(".td-monto-conv");
+            const inpIndem = fila.querySelector(".td-monto-indem");
+            const btnDel = fila.querySelector(".td-btn-del");
+            function actualizarItem() {
+              it.concepto = inpConcepto.value; it.montoConvenido = inpConv.value; it.montoIndemnizacion = inpIndem.value;
+              guardarDanos(); renderTablaDanos(keyCaso);
+            }
+            inpConcepto.addEventListener("change", actualizarItem);
+            inpConv.addEventListener("change", actualizarItem);
+            inpIndem.addEventListener("change", actualizarItem);
+            btnDel.addEventListener("click", () => { cob.items.splice(idxIt, 1); guardarDanos(); renderTablaDanos(keyCaso); });
+            contItems.appendChild(fila);
+            totalCob += parseMonto(it.montoIndemnizacion || 0);
+          });
+          lblTotalCob.textContent = totalCob ? "$ " + formatearMonto(totalCob) : "";
+        }
+        inputNombre.addEventListener("change", () => { cob.nombre = inputNombre.value; guardarDanos(); });
+        inputSuma.addEventListener("change", () => { cob.suma = inputSuma.value; guardarDanos(); });
+        btnAddItem.addEventListener("click", () => { cob.items.push({ concepto: "", montoConvenido: "", montoIndemnizacion: "" }); guardarDanos(); renderTablaDanos(keyCaso); });
+        btnDelCob.addEventListener("click", () => { if (!confirm("¿Eliminar esta cobertura?")) return; data.coberturas.splice(idxCob, 1); guardarDanos(); renderTablaDanos(keyCaso); });
+        renderItems(); contCoberturas.appendChild(div);
+      });
+      recalcularTotales(keyCaso);
+    }
+
+    // ===========================
+    // ESTADO DEL CASO
+    // ===========================
+    const selEstado = document.getElementById("info-estado");
+    async function poblarEstadosCombo() {
+      const estados = await window.db.getCatalogo('estados');
+      selEstado.innerHTML = '<option value="">-</option>';
+      estados.filter(e => Number(e.activo) === 1).forEach(est => {
+        const opt = document.createElement("option");
+        opt.value = est.nombre;
+        opt.textContent = est.nombre;
+        selEstado.appendChild(opt);
+      });
+    }
+    selEstado.addEventListener("change", async () => {
+      if (!casoActual || !casoActualKey) return;
+      await syncCase();
+    });
+
+    const txtEntrevistaInfo = document.getElementById("info-comentarios-entrevista");
+    if (txtEntrevistaInfo) {
+      txtEntrevistaInfo.addEventListener("change", async () => {
+        if (!casoActualKey) return;
+        await syncCase();
+      });
+    }
+
+    // ===========================
+    // TABS
+    // ===========================
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const tab = btn.getAttribute("data-tab");
+        tabButtons.forEach(b => b.classList.remove("active"));
+        tabContents.forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(tab).classList.add("active");
+      });
+    });
+
+    // ===========================
+    // GESTIÓN
+    // ===========================
+    function abrirVentanaTexto(titulo, texto) {
+      const w = window.open("", "_blank");
+      if (!w) { alert("Bloqueador de ventanas emergentes activo."); return; }
+      w.document.write(`<html><head><title>${titulo}</title></head><body style="font-family:Arial,sans-serif;padding:10px;"><h3>${titulo}</h3><textarea style="width:100%;height:80vh;font-family:inherit;font-size:13px;">${texto}</textarea></body></html>`);
+      w.document.close();
+    }
+    function armarContextoBasico() {
+      if (!casoActual) return "";
+      return `Asegurado: ${casoActual.asegurado || ""}\nDNI: ${casoActual.dni || ""}\nCompañía: ${casoActual.cia || ""}\nN° siniestro: ${casoActual.nSiniestro || ""}\nPóliza: ${casoActual.poliza || ""}\nRamo: ${casoActual.ramo || ""}\nCausa: ${casoActual.causa || ""}\n\n`;
+    }
+    document.getElementById("btn-informe-desiste").addEventListener("click", () => { if (!casoActual) { alert("Sin caso."); return; } abrirVentanaTexto("INFORME DESISTE", armarContextoBasico() + "INFORME DESISTE:\n\n..."); });
+    document.getElementById("btn-preinforme").addEventListener("click", () => { if (!casoActual) { alert("Sin caso."); return; } abrirVentanaTexto("PREINFORME", armarContextoBasico() + "PREINFORME:\n\n..."); });
+    document.getElementById("btn-nota-desiste").addEventListener("click", () => { if (!casoActual) { alert("Sin caso."); return; } abrirVentanaTexto("NOTA DESISTE", armarContextoBasico() + "NOTA DESISTE:\n\n..."); });
+    document.getElementById("btn-nota-desiste-poliza").addEventListener("click", () => { if (!casoActual) { alert("Sin caso."); return; } abrirVentanaTexto("NOTA DESISTE C/PÓLIZA", armarContextoBasico() + "NOTA DESISTE C/PÓLIZA:\n\n..."); });
+    document.getElementById("btn-nota-orden-compra").addEventListener("click", () => { if (!casoActual) { alert("Sin caso."); return; } abrirVentanaTexto("ORDEN DE COMPRA", armarContextoBasico() + "ORDEN DE COMPRA:\n\n..."); });
+
+    document.getElementById("btn-nota-efectivo").addEventListener("click", () => {
+      if (!casoActual || !casoActualKey) { alert("Primero seleccioná un caso."); return; }
+      if (!jsPDF) { alert("Error: jsPDF no está cargado."); return; }
+      const total = obtenerTotalIndemnizacion(casoActualKey);
+      if (!total || total <= 0) { alert("La tabla de daños no tiene montos."); return; }
+      const montoNumero = formatearMonto(total);
+      const montoEnLetras = numeroALetras(Math.round(total));
+      const texto = `${"Buenos Aires"}, ${fechaHoyTexto()}\n\nSr. Gerente\n${(casoActual.cia || "").toUpperCase()}\nDe mi mayor consideración:\n\nReferencia:\nSINIESTRO ${casoActual.nSiniestro} / POLIZA ${casoActual.poliza}\nPor la presente, informo que acepto la siguiente liquidación:\n\nIndemnización dineraria: ${montoNumero} (${montoEnLetras} PESOS).\n\n(Resto de la nota...)\n\nFIRMA\n\nAclaración: ${casoActual.asegurado}\nDNI: ${casoActual.dni}`;
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const lineas = doc.splitTextToSize(texto, 170);
+      doc.setFont("Times", "Normal"); doc.setFontSize(11); doc.text(lineas, 20, 25);
+      doc.save(`Nota_pago_efectivo_${casoActual.nSiniestro}.pdf`);
+    });
+
+    document.getElementById("btn-enviar-informes").addEventListener("click", () => { if (!casoActual) { alert("Seleccioná un caso."); return; } alert("Funcionalidad de envío."); });
+    document.getElementById("btn-mail-oncity").addEventListener("click", () => { if (!casoActual) { alert("Seleccioná un caso."); return; } window.location.href = "mailto:?subject=" + encodeURIComponent("Consulta siniestro " + casoActual.nSiniestro) + "&body=" + encodeURIComponent(armarContextoBasico()); });
+    document.getElementById("btn-declaracion").addEventListener("click", () => { if (!casoActual) { alert("Seleccioná un caso."); return; } abrirVentanaTexto("DECLARACIÓN", armarContextoBasico() + "DECLARACIÓN ASEGURADO:\n\n..."); });
+    document.getElementById("btn-interrupcion").addEventListener("click", () => { if (!casoActual) { alert("Seleccioná un caso."); return; } abrirVentanaTexto("INTERRUPCIÓN DE PLAZOS", armarContextoBasico() + "INTERRUPCIÓN:\n\n..."); });
+    document.getElementById("btn-consulta-antecedentes").addEventListener("click", () => { if (!casoActual) { alert("Seleccioná un caso."); return; } abrirVentanaTexto("CONSULTA DE ANTECEDENTES", "Consulta sobre antecedentes...\n\n" + armarContextoBasico()); });
+
+    // La información del usuario se maneja en layout-common.js
+
+
+    // ===========================
+    // CARGAR CASO EN PANTALLA
+    // ===========================
+    async function cargarCasoEnPantalla(casoRaw) {
+      if (!casoRaw) return;
+
+      const nSiniestro = typeof casoRaw === 'string' ? casoRaw : (casoRaw.nSiniestro || casoRaw.n_siniestro);
+
+      try {
+        const fullData = await window.db.loadAllData(nSiniestro);
+        if (!fullData || !fullData.caso) {
+          alert("No se encontró el caso en Supabase.");
+          return;
+        }
+
+        const caso = fullData.caso;
+        casoActual = {
+          ...caso,
+          nSiniestro: caso.n_siniestro,
+          comentariosCompania: caso.comentarios_compania,
+          tablaDanos: caso.tabla_daños
+        };
+        casoActualKey = String(caso.n_siniestro);
+
+        document.getElementById("info-compania").textContent = caso.cia || "-";
+        document.getElementById("info-nombre").textContent = caso.asegurado || "-";
+        document.getElementById("info-nro-stro").textContent = caso.n_siniestro || "-";
+        document.getElementById("info-dni").textContent = caso.dni || "-";
+        document.getElementById("info-poliza").textContent = caso.poliza || "-";
+        document.getElementById("info-ramo").textContent = caso.ramo || "-";
+        document.getElementById("info-causa").textContent = caso.causa || "-";
+        document.getElementById("info-mail").textContent = caso.mail || "-";
+        document.getElementById("info-tel").textContent = caso.telefono || "-";
+
+        selEstado.value = caso.estado || "";
+
+        const txtCompania = document.getElementById("info-comentarios-compania");
+        if (txtCompania) txtCompania.value = caso.comentarios_compania || "";
+
+        const txtEntrevista = document.getElementById("info-comentarios-entrevista");
+        if (txtEntrevista) txtEntrevista.value = caso.entrevista || "";
+
+        // Checklist
+        if (caso.checklist) checklistEstado[casoActualKey] = caso.checklist;
+        actualizarChecklist(casoActual);
+
+        // Comentarios
+        comentariosPorCaso[casoActualKey] = fullData.comentarios.map(c => ({
+          autor: c.nombre_autor,
+          fecha: c.creado_en,
+          texto: c.texto
+        }));
+        renderComentarios(casoActualKey);
+
+        // Documentos
+        docsPorCaso[casoActualKey] = caso.documentos || [];
+        renderDocs(casoActualKey);
+
+        // Tareas
+        tareasPorCaso[casoActualKey] = fullData.tareas.map(t => ({
+          id: t.id,
+          texto: t.texto,
+          fecha: t.fecha,
+          hora: t.hora,
+          hecha: t.hecha,
+          creadaEn: t.creada_en
+        }));
+        renderTareas(casoActualKey);
+
+        // Tabla Daños
+        danosPorCaso[casoActualKey] = { coberturas: caso.tabla_daños || [] };
+        renderTablaDanos(casoActualKey);
+
+        // Factura
+        if (fullData.factura) {
+          facturasPorCaso[casoActualKey] = {
+            puntoVenta: fullData.factura.punto_venta,
+            numeroFactura: fullData.factura.numero_factura,
+            fechaEmision: fullData.factura.fecha_emision,
+            cae: fullData.factura.cae,
+            estadoPago: fullData.factura.estado_pago,
+            totalNeto: fullData.factura.total_neto,
+            totalIva: fullData.factura.total_iva,
+            totalGeneral: fullData.factura.total_general,
+            items: fullData.factura.items || []
+          };
+        }
+        renderFactura(casoActualKey);
+      } catch (err) {
+        console.error("Error al cargar caso desde Supabase:", err);
+      }
+    }
+
+    async function syncCase() {
+      if (!casoActual || !casoActualKey) return;
+
+      const payload = {
+        nSiniestro: casoActualKey,
+        cia: casoActual.cia,
+        analista: casoActual.analista,
+        asegurado: casoActual.asegurado,
+        dni: casoActual.dni,
+        poliza: casoActual.poliza,
+        ramo: casoActual.ramo,
+        causa: casoActual.causa,
+        cobertura: casoActual.cobertura,
+        email: casoActual.mail,
+        telefono: casoActual.telefono,
+        estado: selEstado.value,
+        entrevista: document.getElementById("info-comentarios-entrevista") ? document.getElementById("info-comentarios-entrevista").value : "",
+        comentariosCompania: document.getElementById("info-comentarios-compania") ? document.getElementById("info-comentarios-compania").value : "",
+        checklist: checklistEstado[casoActualKey] || {},
+        tablaDanos: (danosPorCaso[casoActualKey] && danosPorCaso[casoActualKey].coberturas) || [],
+        documentos: docsPorCaso[casoActualKey] || []
+      };
+
+      await window.db.upsertCaso(payload);
+    }
+
+
+    // ===========================
+    // FACTURA
+    // ===========================
+    const IVA_ALICUOTA = 0.21;
+    async function guardarFacturasEnStorage() {
+      if (!casoActualKey) return;
+      const fact = facturasPorCaso[casoActualKey];
+      if (fact) {
+        fact.nSiniestro = casoActualKey;
+        await window.db.upsertFactura(fact);
+      }
+    }
+    function crearItemFacturaDefault() { return { concepto: "", neto: 0, aplicaIva: true }; }
+    function calcularTotalesFactura(items) {
+      const lista = Array.isArray(items) ? items : [];
+      let totalNeto = 0, totalIva = 0;
+      lista.forEach(it => { const n = Number(it.neto) || 0; totalNeto += n; if (it.aplicaIva) totalIva += n * IVA_ALICUOTA; });
+      return { totalNeto, totalIva, totalGeneral: totalNeto + totalIva };
+    }
+
+    function renderFactura(keyCaso) {
+      const body = document.getElementById("fac-items-body");
+      const elTotNeto = document.getElementById("fac-total-neto");
+      const elTotIva = document.getElementById("fac-total-iva");
+      const elTotGral = document.getElementById("fac-total-gral");
+      if (!body) return;
+      body.innerHTML = "";
+      if (!keyCaso) { elTotNeto.textContent = "$ 0,00"; elTotIva.textContent = "$ 0,00"; elTotGral.textContent = "$ 0,00"; return; }
+
+      const data = facturasPorCaso[keyCaso] || {};
+      const items = Array.isArray(data.items) ? data.items : [];
+
+      const pv = document.getElementById("fac-punto-venta");
+      const nf = document.getElementById("fac-nro-factura");
+      const fe = document.getElementById("fac-fecha-emision");
+      const cae = document.getElementById("fac-cae");
+
+      if (pv) pv.value = data.puntoVenta || "";
+      if (nf) nf.value = data.numeroFactura || "";
+      if (fe) fe.value = data.fechaEmision || "";
+      if (cae) cae.value = data.cae || "";
+
+      const renderItems = items.length ? items : [crearItemFacturaDefault()];
+
+      renderItems.forEach((it, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="padding:6px; border-bottom:1px solid #eee;"><input type="text" value="${(it.concepto || "").replace(/"/g, "&quot;")}" style="width:100%; border:1px solid #999; padding:3px 6px; font-size:12px; border-radius:3px;" placeholder="Concepto..." /></td>
+          <td style="padding:6px; border-bottom:1px solid #eee; text-align:right;"><input type="text" value="${formatearMonto(Number(it.neto) || 0)}" style="width:120px; border:1px solid #999; padding:3px 6px; font-size:12px; border-radius:3px; text-align:right;" /></td>
+          <td style="padding:6px; border-bottom:1px solid #eee; text-align:center;"><input type="checkbox" ${it.aplicaIva ? "checked" : ""} /></td>
+          <td style="padding:6px; border-bottom:1px solid #eee; text-align:right;" class="fac-iva-cell">$ 0,00</td>
+          <td style="padding:6px; border-bottom:1px solid #eee; text-align:right;" class="fac-total-cell">$ 0,00</td>
+          <td style="padding:6px; border-bottom:1px solid #eee; text-align:center;"><button type="button" class="fac-del" style="border:1px solid #999; background:#ffe5d9; padding:2px 8px; font-size:11px; cursor:pointer; border-radius:3px;">X</button></td>
+        `;
+        const inpConcepto = tr.querySelectorAll("input")[0];
+        const inpNeto = tr.querySelectorAll("input")[1];
+        const chkIva = tr.querySelectorAll("input")[2];
+        const btnDel = tr.querySelector("button.fac-del");
+        const cellIva = tr.querySelector(".fac-iva-cell");
+        const cellTot = tr.querySelector(".fac-total-cell");
+
+        function syncAndRecalc() {
+          const neto = parseMonto(inpNeto.value);
+          const aplica = chkIva.checked;
+          const iva = aplica ? neto * IVA_ALICUOTA : 0;
+          const tot = neto + iva;
+          cellIva.textContent = "$ " + formatearMonto(iva);
+          cellTot.textContent = "$ " + formatearMonto(tot);
+          const obj = facturasPorCaso[keyCaso] || {};
+          const itemsNow = Array.isArray(obj.items) ? obj.items : [];
+          while (itemsNow.length < renderItems.length) itemsNow.push(crearItemFacturaDefault());
+          itemsNow[idx] = { concepto: inpConcepto.value.trim(), neto, aplicaIva: aplica };
+          obj.items = itemsNow;
+          const totales = calcularTotalesFactura(itemsNow);
+          obj.totalNeto = totales.totalNeto; obj.totalIva = totales.totalIva; obj.totalGeneral = totales.totalGeneral;
+          if (!obj.estadoPago) obj.estadoPago = "SIN_FACTURAR";
+          facturasPorCaso[keyCaso] = obj;
+          guardarFacturasEnStorage();
+          actualizarTotalesFacturaUI(keyCaso);
+        }
+        inpConcepto.addEventListener("input", syncAndRecalc);
+        inpNeto.addEventListener("input", syncAndRecalc);
+        chkIva.addEventListener("change", syncAndRecalc);
+        btnDel.addEventListener("click", () => {
+          const obj = facturasPorCaso[keyCaso] || {};
+          obj.items.splice(idx, 1);
+          if (obj.items.length === 0) obj.items = [crearItemFacturaDefault()];
+          const totales = calcularTotalesFactura(obj.items);
+          obj.totalNeto = totales.totalNeto; obj.totalIva = totales.totalIva; obj.totalGeneral = totales.totalGeneral;
+          facturasPorCaso[keyCaso] = obj;
+          guardarFacturasEnStorage();
+          renderFactura(keyCaso);
+        });
+        body.appendChild(tr);
+      });
+      actualizarTotalesFacturaUI(keyCaso);
+      // init draw row totals
+      Array.from(body.querySelectorAll("tr")).forEach((tr) => {
+        const inputs = tr.querySelectorAll("input");
+        const neto = parseMonto(inputs[1].value);
+        const aplica = inputs[2].checked;
+        const iva = aplica ? neto * IVA_ALICUOTA : 0;
+        tr.querySelector(".fac-iva-cell").textContent = "$ " + formatearMonto(iva);
+        tr.querySelector(".fac-total-cell").textContent = "$ " + formatearMonto(neto + iva);
+      });
+    }
+
+    function actualizarTotalesFacturaUI(keyCaso) {
+      const elTotNeto = document.getElementById("fac-total-neto");
+      const elTotIva = document.getElementById("fac-total-iva");
+      const elTotGral = document.getElementById("fac-total-gral");
+      if (!elTotNeto) return;
+      const obj = facturasPorCaso[keyCaso] || {};
+      elTotNeto.textContent = "$ " + formatearMonto(Number(obj.totalNeto) || 0);
+      elTotIva.textContent = "$ " + formatearMonto(Number(obj.totalIva) || 0);
+      elTotGral.textContent = "$ " + formatearMonto(Number(obj.totalGeneral) || 0);
+    }
+
+    function guardarFacturaCabeceraDesdeUI(keyCaso) {
+      const pv = document.getElementById("fac-punto-venta");
+      const nf = document.getElementById("fac-nro-factura");
+      const fe = document.getElementById("fac-fecha-emision");
+      const cae = document.getElementById("fac-cae");
+      const obj = facturasPorCaso[keyCaso] || {};
+      obj.puntoVenta = (pv && pv.value ? pv.value.trim() : "");
+      obj.numeroFactura = (nf && nf.value ? nf.value.trim() : "");
+      obj.fechaEmision = (fe && fe.value ? fe.value : "");
+      obj.cae = (cae && cae.value ? cae.value.trim() : "");
+      if (obj.numeroFactura && obj.fechaEmision && (!obj.estadoPago || obj.estadoPago === "SIN_FACTURAR")) {
+        obj.estadoPago = "PENDIENTE";
+      }
+      if (!Array.isArray(obj.items) || obj.items.length === 0) obj.items = [crearItemFacturaDefault()];
+      const totales = calcularTotalesFactura(obj.items);
+      obj.totalNeto = totales.totalNeto; obj.totalIva = totales.totalIva; obj.totalGeneral = totales.totalGeneral;
+      facturasPorCaso[keyCaso] = obj;
+      guardarFacturasEnStorage();
+    }
+
+    function setupFacturaHandlers() {
+      const btnAdd = document.getElementById("btn-fac-add-item");
+      const btnGuardar = document.getElementById("btn-fac-guardar");
+      const btnIr = document.getElementById("btn-fac-ir");
+
+      if (btnAdd) {
+        btnAdd.addEventListener("click", () => {
+          if (!casoActualKey) { alert("Primero seleccioná un caso."); return; }
+          const obj = facturasPorCaso[casoActualKey] || {};
+          const items = Array.isArray(obj.items) ? obj.items : [];
+          items.push(crearItemFacturaDefault());
+          obj.items = items;
+          facturasPorCaso[casoActualKey] = obj;
+          guardarFacturasEnStorage();
+          renderFactura(casoActualKey);
+        });
+      }
+      ["fac-punto-venta", "fac-nro-factura", "fac-fecha-emision", "fac-cae"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("change", () => { if (!casoActualKey) return; guardarFacturaCabeceraDesdeUI(casoActualKey); });
+        el.addEventListener("input", () => { if (!casoActualKey) return; guardarFacturaCabeceraDesdeUI(casoActualKey); });
+      });
+      if (btnGuardar) {
+        btnGuardar.addEventListener("click", () => {
+          if (!casoActualKey) { alert("Primero seleccioná un caso."); return; }
+          guardarFacturaCabeceraDesdeUI(casoActualKey);
+          alert("Factura guardada.");
+        });
+      }
+      if (btnIr) { btnIr.addEventListener("click", () => { window.location.href = "facturacion.html"; }); }
+    }
+
+    // ===========================
+    // NUEVA LÓGICA DE LECTURA DE PDF (FACTURAS)
+    // ===========================
+    // ===========================
+    // BUSCADOR
+    // ===========================
+    const searchForm = document.getElementById("searchForm");
+    if (searchForm) {
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const formData = new FormData(searchForm);
+        const apellido = (formData.get("apellido") || "").trim().toUpperCase();
+        const nroStro = (formData.get("nroStro") || "").trim();
+        const dni = (formData.get("dni") || "").trim();
+        const nroCaso = (formData.get("nroCaso") || "").trim();
+
+        if (!apellido && !nroStro && !dni && !nroCaso) { alert("Ingresá al menos un dato."); return; }
+        const todos = obtenerTodosLosCasos();
+        const encontrado = todos.find(c => {
+          if (apellido && !(c.asegurado || "").toUpperCase().includes(apellido)) return false;
+          if (nroStro && String(c.nSiniestro) !== String(nroStro)) return false;
+          if (dni && String(c.dni) !== String(dni)) return false;
+          const nroCasoRegistro = c.nCaso != null ? c.nCaso : (c.id != null ? c.id : null);
+          if (nroCaso && String(nroCasoRegistro || "") !== String(nroCaso)) return false;
+          return true;
+        });
+
+        if (!encontrado) { alert("No se encontró ningún caso."); return; }
+        cargarCasoEnPantalla(encontrado);
+      });
+    }
+
+    // ===========================
+    // INIT
+    // ===========================
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initCommonLayout(); // Esto carga Supabase y el Adapter
+      await poblarEstadosCombo();
+      setupFacturaHandlers();
+
+      const btnLeer = document.getElementById('btn-procesar-pdf');
+      if (btnLeer) btnLeer.addEventListener('click', leerPDFFactura);
+
+      const params = new URLSearchParams(window.location.search);
+      const sin = params.get("sin");
+      if (sin) {
+        await cargarCasoEnPantalla(sin);
+      }
+    });
+
+    /* ============================================================
+       OVERRIDE FINAL - PARSEO PDF FACTURAS (CABECERA + ÍTEMS)
+       - Evita “Honorarios/Gastos (Auto)”
+       - No recorta zona desde “NRO DE STRO:” (porque rompe el patrón “1 HORV ...”)
+       - Filtra cabecera por ausencia de montos
+       - Concepto HORV: SOLO desde “NRO DE STRO: ...”
+       ============================================================ */
+
+    function normalizarEspaciosFactura(s) {
+      return String(s || "").replace(/\u00A0/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function moneyMatchesEnOrden(str) {
+      const re = /\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b|\b\d+(?:,\d{2})\b/g; // AR: 85.000,00
+      return String(str || "").match(re) || [];
+    }
+
+    function extraerMontoDesdeBloqueFactura(bloque) {
+      const ms = moneyMatchesEnOrden(bloque);
+      if (!ms.length) return 0;
+      return parseMonto(ms[ms.length - 1]); // último suele ser el “Importe”
+    }
+
+    function conceptoSoloAntesDelImporte(bloque) {
+      const b = normalizarEspaciosFactura(bloque);
+      const m = b.match(/\b\d{1,3}(?:\.\d{3})*(?:,\d{2})\b|\b\d+(?:,\d{2})\b/);
+      const cut = m ? b.slice(0, m.index) : b;
+
+      return normalizarEspaciosFactura(
+        cut
+          .replace(/\bCantidad\b/ig, "")
+          .replace(/\bCódigo\b/ig, "")
+          .replace(/\bDescripcion\b/ig, "")
+          .replace(/\bDescripción\b/ig, "")
+          .replace(/\bPrecio\s*unitario\b/ig, "")
+          .replace(/\bIVA\b/ig, "")
+          .replace(/\bBonif\.?\b/ig, "")
+          .replace(/\bImporte\b/ig, "")
+          .replace(/[-–]\s*$/g, "")
+      );
+    }
+
+    function conceptoFinalPorCodigoFactura(codigo, bloque) {
+      let base = conceptoSoloAntesDelImporte(bloque);
+
+      // Requerimiento: para HORV el concepto debe ser SOLO desde “NRO DE STRO:”
+      if (String(codigo || "").toUpperCase() === "HORV") {
+        const idx = base.toUpperCase().indexOf("NRO DE STRO:");
+        if (idx >= 0) base = base.slice(idx);
+      }
+
+      return normalizarEspaciosFactura(base) || (`Ítem ${codigo || ""}`.trim());
+    }
+
+    function extraerItemsDesdeTextoFactura(texto) {
+      const t = normalizarEspaciosFactura(texto);
+
+      // 1) Intentar recortar a la tabla de ítems (si aparece “Cantidad”)
+      let zona = t;
+      const iTabla = t.toUpperCase().indexOf("CANTIDAD");
+      if (iTabla >= 0) zona = t.slice(iTabla);
+
+      // 2) Cortes de fin típicos
+      const cortes = ["PAG:", "CAE:", "IMPORTE NETO GRAVADO", "IVA 21", "IMPORTE TOTAL", "SON PESOS", "VENCIMIENTO CAE"];
+      let fin = zona.length;
+      for (const c of cortes) {
+        const i = zona.toUpperCase().indexOf(c);
+        if (i >= 0) fin = Math.min(fin, i);
+      }
+      zona = zona.slice(0, fin);
+
+      // 3) Patrón: {cantidad} {código} {bloque...} hasta próximo ítem
+      const reItem = /(\d+)\s+([A-Z0-9]{1,8})\s+([\s\S]*?)(?=\s+\d+\s+[A-Z0-9]{1,8}\s+|$)/g;
+
+      const items = [];
+      let m;
+      while ((m = reItem.exec(zona)) !== null) {
+        const codigo = (m[2] || "").trim();
+        const bloque = (m[3] || "").trim();
+
+        // Si no hay montos con decimales, no es un ítem real (evita cabecera “01 FACTURA Original ...”)
+        const montos = moneyMatchesEnOrden(bloque);
+        if (!montos || montos.length === 0) continue;
+
+        const neto = extraerMontoDesdeBloqueFactura(bloque);
+        const concepto = conceptoFinalPorCodigoFactura(codigo, bloque);
+
+        // IVA: si el bloque contiene “0,00 %” => no aplica; si no aparece => true por defecto
+        const ivaPctMatch = bloque.match(/(\d{1,2}(?:,\d{1,2})?)\s*%/);
+        let aplicaIva = true;
+        if (ivaPctMatch) {
+          const pct = parseFloat(String(ivaPctMatch[1]).replace(",", "."));
+          if (!isNaN(pct)) aplicaIva = pct > 0;
+        }
+
+        items.push({ concepto, neto, aplicaIva });
+      }
+
+      return items;
+    }
+
+    // Override procesarTextoFactura para usar SIEMPRE el extractor de ítems (sin autocompletar concepto)
+    function procesarTextoFactura(texto) {
+      const t = normalizarEspaciosFactura(texto);
+
+      // 1) CAE
+      const mCAE = t.match(/CAE\s*:?\s*(\d{14})/i);
+      if (mCAE) document.getElementById('fac-cae').value = mCAE[1];
+
+      // 2) Fecha (priorizar “Fecha: dd/mm/aaaa”)
+      const mFecha = t.match(/Fecha\s*:?\s*(\d{2})[\/\-](\d{2})[\/\-](\d{4})/i);
+      if (mFecha) document.getElementById('fac-fecha-emision').value = `${mFecha[3]}-${mFecha[2]}-${mFecha[1]}`;
+
+      // 3) Punto de venta + número (Nº: 0019-00000225)
+      const mNum = t.match(/N[º°]\s*:?\s*(\d{1,5})\s*-\s*(\d{1,8})/i) || t.match(/(\d{4,5})\s*-\s*(\d{8})/);
+      if (mNum) {
+        document.getElementById('fac-punto-venta').value = String(mNum[1]).padStart(4, "0");
+        document.getElementById('fac-nro-factura').value = String(mNum[2]).padStart(8, "0");
+      }
+
+      // 4) Ítems (múltiples)
+      let items = extraerItemsDesdeTextoFactura(t);
+
+      // Fallback: si no pude separar ítems, uso el total para un único renglón (sin inventar concepto “Honorarios/Gastos”)
+      if (!items || items.length === 0) {
+        const mTotal =
+          t.match(/Importe\s*Total\s*:?\s*\$?\s*([\d\.,]+)/i) ||
+          t.match(/IMPORTE\s*TOTAL\s*:?\s*\$?\s*([\d\.,]+)/i) ||
+          t.match(/Total\s*:?\s*\$?\s*([\d\.,]+)/i);
+
+        if (mTotal) {
+          items = [{
+            concepto: "Importe según factura (revisar concepto)",
+            neto: parseMonto(mTotal[1]),
+            aplicaIva: false
+          }];
+        }
+      }
+
+      // Guardar cabecera + setear ítems en UI y storage
+      if (casoActualKey) guardarFacturaCabeceraDesdeUI(casoActualKey);
+      if (typeof setFacturaItemsEnUI === "function") {
+        setFacturaItemsEnUI(items);
+      } else {
+        // fallback por si no existe: guardo directo y renderizo
+        if (casoActualKey) {
+          const obj = facturasPorCaso[casoActualKey] || {};
+          obj.items = (items && items.length) ? items : [crearItemFacturaDefault()];
+          const totales = calcularTotalesFactura(obj.items);
+          obj.totalNeto = totales.totalNeto; obj.totalIva = totales.totalIva; obj.totalGeneral = totales.totalGeneral;
+          facturasPorCaso[casoActualKey] = obj;
+          guardarFacturasEnStorage();
+          renderFactura(casoActualKey);
+          actualizarTotalesFacturaUI(casoActualKey);
+        }
+      }
+
+      alert("Lectura completada. Verificá cabecera e ítems.");
+    }
+
+    // Override lector PDF: leer TODAS las páginas y preservar saltos mínimos
+    async function leerPDFFactura() {
+      const input = document.getElementById('fac-pdf-upload');
+      if (!input.files || input.files.length === 0) { alert("Por favor seleccioná un archivo PDF primero."); return; }
+      const file = input.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+
+      try {
+        const pdfjsLib = await loadPdfJs();
+        if (!pdfjsLib) { throw new Error("PDF.js no está disponible."); }
+        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        let textoCompleto = "";
+
+        for (let p = 1; p <= pdf.numPages; p++) {
+          const page = await pdf.getPage(p);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(it => it.str).join(" ");
+          textoCompleto += (p > 1 ? " " : "") + pageText;
+        }
+
+        console.log("Texto extraído (factura):", textoCompleto);
+        procesarTextoFactura(textoCompleto);
+      } catch (error) {
+        console.error("Error al leer PDF:", error);
+        alert("No se pudo leer el PDF. Asegurate de que sea digital (no escaneado).");
+      }
+    }
+
+    (function wireInformeBtn() {
+      const btn = document.getElementById("btn-informe");
+      if (!btn) return;
+
+      btn.addEventListener("click", () => {
+        if (!casoActual || !casoActualKey) {
+          alert("Primero seleccioná un caso.");
+          return;
+        }
+        // Abrir en nueva pestaña con el siniestro actual
+        window.open(`informe.html?sin=${encodeURIComponent(casoActualKey)}`, "_blank");
+      });
+    })();
+
+  </script>
+</body>
+
+</html>

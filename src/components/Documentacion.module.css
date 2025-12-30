@@ -1,0 +1,113 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.uploadSection {
+    margin-bottom: 24px;
+}
+
+.filesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.fileCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line-color);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.fileCard:hover {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.fileIconZone {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 1px solid var(--line-color);
+    color: var(--muted-color);
+    overflow: hidden;
+}
+
+.fileName {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.fileMeta {
+    font-size: 11px;
+    color: var(--muted-color);
+    display: flex;
+    justify-content: space-between;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.btnAction {
+    flex: 1;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.btnDownload {
+    background: rgba(37, 99, 235, 0.1);
+    /* Blue tint */
+    color: var(--primary-color);
+}
+
+.btnDownload:hover {
+    background: rgba(37, 99, 235, 0.2);
+}
+
+.btnDelete {
+    background: rgba(239, 68, 68, 0.1);
+    /* Red tint */
+    color: var(--danger-color);
+    max-width: 32px;
+}
+
+.btnDelete:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.emptyState {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted-color);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px dashed var(--line-color);
+}

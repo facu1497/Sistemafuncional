@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PROYECTO SISTEMA - Facturación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="layout-common.css">
+  <style>
+    h1 {
+      margin: 6px 0 6px;
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+
+    .subtitulo {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      max-width: 1100px;
+      line-height: 1.35;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255, 255, 255, .03);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    /* Filtros */
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      font-size: 12px;
+      margin-top: 8px;
+      align-items: flex-end;
+    }
+
+    .filtros label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--muted);
+    }
+
+    .filtros input,
+    .filtros select {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, .18);
+      color: var(--text);
+      min-width: 180px;
+      outline: none;
+    }
+
+    .filtros input::placeholder {
+      color: rgba(230, 237, 247, .55);
+    }
+
+    /* Botones */
+    .facturacion-btn {
+      margin-top: 14px;
+      margin-right: 6px;
+      padding: 9px 12px;
+    }
+
+    #btn-aplicar {
+      border-color: rgba(34, 197, 94, .35);
+      background: rgba(34, 197, 94, .14);
+    }
+
+    #btn-aplicar:hover {
+      background: rgba(34, 197, 94, .18);
+    }
+
+    /* Tabla */
+    .tabla-wrapper {
+      margin-top: 10px;
+      overflow: auto;
+      max-height: calc(100vh - 260px);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .03);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(34, 197, 94, .15);
+      color: var(--text);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      backdrop-filter: blur(6px);
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      padding: 7px 6px;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(255, 255, 255, .015);
+    }
+
+    tbody tr:hover td {
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .col-num {
+      text-align: right;
+    }
+
+    .estado-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .estado-sin {
+      background: rgba(148, 163, 184, .18);
+      border-color: rgba(148, 163, 184, .28);
+    }
+
+    .estado-pendiente {
+      background: rgba(245, 158, 11, .20);
+      border-color: rgba(245, 158, 11, .35);
+    }
+
+    .estado-pagada {
+      background: rgba(34, 197, 94, .20);
+      border-color: rgba(34, 197, 94, .35);
+    }
+
+    .resumen {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .resumen strong {
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .acciones-tabla {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .acciones-tabla input,
+    .acciones-tabla select {
+      font-size: 11px;
+      padding: 7px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, .18);
+      color: var(--text);
+      max-width: 180px;
+      outline: none;
+    }
+
+    .link-caso a {
+      color: #86efac;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .link-caso a:hover {
+      text-decoration: underline;
+    }
+
+    /* responsive: ocultar columnas como ya tenías */
+    @media (max-width: 768px) {
+
+      th:nth-child(4),
+      td:nth-child(4),
+      th:nth-child(5),
+      td:nth-child(5) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- TOPBAR (mismo id de toggle para no romper JS) -->
+  <header>
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú lateral">☰</button>
+      <div class="logo">
+        <img src="logo-estudio-hm-gibert.svg" alt="Logo Estudio HM Gibert" />
+        <div class="titulo">PROYECTO SISTEMA - Facturación</div>
+      </div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <!-- SIDEBAR (mismo id: sidebar) -->
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>PROYECTO SISTEMA</h1>
+        <span>Liquidador de siniestros</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a data-page="index" href="index.html"><span class="dot"></span>Inicio</a>
+      <a data-page="lista" href="lista.html"><span class="dot"></span>Listado de Casos</a>
+      <a data-page="tareas" href="tareas.html"><span class="dot"></span>Tareas</a>
+      <a data-page="reportes" href="reportes.html"><span class="dot"></span>Reportes</a>
+      <a class="active" data-page="facturacion" href="facturacion.html"><span class="dot"></span>Facturación</a>
+      <a data-page="administracion" href="administracion.html"><span class="dot"></span>Administración</a>
+    </nav>
+
+    <div class="footer-card">
+      <div id="infoUsuarioSidebar"></div>
+    </div>
+  </nav>
+
+
+  <!-- CONTENIDO (mismo id: content) -->
+  <main class="content main" id="content">
+    <h1>Facturación</h1>
+    <div class="subtitulo">
+      Control interno de facturas emitidas por caso. Podés ver qué está facturado, qué está pendiente de cobro
+      y registrar las órdenes de pago que llegan de las compañías.
+    </div>
+
+    <section class="card">
+      <h2>Filtros</h2>
+      <p>
+        Usá estos filtros para ver las facturas por período, estado de pago, analista o compañía.
+      </p>
+      <div class="filtros">
+        <label>
+          Buscar
+          <input type="text" id="f-buscar" placeholder="Siniestro, asegurado, analista, compañía, factura, OP..." />
+        </label>
+
+        <label>
+          Estado factura
+          <select id="f-estado">
+            <option value="">(Todos)</option>
+            <option value="SIN_FACTURAR">Sin facturar / borrador</option>
+            <option value="PENDIENTE">Facturada – pendiente de pago</option>
+            <option value="PAGADA">Pagada</option>
+          </select>
+        </label>
+
+        <label>
+          Período (emisión)
+          <input type="month" id="f-periodo" />
+        </label>
+
+        <label>
+          Analista
+          <input type="text" id="f-analista" placeholder="Nombre analista" />
+        </label>
+
+        <label>
+          Compañía
+          <input type="text" id="f-compania" placeholder="Ej: LIFE SEGUROS" />
+        </label>
+      </div>
+
+      <button class="btn facturacion-btn" id="btn-aplicar">Aplicar filtros</button>
+      <button class="btn facturacion-btn" id="btn-limpiar">Limpiar</button>
+      <button class="btn facturacion-btn" id="btn-exportar">Exportar a CSV</button>
+    </section>
+
+    <section class="card" id="accionesMasivas">
+      <h2>Acciones masivas</h2>
+      <p>
+        Seleccioná varias filas para asignarlas a una misma orden de pago o marcar varias como pagadas de una sola vez.
+      </p>
+
+      <div class="filtros" style="align-items:flex-end;">
+        <label>
+          Orden de pago (OP)
+          <input type="text" id="bulk-orden" placeholder="Ej: OP-1234" />
+        </label>
+
+        <label>
+          Fecha de cobro
+          <input type="date" id="bulk-fecha" />
+        </label>
+
+        <label>
+          Estado pago
+          <select id="bulk-estado">
+            <option value="">(No cambiar)</option>
+            <option value="SIN_FACTURAR">Sin facturar</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="PAGADA">Pagada</option>
+          </select>
+        </label>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn facturacion-btn" id="btn-aplicar-masivo">Aplicar a seleccionados</button>
+          <button class="btn facturacion-btn" id="btn-limpiar-seleccion">Limpiar selección</button>
+        </div>
+      </div>
+
+      <div class="resumen" id="resumenSeleccion">
+        Seleccionados: <strong>0</strong> | Total seleccionado: <strong>$ 0,00</strong>
+      </div>
+    </section>
+
+    <section class="tabla-wrapper">
+      <table id="tablaFacturas">
+        <thead>
+          <tr>
+            <th style="width:28px; text-align:center;">
+              <input type="checkbox" id="chk-all-visible" title="Seleccionar / deseleccionar todo lo visible" />
+            </th>
+            <th class="col-num">N° Sin.</th>
+            <th>Asegurado</th>
+            <th>Compañía</th>
+            <th>Analista</th>
+            <th>F. Emisión</th>
+            <th>Factura</th>
+            <th class="col-num">Subt. Neto</th>
+            <th class="col-num">IVA</th>
+            <th class="col-num">Total</th>
+            <th>Estado pago</th>
+            <th>Datos de cobro</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyFacturas">
+          <tr>
+            <td colspan="12" style="text-align:center; padding:10px; color:#9aa8c2;">
+              Sin datos de facturación por ahora.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="resumen" id="resumenFacturas"></div>
+  </main>
+
+  <!-- ====== JS ORIGINAL (SIN TOCAR) ====== -->
+  <script src="layout-common.js"></script>
+  <script>
+    const LS_CASOS_KEY = "casos_extra_v1";
+    const LS_FACTURAS_KEY = "facturas_siniestros_v1";
+
+    // Selección múltiple (para acciones masivas)
+    const selectedSet = new Set();
+    let ultimoFiltrado = [];
+
+    // Funciones de utilidad se mantienen
+    function formatearMonto(valor) {
+      const num = Number(valor) || 0;
+      return num.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatearFechaCorta(isoDate) {
+      if (!isoDate) return "";
+      const d = new Date(isoDate + "T00:00:00");
+      if (isNaN(d.getTime())) return isoDate;
+      const dia = String(d.getDate()).padStart(2, "0");
+      const mes = String(d.getMonth() + 1).padStart(2, "0");
+      const anio = d.getFullYear();
+      return dia + "/" + mes + "/" + anio;
+    }
+
+    function normalizarCadena(str) {
+      return (str || "").toString().toLowerCase();
+    }
+
+    function aplicarFiltros(listado) {
+      const txt = normalizarCadena(document.getElementById("f-buscar").value);
+      const estado = document.getElementById("f-estado").value;
+      const periodo = document.getElementById("f-periodo").value; // YYYY-MM
+      const analista = normalizarCadena(document.getElementById("f-analista").value);
+      const compania = normalizarCadena(document.getElementById("f-compania").value);
+
+      return listado.filter(f => {
+        if (estado && f.estadoPago !== estado) return false;
+
+        if (periodo && f.fechaEmision) {
+          // comparamos año-mes
+          const yymm = f.fechaEmision.slice(0, 7); // YYYY-MM
+          if (yymm !== periodo) return false;
+        }
+
+        if (analista && !normalizarCadena(f.analista).includes(analista)) return false;
+        if (compania && !normalizarCadena(f.compania).includes(compania)) return false;
+
+        if (txt) {
+          const blob =
+            normalizarCadena(f.nSiniestro) + " " +
+            normalizarCadena(f.asegurado) + " " +
+            normalizarCadena(f.analista) + " " +
+            normalizarCadena(f.compania) + " " +
+            normalizarCadena(f.puntoVenta + "-" + f.numeroFactura) + " " +
+            normalizarCadena(f.ordenPago);
+          if (!blob.includes(txt)) return false;
+        }
+
+        return true;
+      });
+    }
+
+    function pintarTabla(listado, facturasPorCaso) {
+      const tbody = document.getElementById("tbodyFacturas");
+      tbody.innerHTML = "";
+
+      if (!listado.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 12;
+        td.textContent = "Sin facturas que coincidan con los filtros.";
+        td.style.textAlign = "center";
+        td.style.padding = "10px";
+        td.style.color = "#9aa8c2";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      listado.sort((a, b) => {
+        const na = parseInt(a.nSiniestro, 10);
+        const nb = parseInt(b.nSiniestro, 10);
+        if (!isNaN(na) && !isNaN(nb)) return na - nb;
+        return String(a.nSiniestro).localeCompare(String(b.nSiniestro));
+      });
+
+      listado.forEach(f => {
+        const tr = document.createElement("tr");
+
+        // Checkbox de selección
+        const tdSel = document.createElement("td");
+        tdSel.style.textAlign = "center";
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.className = "row-select";
+        chk.dataset.sin = String(f.nSiniestro);
+        chk.checked = selectedSet.has(String(f.nSiniestro));
+        chk.addEventListener("change", () => {
+          const key = String(f.nSiniestro);
+          if (chk.checked) selectedSet.add(key);
+          else selectedSet.delete(key);
+          actualizarResumenSeleccion(ultimoFiltrado);
+          actualizarHeaderSelectAll();
+        });
+        tdSel.appendChild(chk);
+        tr.appendChild(tdSel);
+
+        const tdSin = document.createElement("td");
+        tdSin.className = "col-num link-caso";
+        tdSin.innerHTML = `<a href="detalle.html?sin=${encodeURIComponent(f.nSiniestro)}" target="_blank">${f.nSiniestro}</a>`;
+        tr.appendChild(tdSin);
+
+        const tdAseg = document.createElement("td");
+        tdAseg.textContent = f.asegurado || "";
+        tr.appendChild(tdAseg);
+
+        const tdCia = document.createElement("td");
+        tdCia.textContent = f.compania || "";
+        tr.appendChild(tdCia);
+
+        const tdAnalista = document.createElement("td");
+        tdAnalista.textContent = f.analista || "";
+        tr.appendChild(tdAnalista);
+
+        const tdFechaEmi = document.createElement("td");
+        tdFechaEmi.textContent = formatearFechaCorta(f.fechaEmision);
+        tr.appendChild(tdFechaEmi);
+
+        const tdFactura = document.createElement("td");
+        const nro = f.puntoVenta && f.numeroFactura
+          ? f.puntoVenta + "-" + f.numeroFactura
+          : (f.numeroFactura || "");
+        tdFactura.textContent = nro;
+        tr.appendChild(tdFactura);
+
+        const tdSub = document.createElement("td");
+        tdSub.className = "col-num";
+        tdSub.textContent = formatearMonto(f.totalNeto);
+        tr.appendChild(tdSub);
+
+        const tdIva = document.createElement("td");
+        tdIva.className = "col-num";
+        tdIva.textContent = formatearMonto(f.totalIva);
+        tr.appendChild(tdIva);
+
+        const tdTot = document.createElement("td");
+        tdTot.className = "col-num";
+        tdTot.textContent = formatearMonto(f.totalGeneral);
+        tr.appendChild(tdTot);
+
+        const tdEstado = document.createElement("td");
+        const pill = document.createElement("span");
+        pill.classList.add("estado-pill");
+        if (f.estadoPago === "PAGADA") {
+          pill.classList.add("estado-pagada");
+          pill.textContent = "PAGADA";
+        } else if (f.estadoPago === "PENDIENTE") {
+          pill.classList.add("estado-pendiente");
+          pill.textContent = "PENDIENTE";
+        } else {
+          pill.classList.add("estado-sin");
+          pill.textContent = "SIN FACTURAR";
+        }
+        tdEstado.appendChild(pill);
+        tr.appendChild(tdEstado);
+
+        const tdCobro = document.createElement("td");
+        const cont = document.createElement("div");
+        cont.className = "acciones-tabla";
+
+        const selEstado = document.createElement("select");
+        selEstado.innerHTML = `
+          <option value="SIN_FACTURAR">Sin facturar</option>
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="PAGADA">Pagada</option>
+        `;
+        selEstado.value = f.estadoPago || "SIN_FACTURAR";
+
+        const inputFechaCobro = document.createElement("input");
+        inputFechaCobro.type = "date";
+        inputFechaCobro.value = f.fechaCobro || "";
+
+        const inputOrden = document.createElement("input");
+        inputOrden.type = "text";
+        inputOrden.placeholder = "Orden de pago";
+        inputOrden.value = f.ordenPago || "";
+
+        cont.appendChild(selEstado);
+        cont.appendChild(inputFechaCobro);
+        cont.appendChild(inputOrden);
+
+        tdCobro.appendChild(cont);
+        tr.appendChild(tdCobro);
+
+        // Eventos de actualización
+        selEstado.addEventListener("change", () => {
+          const key = String(f.nSiniestro);
+          const factura = facturasPorCaso[key] || {};
+          factura.estadoPago = selEstado.value;
+          factura.fechaCobro = inputFechaCobro.value || "";
+          factura.ordenPago = inputOrden.value.trim();
+          facturasPorCaso[key] = factura;
+          guardarFacturasEnStorage(facturasPorCaso);
+          // actualizar pill
+          if (selEstado.value === "PAGADA") {
+            pill.className = "estado-pill estado-pagada";
+            pill.textContent = "PAGADA";
+          } else if (selEstado.value === "PENDIENTE") {
+            pill.className = "estado-pill estado-pendiente";
+            pill.textContent = "PENDIENTE";
+          } else {
+            pill.className = "estado-pill estado-sin";
+            pill.textContent = "SIN FACTURAR";
+          }
+          actualizarResumen(listado);
+          actualizarResumenSeleccion(listado);
+          actualizarHeaderSelectAll();
+        });
+
+        inputFechaCobro.addEventListener("change", () => {
+          const key = String(f.nSiniestro);
+          const factura = facturasPorCaso[key] || {};
+          factura.fechaCobro = inputFechaCobro.value || "";
+          factura.estadoPago = selEstado.value;
+          factura.ordenPago = inputOrden.value.trim();
+          facturasPorCaso[key] = factura;
+          guardarFacturasEnStorage(facturasPorCaso);
+        });
+
+        inputOrden.addEventListener("input", () => {
+          const key = String(f.nSiniestro);
+          const factura = facturasPorCaso[key] || {};
+          factura.ordenPago = inputOrden.value.trim();
+          factura.fechaCobro = inputFechaCobro.value || "";
+          factura.estadoPago = selEstado.value;
+          facturasPorCaso[key] = factura;
+          guardarFacturasEnStorage(facturasPorCaso);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function actualizarHeaderSelectAll() {
+      const chkAll = document.getElementById("chk-all-visible");
+      if (!chkAll) return;
+      const visibles = (ultimoFiltrado || []).map(f => String(f.nSiniestro));
+      if (!visibles.length) {
+        chkAll.checked = false;
+        chkAll.indeterminate = false;
+        return;
+      }
+      const selCount = visibles.filter(k => selectedSet.has(k)).length;
+      chkAll.checked = selCount === visibles.length;
+      chkAll.indeterminate = selCount > 0 && selCount < visibles.length;
+    }
+
+    function actualizarResumenSeleccion(listadoVisible) {
+      const el = document.getElementById("resumenSeleccion");
+      if (!el) return;
+
+      const visibles = Array.isArray(listadoVisible) ? listadoVisible : [];
+      const seleccionadosVisibles = visibles.filter(f => selectedSet.has(String(f.nSiniestro)));
+
+      let totalSel = 0;
+      seleccionadosVisibles.forEach(f => { totalSel += Number(f.totalGeneral) || 0; });
+
+      el.innerHTML =
+        "Seleccionados: <strong>" + selectedSet.size + "</strong> | " +
+        "Total seleccionado (visible): <strong>$ " + formatearMonto(totalSel) + "</strong>";
+    }
+
+    function actualizarResumen(listado) {
+      const resumenEl = document.getElementById("resumenFacturas");
+      if (!listado.length) {
+        resumenEl.textContent = "";
+        return;
+      }
+
+      let totalNeto = 0;
+      let totalIva = 0;
+      let total = 0;
+      let totalPendiente = 0;
+      let totalPagado = 0;
+
+      listado.forEach(f => {
+        totalNeto += Number(f.totalNeto) || 0;
+        totalIva += Number(f.totalIva) || 0;
+        total += Number(f.totalGeneral) || 0;
+        if (f.estadoPago === "PENDIENTE") totalPendiente += Number(f.totalGeneral) || 0;
+        if (f.estadoPago === "PAGADA") totalPagado += Number(f.totalGeneral) || 0;
+      });
+
+      resumenEl.innerHTML =
+        "Facturas listadas: <strong>" + listado.length + "</strong> | " +
+        "Subtotal neto: <strong>$ " + formatearMonto(totalNeto) + "</strong> | " +
+        "IVA: <strong>$ " + formatearMonto(totalIva) + "</strong> | " +
+        "Total facturado: <strong>$ " + formatearMonto(total) + "</strong> | " +
+        "Pendiente de cobro: <strong>$ " + formatearMonto(totalPendiente) + "</strong> | " +
+        "Cobrado: <strong>$ " + formatearMonto(totalPagado) + "</strong>";
+    }
+
+    function exportarCSV(listado) {
+      if (!listado.length) {
+        alert("No hay facturas para exportar.");
+        return;
+      }
+
+      const encabezados = [
+        "N_Siniestro", "Asegurado", "Compania", "Analista", "Fecha_Emision", "Punto_Venta", "Numero_Factura",
+        "Subtotal_Neto", "IVA", "Total", "Estado_Pago", "Fecha_Cobro", "Orden_Pago"
+      ];
+
+      const filas = listado.map(f => [
+        f.nSiniestro,
+        (f.asegurado || "").replace(/;/g, ","),
+        (f.compania || "").replace(/;/g, ","),
+        (f.analista || "").replace(/;/g, ","),
+        f.fechaEmision,
+        f.puntoVenta,
+        f.numeroFactura,
+        (Number(f.totalNeto) || 0).toString().replace(".", ","),
+        (Number(f.totalIva) || 0).toString().replace(".", ","),
+        (Number(f.totalGeneral) || 0).toString().replace(".", ","),
+        f.estadoPago,
+        f.fechaCobro,
+        (f.ordenPago || "").replace(/;/g, ",")
+      ]);
+
+      const contenido = [encabezados.join(";")]
+        .concat(filas.map(f => f.join(";")))
+        .join("\n");
+
+      const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "facturacion_siniestros.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function inicializar() {
+      await initCommonLayout({ activePage: "facturacion" });
+
+      // Checkbox header: seleccionar/deseleccionar todo lo visible
+      const chkAllVisible = document.getElementById("chk-all-visible");
+      if (chkAllVisible) {
+        chkAllVisible.addEventListener("change", () => {
+          const visibles = (ultimoFiltrado || []).map(f => String(f.nSiniestro));
+          if (chkAllVisible.checked) visibles.forEach(k => selectedSet.add(k));
+          else visibles.forEach(k => selectedSet.delete(k));
+          renderizarTodo();
+        });
+      }
+
+      async function renderizarTodo() {
+        const data = await window.db.getFacturas();
+        const listado = data.map(f => ({
+          nSiniestro: f.n_siniestro,
+          asegurado: f.casos?.asegurado || "",
+          analista: f.casos?.analista || "",
+          compania: f.casos?.cia || "",
+          puntoVenta: f.punto_venta,
+          numeroFactura: f.numero_factura,
+          fechaEmision: f.fecha_emision,
+          cae: f.cae,
+          estadoPago: f.estado_pago,
+          fechaCobro: f.fecha_cobro,
+          ordenPago: f.orden_pago,
+          totalNeto: f.total_neto,
+          totalIva: f.total_iva,
+          totalGeneral: f.total_general,
+          items: f.items
+        }));
+
+        const filtrado = aplicarFiltros(listado);
+        ultimoFiltrado = filtrado;
+        pintarTabla(filtrado);
+        actualizarResumen(filtrado);
+        actualizarResumenSeleccion(filtrado);
+        actualizarHeaderSelectAll();
+      }
+
+      function pintarTabla(listado) {
+        const tbody = document.getElementById("tbodyFacturas");
+        tbody.innerHTML = "";
+
+        if (!listado.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 12;
+          td.textContent = "Sin facturas que coincidan con los filtros.";
+          td.style.textAlign = "center";
+          td.style.padding = "10px";
+          td.style.color = "#9aa8c2";
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+          return;
+        }
+
+        listado.sort((a, b) => {
+          const na = parseInt(a.nSiniestro, 10);
+          const nb = parseInt(b.nSiniestro, 10);
+          if (!isNaN(na) && !isNaN(nb)) return na - nb;
+          return String(a.nSiniestro).localeCompare(String(b.nSiniestro));
+        });
+
+        listado.forEach(f => {
+          const tr = document.createElement("tr");
+
+          // Checkbox de selección
+          const tdSel = document.createElement("td");
+          tdSel.style.textAlign = "center";
+          const chk = document.createElement("input");
+          chk.type = "checkbox";
+          chk.className = "row-select";
+          chk.dataset.sin = String(f.nSiniestro);
+          chk.checked = selectedSet.has(String(f.nSiniestro));
+          chk.addEventListener("change", () => {
+            const key = String(f.nSiniestro);
+            if (chk.checked) selectedSet.add(key);
+            else selectedSet.delete(key);
+            actualizarResumenSeleccion(ultimoFiltrado);
+            actualizarHeaderSelectAll();
+          });
+          tdSel.appendChild(chk);
+          tr.appendChild(tdSel);
+
+          const tdSin = document.createElement("td");
+          tdSin.className = "col-num link-caso";
+          tdSin.innerHTML = `<a href="detalle.html?sin=${encodeURIComponent(f.nSiniestro)}" target="_blank">${f.nSiniestro}</a>`;
+          tr.appendChild(tdSin);
+
+          const tdAseg = document.createElement("td");
+          tdAseg.textContent = f.asegurado || "";
+          tr.appendChild(tdAseg);
+
+          const tdCia = document.createElement("td");
+          tdCia.textContent = f.compania || "";
+          tr.appendChild(tdCia);
+
+          const tdAnalista = document.createElement("td");
+          tdAnalista.textContent = f.analista || "";
+          tr.appendChild(tdAnalista);
+
+          const tdFechaEmi = document.createElement("td");
+          tdFechaEmi.textContent = formatearFechaCorta(f.fechaEmision);
+          tr.appendChild(tdFechaEmi);
+
+          const tdFactura = document.createElement("td");
+          const nro = f.puntoVenta && f.numeroFactura
+            ? f.puntoVenta + "-" + f.numeroFactura
+            : (f.numeroFactura || "");
+          tdFactura.textContent = nro;
+          tr.appendChild(tdFactura);
+
+          const tdSub = document.createElement("td");
+          tdSub.className = "col-num";
+          tdSub.textContent = formatearMonto(f.totalNeto);
+          tr.appendChild(tdSub);
+
+          const tdIva = document.createElement("td");
+          tdIva.className = "col-num";
+          tdIva.textContent = formatearMonto(f.totalIva);
+          tr.appendChild(tdIva);
+
+          const tdTot = document.createElement("td");
+          tdTot.className = "col-num";
+          tdTot.textContent = formatearMonto(f.totalGeneral);
+          tr.appendChild(tdTot);
+
+          const tdEstado = document.createElement("td");
+          const pill = document.createElement("span");
+          pill.classList.add("estado-pill");
+          if (f.estadoPago === "PAGADA") {
+            pill.classList.add("estado-pagada");
+            pill.textContent = "PAGADA";
+          } else if (f.estadoPago === "PENDIENTE") {
+            pill.classList.add("estado-pendiente");
+            pill.textContent = "PENDIENTE";
+          } else {
+            pill.classList.add("estado-sin");
+            pill.textContent = "SIN FACTURAR";
+          }
+          tdEstado.appendChild(pill);
+          tr.appendChild(tdEstado);
+
+          const tdCobro = document.createElement("td");
+          const cont = document.createElement("div");
+          cont.className = "acciones-tabla";
+
+          const selEstado = document.createElement("select");
+          selEstado.innerHTML = `
+            <option value="SIN_FACTURAR">Sin facturar</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="PAGADA">Pagada</option>
+          `;
+          selEstado.value = f.estadoPago || "SIN_FACTURAR";
+
+          const inputFechaCobro = document.createElement("input");
+          inputFechaCobro.type = "date";
+          inputFechaCobro.value = f.fechaCobro || "";
+
+          const inputOrden = document.createElement("input");
+          inputOrden.type = "text";
+          inputOrden.placeholder = "Orden de pago";
+          inputOrden.value = f.ordenPago || "";
+
+          cont.appendChild(selEstado);
+          cont.appendChild(inputFechaCobro);
+          cont.appendChild(inputOrden);
+
+          tdCobro.appendChild(cont);
+          tr.appendChild(tdCobro);
+
+          async function handleUpdate() {
+            const updated = {
+              nSiniestro: f.nSiniestro,
+              estadoPago: selEstado.value,
+              fechaCobro: inputFechaCobro.value || null,
+              ordenPago: inputOrden.value.trim()
+            };
+            await window.db.upsertFactura(updated);
+
+            // actualizar pill localmente sin refrescar todo
+            if (updated.estadoPago === "PAGADA") {
+              pill.className = "estado-pill estado-pagada";
+              pill.textContent = "PAGADA";
+            } else if (updated.estadoPago === "PENDIENTE") {
+              pill.className = "estado-pill estado-pendiente";
+              pill.textContent = "PENDIENTE";
+            } else {
+              pill.className = "estado-pill estado-sin";
+              pill.textContent = "SIN FACTURAR";
+            }
+            // nota: para totales globales sí conviene refrescar si queremos exactitud
+            // renderizarTodo(); 
+          }
+
+          selEstado.addEventListener("change", handleUpdate);
+          inputFechaCobro.addEventListener("change", handleUpdate);
+          inputOrden.addEventListener("change", handleUpdate);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("btn-aplicar").addEventListener("click", renderizarTodo);
+      document.getElementById("btn-limpiar").addEventListener("click", () => {
+        document.getElementById("f-buscar").value = "";
+        document.getElementById("f-estado").value = "";
+        document.getElementById("f-periodo").value = "";
+        document.getElementById("f-analista").value = "";
+        document.getElementById("f-compania").value = "";
+        renderizarTodo();
+      });
+
+      document.getElementById("btn-exportar").addEventListener("click", () => {
+        exportarCSV(ultimoFiltrado);
+      });
+
+      // Acciones masivas
+      document.getElementById("btn-aplicar-masivo").addEventListener("click", async () => {
+        if (!selectedSet.size) {
+          alert("No hay filas seleccionadas.");
+          return;
+        }
+
+        const bulkOrden = document.getElementById("bulk-orden").value.trim();
+        const bulkFecha = document.getElementById("bulk-fecha").value || null;
+        const bulkEstado = document.getElementById("bulk-estado").value;
+
+        const promises = Array.from(selectedSet).map(async key => {
+          const update = { nSiniestro: key };
+          if (bulkOrden) update.ordenPago = bulkOrden;
+          if (bulkFecha) update.fechaCobro = bulkFecha;
+          if (bulkEstado) update.estadoPago = bulkEstado;
+          return window.db.upsertFactura(update);
+        });
+
+        await Promise.all(promises);
+        alert("Actualización masiva completada.");
+        renderizarTodo();
+      });
+
+      document.getElementById("btn-limpiar-seleccion").addEventListener("click", () => {
+        selectedSet.clear();
+        document.getElementById("bulk-orden").value = "";
+        document.getElementById("bulk-fecha").value = "";
+        document.getElementById("bulk-estado").value = "";
+        renderizarTodo();
+      });
+
+      await renderizarTodo();
+    }
+
+    document.addEventListener("DOMContentLoaded", inicializar);
+  </script>
+</body>
+
+</html>

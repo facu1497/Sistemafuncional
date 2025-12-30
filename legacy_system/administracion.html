@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PROYECTO SISTEMA – Administración</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="stylesheet" href="layout-common.css">
+  <style>
+    h1 {
+      margin: 6px 0 2px;
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 14px;
+      line-height: 1.35;
+    }
+
+    /* =========================
+       TABS
+       ========================= */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .05);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      transition: .15s ease;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .tab-btn.active {
+      background: rgba(34, 197, 94, .14);
+      border-color: rgba(34, 197, 94, .35);
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* =========================
+       CARDS / FORMS
+       ========================= */
+    .row {
+      display: grid;
+      grid-template-columns: 1.1fr 2fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 1000px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      letter-spacing: .2px;
+    }
+
+    .card .muted {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 2px 0 8px;
+      line-height: 1.35;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--muted);
+      display: block;
+      margin: 8px 0 6px;
+    }
+
+    input[type="text"],
+    input[type="search"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 13px;
+      background: rgba(0, 0, 0, .18);
+      color: var(--text);
+      outline: none;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(230, 237, 247, .55);
+    }
+
+    .split {
+      display: flex;
+      gap: 10px;
+    }
+
+    .split>div {
+      flex: 1;
+    }
+
+    .btn.danger {
+      border-color: rgba(239, 68, 68, .35);
+      background: rgba(239, 68, 68, .12);
+    }
+
+    .btn.danger:hover {
+      background: rgba(239, 68, 68, .16);
+    }
+
+    .btn.flat {
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .btn.small {
+      padding: 6px 9px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    /* =========================
+       TABLE
+       ========================= */
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: transparent;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      padding: 10px;
+      font-size: 12px;
+      text-align: left;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    thead {
+      background: rgba(34, 197, 94, .15);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      backdrop-filter: blur(6px);
+    }
+
+    th {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(255, 255, 255, .015);
+    }
+
+    tbody tr:hover td {
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: inline-block;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .06);
+      color: var(--text);
+    }
+
+    .tag.ok {
+      background: rgba(34, 197, 94, .22);
+      border-color: rgba(34, 197, 94, .35);
+    }
+
+    .tag.off {
+      background: rgba(239, 68, 68, .14);
+      border-color: rgba(239, 68, 68, .25);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 0 0 10px;
+    }
+
+    .right {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .help {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .06);
+      color: var(--text);
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú lateral">☰</button>
+      <div class="logo">
+        <img src="logo-estudio-hm-gibert.svg" alt="Logo">
+        <div class="titulo">PROYECTO SISTEMA – Administración</div>
+      </div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <!-- SIDEBAR (igual a Index, MISMO id="sidebar") -->
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logoBox"></div>
+      <div>
+        <h1>PROYECTO SISTEMA</h1>
+        <span>Liquidador de siniestros</span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <a data-page="index" href="index.html"><span class="dot"></span>Inicio</a>
+      <a data-page="lista" href="lista.html"><span class="dot"></span>Listado de Casos</a>
+      <a data-page="tareas" href="tareas.html"><span class="dot"></span>Tareas</a>
+      <a data-page="reportes" href="reportes.html"><span class="dot"></span>Reportes</a>
+      <a data-page="facturacion" href="facturacion.html"><span class="dot"></span>Facturación</a>
+      <a class="active" data-page="administracion" href="administracion.html"><span
+          class="dot"></span>Administración</a>
+    </div>
+
+    <div class="footer-card">
+      <div id="infoUsuarioSidebar"></div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO (MISMO id="content") -->
+  <main class="content" id="content">
+    <h1>Administración del sistema</h1>
+    <div class="sub">Catálogos maestros para usar en casos, tareas y reportes.</div>
+
+    <!-- NAV TABS -->
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" data-target="companias">Compañías</button>
+      <button class="tab-btn" data-target="analistas">Analistas</button>
+      <button class="tab-btn" data-target="causas">Causas</button>
+      <button class="tab-btn" data-target="coberturas">Coberturas</button>
+      <button class="tab-btn" data-target="estados">Estados</button>
+      <button class="tab-btn" data-target="usuarios">Usuarios</button>
+    </div>
+
+    <!-- SECCIÓN: COMPAÑÍAS -->
+    <section id="companias" class="section active">
+      <div class="row">
+        <div class="card">
+          <h2>Alta de Compañía</h2>
+          <div class="muted">Creá nuevas compañías para asignar a casos.</div>
+          <label>Nombre de compañía</label>
+          <input type="text" id="compania_nombre" placeholder="Ej: Life Seguros" />
+
+          <div class="split">
+            <div>
+              <label>CUIT (opcional)</label>
+              <input type="text" id="compania_cuit" placeholder="Ej: 30-12345678-9" />
+            </div>
+            <div>
+              <label>Estado</label>
+              <select id="compania_activo">
+                <option value="1">Activa</option>
+                <option value="0">Inactiva</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Notas (opcional)</label>
+          <textarea id="compania_notas" rows="3" placeholder="Información útil para administración"></textarea>
+
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button class="btn primary" id="btnAddCompania">Guardar compañía</button>
+            <span class="help">Evita duplicados: se valida por nombre.</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Listado de Compañías</h2>
+          <div class="toolbar">
+            <input id="search_companias" type="search" placeholder="Buscar..." />
+            <div class="right">
+              <button class="btn flat small" data-export="master_companias">Exportar JSON</button>
+              <label class="btn flat small" style="cursor:pointer;">
+                Importar JSON
+                <input type="file" data-import="master_companias" accept="application/json" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="tabla_companias" data-key="master_companias">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="nombre">Nombre</th>
+                  <th data-sort="cuit">CUIT</th>
+                  <th data-sort="activo">Activo</th>
+                  <th data-sort="updatedAt">Últ. modif.</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody><!-- rows --></tbody>
+            </table>
+          </div>
+          <div class="muted">Doble click en una celda editable para modificar.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: ANALISTAS -->
+    <section id="analistas" class="section">
+      <div class="row">
+        <div class="card">
+          <h2>Alta de Analista</h2>
+          <label>Nombre y apellido</label>
+          <input type="text" id="analista_nombre" placeholder="Ej: Juan Pérez" />
+          <div class="split">
+            <div>
+              <label>Email (opcional)</label>
+              <input type="text" id="analista_email" placeholder="Ej: juan@estudio.com" />
+            </div>
+            <div>
+              <label>Teléfono (opcional)</label>
+              <input type="text" id="analista_tel" placeholder="Ej: 11-1234-5678" />
+            </div>
+          </div>
+          <label>Estado</label>
+          <select id="analista_activo">
+            <option value="1">Activo</option>
+            <option value="0">Inactivo</option>
+          </select>
+          <div style="margin-top:10px;">
+            <button class="btn primary" id="btnAddAnalista">Guardar analista</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Listado de Analistas</h2>
+          <div class="toolbar">
+            <input id="search_analistas" type="search" placeholder="Buscar..." />
+            <div class="right">
+              <button class="btn flat small" data-export="master_analistas">Exportar JSON</button>
+              <label class="btn flat small" style="cursor:pointer;">
+                Importar JSON
+                <input type="file" data-import="master_analistas" accept="application/json" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="tabla_analistas" data-key="master_analistas">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="nombre">Nombre</th>
+                  <th data-sort="email">Email</th>
+                  <th data-sort="tel">Teléfono</th>
+                  <th data-sort="activo">Activo</th>
+                  <th data-sort="updatedAt">Últ. modif.</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="muted">Edición inline por doble click.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: CAUSAS -->
+    <section id="causas" class="section">
+      <div class="row">
+        <div class="card">
+          <h2>Alta de Causa</h2>
+          <label>Nombre de la causa</label>
+          <input type="text" id="causa_nombre" placeholder="Ej: Variación de tensión" />
+          <div class="split">
+            <div>
+              <label>Estado</label>
+              <select id="causa_activo">
+                <option value="1">Activa</option>
+                <option value="0">Inactiva</option>
+              </select>
+            </div>
+            <div>
+              <label>Tipo (opcional)</label>
+              <input type="text" id="causa_tipo" placeholder="Ej: Eléctrica, Hidráulica..." />
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="btn primary" id="btnAddCausa">Guardar causa</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Listado de Causas</h2>
+          <div class="toolbar">
+            <input id="search_causas" type="search" placeholder="Buscar..." />
+            <div class="right">
+              <button class="btn flat small" data-export="master_causas">Exportar JSON</button>
+              <label class="btn flat small" style="cursor:pointer;">
+                Importar JSON
+                <input type="file" data-import="master_causas" accept="application/json" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="tabla_causas" data-key="master_causas">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="nombre">Nombre</th>
+                  <th data-sort="tipo">Tipo</th>
+                  <th data-sort="activo">Activo</th>
+                  <th data-sort="updatedAt">Últ. modif.</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: COBERTURAS -->
+    <section id="coberturas" class="section">
+      <div class="row">
+        <div class="card">
+          <h2>Alta de Cobertura</h2>
+          <label>Nombre de la cobertura</label>
+          <input type="text" id="cobertura_nombre" placeholder="Ej: Daño por líquidos" />
+          <div class="split">
+            <div>
+              <label>Ramo (opcional)</label>
+              <input type="text" id="cobertura_ramo" placeholder="Ej: Hogar, Comercio..." />
+            </div>
+            <div>
+              <label>Estado</label>
+              <select id="cobertura_activo">
+                <option value="1">Activa</option>
+                <option value="0">Inactiva</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="btn primary" id="btnAddCobertura">Guardar cobertura</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Listado de Coberturas</h2>
+          <div class="toolbar">
+            <input id="search_coberturas" type="search" placeholder="Buscar..." />
+            <div class="right">
+              <button class="btn flat small" data-export="master_coberturas">Exportar JSON</button>
+              <label class="btn flat small" style="cursor:pointer;">
+                Importar JSON
+                <input type="file" data-import="master_coberturas" accept="application/json" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="tabla_coberturas" data-key="master_coberturas">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="nombre">Nombre</th>
+                  <th data-sort="ramo">Ramo</th>
+                  <th data-sort="activo">Activo</th>
+                  <th data-sort="updatedAt">Últ. modif.</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: ESTADOS -->
+    <section id="estados" class="section">
+      <div class="row">
+        <div class="card">
+          <h2>Alta de Estado</h2>
+          <div class="muted">
+            Podés usar tu listado actual (CONTACTAR, ENTREVISTAR, DOC PENDIENTE, PREINFORMAR, PREINFORME ENVIADO,
+            ANALIZAR, NOTA PENDIENTE, INFORMAR, CERRADO, DADO DE BAJA, DESISTE PENDIENTE).
+            Recordá que “INFORME ENVIADO” lo unificamos con “CERRADO”.
+          </div>
+          <label>Nombre del estado</label>
+          <input type="text" id="estado_nombre" placeholder="Ej: CONTACTAR" />
+          <div class="split">
+            <div>
+              <label>Color (opcional)</label>
+              <input type="text" id="estado_color" placeholder="Ej: #ff0000 o 'rojo'" />
+            </div>
+            <div>
+              <label>Activo</label>
+              <select id="estado_activo">
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="btn primary" id="btnAddEstado">Guardar estado</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Listado de Estados</h2>
+          <div class="toolbar">
+            <input id="search_estados" type="search" placeholder="Buscar..." />
+            <div class="right">
+              <button class="btn flat small" data-export="master_estados">Exportar JSON</button>
+              <label class="btn flat small" style="cursor:pointer;">
+                Importar JSON
+                <input type="file" data-import="master_estados" accept="application/json" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="tabla_estados" data-key="master_estados">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="nombre">Nombre</th>
+                  <th data-sort="color">Color</th>
+                  <th data-sort="activo">Activo</th>
+                  <th data-sort="updatedAt">Últ. modif.</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="muted">Estos estados son los que se verán en “lista” y “tareas”.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: USUARIOS -->
+    <section id="usuarios" class="section">
+      <div class="row">
+        <div class="card">
+          <h2>Alta/Edición de Usuario</h2>
+          <div class="muted">Gestioná los usuarios que pueden acceder al sistema.</div>
+          <input type="hidden" id="user_id" />
+          <label>Nombre y Apellido</label>
+          <input type="text" id="user_nombre" placeholder="Ej: Juan Pérez" />
+          <label>Email</label>
+          <input type="email" id="user_email" placeholder="Ej: juan@estudio.com" />
+          <div id="password_field">
+            <label>Contraseña (solo para alta)</label>
+            <input type="password" id="user_password" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div class="split">
+            <div>
+              <label>Rol</label>
+              <select id="user_rol">
+                <option value="user">Usuario</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+            <div>
+              <label>Activo</label>
+              <select id="user_activo">
+                <option value="1">Sí</option>
+                <option value="0">No</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button class="btn primary" id="btnSaveUser">Guardar Usuario</button>
+            <button class="btn flat" id="btnCancelUser" style="display:none;">Cancelar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Listado de Usuarios</h2>
+          <div class="toolbar">
+            <input id="search_usuarios" type="search" placeholder="Buscar..." />
+            <div class="right">
+              <button class="btn flat small" data-export="master_usuarios">Exportar JSON</button>
+              <label class="btn flat small" style="cursor:pointer;">
+                Importar JSON
+                <input type="file" data-import="master_usuarios" accept="application/json" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="tabla_usuarios" data-key="master_usuarios">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="nombre">Nombre</th>
+                  <th data-sort="email">Email</th>
+                  <th data-sort="rol">Rol</th>
+                  <th data-sort="activo">Activo</th>
+                  <th data-sort="updatedAt">Últ. modif.</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="muted">Doble click en una celda editable para modificar.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====== JS ORIGINAL (SIN TOCAR) ====== -->
+  <script src="layout-common.js"></script>
+  <script>
+    /* ========= ESTADO GLOBAL ========= */
+    const KEYS = {
+      companias: "companias",
+      analistas: "analistas",
+      causas: "causas",
+      coberturas: "coberturas",
+      estados: "estados",
+      usuarios: "perfiles"
+    };
+
+    const state = {
+      data: {
+        companias: [],
+        analistas: [],
+        causas: [],
+        coberturas: [],
+        estados: [],
+        usuarios: []
+      },
+      sort: { key: null, dir: 1, table: null },
+      filters: {
+        companias: "",
+        analistas: "",
+        causas: "",
+        coberturas: "",
+        estados: "",
+        usuarios: ""
+      }
+    };
+
+    const nowISO = () => new Date().toISOString();
+
+    /* ========= CARGA DE DATOS ========= */
+    async function refreshData(key) {
+      try {
+        state.data[key] = await window.db.getCatalogo(KEYS[key]);
+        renderTableByKey(key);
+      } catch (err) {
+        console.error(`Error cargando ${key}:`, err);
+      }
+    }
+
+    async function refreshAll() {
+      const promises = Object.keys(KEYS).map(k => refreshData(k));
+      await Promise.all(promises);
+    }
+
+    /* ========= RENDERIZADO ========= */
+    function fmtDate(s) {
+      if (!s) return "-";
+      try { return new Date(s).toLocaleString(); } catch { return s || ""; }
+    }
+    function renderTagActivo(v) { return Number(v) ? '<span class="tag ok">Sí</span>' : '<span class="tag off">No</span>'; }
+
+    function renderTableByKey(key) {
+      const config = {
+        companias: {
+          id: "tabla_companias",
+          cols: [
+            { field: "id", label: "ID" },
+            { field: "nombre", label: "Nombre", editable: true },
+            { field: "cuit", label: "CUIT", editable: true },
+            { field: "activo", label: "Activo", editable: true },
+            { field: "actualizado_at", label: "Últ. modif." }
+          ]
+        },
+        analistas: {
+          id: "tabla_analistas",
+          cols: [
+            { field: "id", label: "ID" },
+            { field: "nombre", label: "Nombre", editable: true },
+            { field: "email", label: "Email", editable: true },
+            { field: "tel", label: "Teléfono", editable: true },
+            { field: "activo", label: "Activo", editable: true },
+            { field: "actualizado_at", label: "Últ. modif." }
+          ]
+        },
+        causas: {
+          id: "tabla_causas",
+          cols: [
+            { field: "id", label: "ID" },
+            { field: "nombre", label: "Nombre", editable: true },
+            { field: "tipo", label: "Tipo", editable: true },
+            { field: "activo", label: "Activo", editable: true },
+            { field: "actualizado_at", label: "Últ. modif." }
+          ]
+        },
+        coberturas: {
+          id: "tabla_coberturas",
+          cols: [
+            { field: "id", label: "ID" },
+            { field: "nombre", label: "Nombre", editable: true },
+            { field: "ramo", label: "Ramo", editable: true },
+            { field: "activo", label: "Activo", editable: true },
+            { field: "actualizado_at", label: "Últ. modif." }
+          ]
+        },
+        estados: {
+          id: "tabla_estados",
+          cols: [
+            { field: "id", label: "ID" },
+            { field: "nombre", label: "Nombre", editable: true },
+            { field: "color", label: "Color", editable: true },
+            { field: "activo", label: "Activo", editable: true },
+            { field: "actualizado_at", label: "Últ. modif." }
+          ]
+        },
+        usuarios: {
+          id: "tabla_usuarios",
+          cols: [
+            { field: "id", label: "ID" },
+            { field: "nombre", label: "Nombre", editable: true },
+            { field: "email", label: "Email" },
+            { field: "rol", label: "Rol", editable: true },
+            { field: "activo", label: "Activo", editable: true },
+            { field: "actualizado_at", label: "Últ. modif." }
+          ]
+        }
+      };
+
+      const tableConfig = config[key];
+      const tbody = document.querySelector(`#${tableConfig.id} tbody`);
+      if (!tbody) return;
+
+      let rows = [...(state.data[key] || [])];
+
+      // Filtro
+      const q = (state.filters[key] || "").trim().toLowerCase();
+      if (q) {
+        rows = rows.filter(r => Object.values(r).some(v => (v + "").toLowerCase().includes(q)));
+      }
+
+      // Orden
+      if (state.sort.table === key && state.sort.key) {
+        const { key: sKey, dir } = state.sort;
+        rows.sort((a, b) => {
+          const av = (a[sKey] ?? "").toString().toLowerCase();
+          const bv = (b[sKey] ?? "").toString().toLowerCase();
+          if (av < bv) return -1 * dir;
+          if (av > bv) return 1 * dir;
+          return 0;
+        });
+      }
+
+      tbody.innerHTML = rows.map(r => `
+        <tr data-id="${r.id}">
+          ${tableConfig.cols.map(col => renderCell(r, col)).join("")}
+          <td>
+            <button class="btn small" data-action="edit">Editar</button>
+            <button class="btn danger small" data-action="delete">Borrar</button>
+          </td>
+        </tr>
+      `).join("");
+
+      // Handlers
+      tbody.querySelectorAll("button[data-action='delete']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (confirm("¿Estás seguro de borrar este registro?")) {
+            const tr = btn.closest("tr");
+            await window.db.deleteCatalogo(KEYS[key], tr.dataset.id);
+            refreshData(key);
+          }
+        });
+      });
+
+      tbody.querySelectorAll("button[data-action='edit']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (key === "usuarios") {
+            const tr = btn.closest("tr");
+            const id = tr.dataset.id;
+            const user = state.data.usuarios.find(u => String(u.id) === String(id));
+            if (user) {
+              document.getElementById("user_id").value = user.id;
+              document.getElementById("user_nombre").value = user.nombre;
+              document.getElementById("user_email").value = user.email;
+              document.getElementById("user_email").readOnly = true; // No se puede cambiar el email en edición
+              document.getElementById("user_rol").value = user.rol;
+              document.getElementById("user_activo").value = user.activo;
+              document.getElementById("password_field").style.display = "none"; // No se edita la contraseña aquí
+              document.getElementById("btnCancelUser").style.display = "inline-block";
+              document.getElementById("btnSaveUser").textContent = "Actualizar Usuario";
+              document.getElementById("user_nombre").focus();
+            }
+          } else {
+            enableInlineEdit(btn.closest("tr"), key, tableConfig.cols);
+          }
+        });
+      });
+
+      tbody.querySelectorAll("td[data-editable='1']").forEach(td => {
+        td.addEventListener("dblclick", () => startCellEdit(td, key));
+      });
+    }
+
+    function renderCell(row, col) {
+      const val = row[col.field] ?? "";
+      let display = val;
+      if (col.field === "activo") display = renderTagActivo(val);
+      if (col.field === "actualizado_at" || col.field === "creado_at") display = fmtDate(val);
+      if (col.field === "color" && val) display = `<span class="pill" style="border-color:#999; background:${val}; color:#000">${val}</span>`;
+
+      const editable = col.editable ? ' data-editable="1"' : "";
+      return `<td${editable} data-field="${col.field}">${display}</td>`;
+    }
+
+    function startCellEdit(td, key) {
+      const field = td.dataset.field;
+      const tr = td.closest("tr");
+      const id = tr.dataset.id;
+      const item = state.data[key].find(x => String(x.id) === String(id));
+      if (!item) return;
+
+      const oldVal = item[field] ?? "";
+      td.innerHTML = `<input type="text" value="${String(oldVal).replace(/"/g, '&quot;')}" style="width:100%; border-radius:4px; padding:2px;">`;
+      const input = td.querySelector("input");
+      input.focus();
+
+      const finish = async () => {
+        const newVal = input.value;
+        if (newVal === String(oldVal)) {
+          renderTableByKey(key);
+          return;
+        }
+
+        const payload = { id: item.id, [field]: newVal };
+        if (field === "activo") {
+          payload.activo = (newVal === "Sí" || newVal.toLowerCase() === "si" || newVal === "1") ? 1 : 0;
+        }
+
+        try {
+          await window.db.upsertCatalogo(KEYS[key], payload);
+          refreshData(key);
+        } catch (err) {
+          alert("Error al actualizar: " + err.message);
+          renderTableByKey(key);
+        }
+      };
+
+      input.addEventListener("blur", finish);
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") input.blur();
+        if (ev.key === "Escape") { renderTableByKey(key); }
+      });
+    }
+
+    function enableInlineEdit(tr, key, columns) {
+      const editableCol = columns.find(c => c.editable);
+      if (editableCol) {
+        const td = tr.querySelector(`td[data-field="${editableCol.field}"]`);
+        if (td) startCellEdit(td, key);
+      }
+    }
+
+    /* ========= HANDLERS PRINCIPALES ========= */
+    async function inicializar() {
+      await initCommonLayout({ activePage: "administracion" });
+      setupTabs();
+      bindSearches();
+      bindSorting();
+      addFormHandlers();
+      await refreshAll();
+    }
+
+    function setupTabs() {
+      const tabs = document.querySelectorAll(".tab-btn");
+      const sections = document.querySelectorAll(".section");
+      tabs.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabs.forEach(x => x.classList.remove("active"));
+          btn.classList.add("active");
+          sections.forEach(sec => sec.classList.remove("active"));
+          document.getElementById(btn.dataset.target).classList.add("active");
+        });
+      });
+    }
+
+    function bindSearches() {
+      const filtersMap = {
+        companias: "search_companias",
+        analistas: "search_analistas",
+        causas: "search_causas",
+        coberturas: "search_coberturas",
+        estados: "search_estados",
+        usuarios: "search_usuarios"
+      };
+
+      Object.entries(filtersMap).forEach(([key, inputId]) => {
+        const el = document.getElementById(inputId);
+        if (el) {
+          el.addEventListener("input", () => {
+            state.filters[key] = el.value;
+            renderTableByKey(key);
+          });
+        }
+      });
+    }
+
+    function bindSorting() {
+      document.querySelectorAll("th[data-sort]").forEach(th => {
+        th.addEventListener("click", () => {
+          const tableId = th.closest("table").id;
+          const key = Object.keys(KEYS).find(k => {
+            const tabId = (k === "companias" ? "tabla_companias" :
+              k === "analistas" ? "tabla_analistas" :
+                k === "causas" ? "tabla_causas" :
+                  k === "coberturas" ? "tabla_coberturas" :
+                    k === "usuarios" ? "tabla_usuarios" : "tabla_estados");
+            return tabId === tableId;
+          });
+          const sortKey = th.dataset.sort;
+
+          if (state.sort.table === key && state.sort.key === sortKey) {
+            state.sort.dir *= -1;
+          } else {
+            state.sort.table = key;
+            state.sort.key = sortKey;
+            state.sort.dir = 1;
+          }
+          renderTableByKey(key);
+        });
+      });
+    }
+
+    function addFormHandlers() {
+      // Compañías
+      document.getElementById("btnAddCompania").addEventListener("click", async () => {
+        const nombre = document.getElementById("compania_nombre").value.trim();
+        const cuit = document.getElementById("compania_cuit").value.trim();
+        const activo = Number(document.getElementById("compania_activo").value);
+        const notas = document.getElementById("compania_notas").value.trim();
+        if (!nombre) return alert("Ingresá un nombre");
+
+        await window.db.upsertCatalogo(KEYS.companias, { nombre, cuit, activo, notas });
+        document.getElementById("compania_nombre").value = "";
+        document.getElementById("compania_cuit").value = "";
+        document.getElementById("compania_notas").value = "";
+        refreshData("companias");
+      });
+
+      // Analistas
+      document.getElementById("btnAddAnalista").addEventListener("click", async () => {
+        const nombre = document.getElementById("analista_nombre").value.trim();
+        const email = document.getElementById("analista_email").value.trim();
+        const tel = document.getElementById("analista_tel").value.trim();
+        const activo = Number(document.getElementById("analista_activo").value);
+        if (!nombre) return alert("Ingresá un nombre");
+
+        await window.db.upsertCatalogo(KEYS.analistas, { nombre, email, tel, activo });
+        document.getElementById("analista_nombre").value = "";
+        document.getElementById("analista_email").value = "";
+        document.getElementById("analista_tel").value = "";
+        refreshData("analistas");
+      });
+
+      // Causas
+      document.getElementById("btnAddCausa").addEventListener("click", async () => {
+        const nombre = document.getElementById("causa_nombre").value.trim();
+        const tipo = document.getElementById("causa_tipo").value.trim();
+        const activo = Number(document.getElementById("causa_activo").value);
+        if (!nombre) return alert("Ingresá un nombre");
+
+        await window.db.upsertCatalogo(KEYS.causas, { nombre, tipo, activo });
+        document.getElementById("causa_nombre").value = "";
+        document.getElementById("causa_tipo").value = "";
+        refreshData("causas");
+      });
+
+      // Coberturas
+      document.getElementById("btnAddCobertura").addEventListener("click", async () => {
+        const nombre = document.getElementById("cobertura_nombre").value.trim();
+        const ramo = document.getElementById("cobertura_ramo").value.trim();
+        const activo = Number(document.getElementById("cobertura_activo").value);
+        if (!nombre) return alert("Ingresá un nombre");
+
+        await window.db.upsertCatalogo(KEYS.coberturas, { nombre, ramo, activo });
+        document.getElementById("cobertura_nombre").value = "";
+        document.getElementById("cobertura_ramo").value = "";
+        refreshData("coberturas");
+      });
+
+      // Estados
+      document.getElementById("btnAddEstado").addEventListener("click", async () => {
+        const nombre = document.getElementById("estado_nombre").value.trim();
+        const color = document.getElementById("estado_color").value.trim();
+        const activo = Number(document.getElementById("estado_activo").value);
+        if (!nombre) return alert("Ingresá un nombre");
+
+        await window.db.upsertCatalogo(KEYS.estados, { nombre, color, activo });
+        document.getElementById("estado_nombre").value = "";
+        document.getElementById("estado_color").value = "";
+        refreshData("estados");
+      });
+
+      // Usuarios
+      document.getElementById("btnSaveUser").addEventListener("click", async () => {
+        const id = document.getElementById("user_id").value;
+        const nombre = document.getElementById("user_nombre").value.trim();
+        const email = document.getElementById("user_email").value.trim();
+        const password = document.getElementById("user_password").value;
+        const rol = document.getElementById("user_rol").value;
+        const activo = Number(document.getElementById("user_activo").value);
+
+        if (!nombre || !email) return alert("Nombre y Email son requeridos.");
+
+        try {
+          if (!id) {
+            // ALTA
+            if (password.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+            const { data, error } = await window.supabaseClient.auth.signUp({
+              email: email,
+              password: password,
+              options: {
+                data: { nombre, rol }
+              }
+            });
+            if (error) throw error;
+            // El trigger en la DB (si existe) crea el perfil. Si no, lo creamos manual.
+            // Para asegurar, lo mandamos:
+            await window.db.upsertCatalogo('perfiles', { id: data.user.id, nombre, email, rol, activo });
+            alert("Usuario registrado correctamente.");
+          } else {
+            // EDICIÓN
+            await window.db.upsertCatalogo('perfiles', { id, nombre, rol, activo });
+            alert("Perfil actualizado correctamente.");
+          }
+          resetUserForm();
+          refreshData("usuarios");
+        } catch (err) {
+          alert("Error: " + err.message);
+        }
+      });
+
+      document.getElementById("btnCancelUser").addEventListener("click", resetUserForm);
+    }
+
+    function resetUserForm() {
+      document.getElementById("user_id").value = "";
+      document.getElementById("user_nombre").value = "";
+      document.getElementById("user_email").value = "";
+      document.getElementById("user_email").readOnly = false;
+      document.getElementById("user_password").value = "";
+      document.getElementById("password_field").style.display = "block";
+      document.getElementById("user_rol").value = "user";
+      document.getElementById("user_activo").value = "1";
+      document.getElementById("btnCancelUser").style.display = "none";
+      document.getElementById("btnSaveUser").textContent = "Guardar Usuario";
+    }
+
+    document.addEventListener("DOMContentLoaded", inicializar);
+  </script>
+</body>
+
+</html>

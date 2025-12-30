@@ -1,0 +1,199 @@
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.topBar h1 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--text-color);
+}
+
+.backLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.caseHeader {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line-color);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.headerItem {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.headerLabel {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted-color);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.headerValue {
+    font-size: 15px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.tabsContainer {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    min-height: 500px;
+}
+
+.tabsHeader {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line-color);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.tabBtn {
+    flex: 1;
+    padding: 16px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--line-color);
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabBtn:last-child {
+    border-right: none;
+}
+
+.tabBtn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+}
+
+.activeTab {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.tabContent {
+    padding: 24px;
+}
+
+/* Specific Content Styles */
+.infoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+.infoBox {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--line-color);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.boxTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted-color);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.textArea {
+    width: 100%;
+    min-height: 100px;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-color);
+}
+
+.detailRow:last-child {
+    border-bottom: none;
+}
+
+/* Checklist Styles */
+.checklistGrid {
+    display: grid;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.checkItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid var(--line-color);
+}
+
+.checkLabel {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.checkInput {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}

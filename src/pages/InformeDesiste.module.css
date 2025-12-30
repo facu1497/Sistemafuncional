@@ -1,0 +1,293 @@
+.container {
+    padding: 20px;
+    background: #f0f0f0;
+    min-height: 100vh;
+}
+
+.toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btnPrimary {
+    background: #3699ff;
+    color: white;
+}
+
+.btnPrimary:hover {
+    background: #187de4;
+}
+
+/* PRINT STYLES */
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm;
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: black;
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+}
+
+.companyName {
+    margin: 0;
+    font-size: 24px;
+    color: #4CAF50;
+    font-family: 'Times New Roman', serif;
+}
+
+.logoInfo p {
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.ahorroBox {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.ahorroBadge {
+    border: 2px solid #ff0000;
+    background: #ff0000;
+    color: white;
+    padding: 5px 15px;
+    text-align: center;
+    font-weight: 900;
+    border-radius: 5px;
+}
+
+.ahorroValue {
+    font-size: 16px;
+    margin-top: 3px;
+}
+
+.founding {
+    text-align: right;
+    font-size: 10px;
+}
+
+.logoCircle {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-left: auto;
+    margin-top: 5px;
+}
+
+.labelBand {
+    background: #f0f0f0;
+    border: 1px solid #000;
+    padding: 4px 10px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.mainTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.mainTable td {
+    border: 1px solid #000;
+    padding: 4px 6px;
+}
+
+.label {
+    font-weight: bold;
+    font-size: 9px;
+    background: #f9f9f9;
+    text-transform: uppercase;
+    color: #333;
+}
+
+.val {
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.sectionTitle {
+    background: #e0e0e0;
+    border: 1px solid #000;
+    border-bottom: none;
+    padding: 3px 10px;
+    font-weight: 800;
+    font-size: 10px;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+.subLabel {
+    font-weight: bold;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.textAreaBox {
+    border: 1px solid #000;
+    padding: 5px;
+}
+
+.ghostInput {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    padding: 0;
+}
+
+.ghostTextarea {
+    width: 100%;
+    min-height: 40px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 11px;
+    resize: none;
+    line-height: 1.4;
+}
+
+.printableTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.printableTable th,
+.printableTable td {
+    border: 1px solid #000;
+    padding: 5px;
+    text-align: left;
+}
+
+.printableTable th {
+    background: #f0f0f0;
+    font-size: 9px;
+}
+
+.noBorderTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.resultBox {
+    border: 1px solid #000;
+    padding: 10px;
+    text-align: center;
+}
+
+.pageBreak {
+    height: 30px;
+    border-bottom: 1px dashed #ccc;
+    margin: 20px 0;
+}
+
+@media print {
+    .container {
+        padding: 0;
+        background: white;
+    }
+
+    .toolbar {
+        display: none;
+    }
+
+    .page {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    .pageBreak {
+        page-break-after: always;
+        height: 0;
+        border: none;
+        margin: 0;
+    }
+
+    .ghostInput,
+    .ghostTextarea {
+        background: white !important;
+    }
+}
+
+.docsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.docItem {
+    width: 100%;
+}
+
+.docImageContainer {
+    text-align: center;
+}
+
+.docImage {
+    max-width: 100%;
+    max-height: 180mm;
+    border: 1px solid #ddd;
+    display: block;
+    margin: 0 auto;
+}
+
+.docLabel {
+    font-weight: bold;
+    font-size: 12px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.docFile {
+    padding: 30px;
+    border: 1px dashed #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.docMeta {
+    font-size: 10px;
+    color: #666;
+}

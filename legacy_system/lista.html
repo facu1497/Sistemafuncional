@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PROYECTO SISTEMA - Lista de casos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="layout-common.css">
+  <style>
+    /* =========================
+       ESTILOS EXISTENTES DE LISTA
+       (adaptados SOLO a la fachada)
+       ========================= */
+
+    /* contenedor de acciones arriba */
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* inputs de filtros */
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+      box-shadow: var(--shadow);
+      padding: 12px 15px 15px;
+      margin-top: 14px;
+    }
+
+    .panel-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .filtros label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .filtros input[type="text"],
+    .filtros select {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, .18);
+      color: var(--text);
+      outline: none;
+      min-width: 140px;
+    }
+
+    .filtros input[type="text"]::placeholder {
+      color: rgba(230, 237, 247, .55);
+    }
+
+    .filtros button {
+      padding: 9px 10px;
+      font-size: 13px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      background: rgba(255, 255, 255, .05);
+      color: var(--text);
+      transition: .15s ease;
+    }
+
+    .filtros button:hover {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .hint code {
+      color: rgba(34, 197, 94, .9);
+      background: rgba(34, 197, 94, .08);
+      border: 1px solid rgba(34, 197, 94, .18);
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    /* panel nuevo caso */
+    #panel-nuevo {
+      display: none;
+      margin-top: 14px;
+    }
+
+    #panel-nuevo h3 {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    #panel-nuevo-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    #panel-nuevo-form label {
+      flex: 1 1 200px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    #panel-nuevo-form input[type="text"],
+    #panel-nuevo-form textarea {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, .18);
+      color: var(--text);
+      outline: none;
+    }
+
+    #panel-nuevo-botones {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #panel-nuevo-botones button {
+      padding: 9px 10px;
+      font-size: 13px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      background: rgba(255, 255, 255, .05);
+      color: var(--text);
+    }
+
+    #panel-nuevo-botones button:hover {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    /* tabla */
+    .tabla-wrapper {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+      box-shadow: var(--shadow);
+      max-height: 540px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(34, 197, 94, .12);
+      color: var(--text);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      backdrop-filter: blur(6px);
+    }
+
+    th,
+    td {
+      padding: 7px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th.sortable .sort-indicator {
+      font-size: 10px;
+      margin-left: 4px;
+      opacity: 0.8;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(255, 255, 255, .015);
+    }
+
+    tbody tr:hover td {
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .col-acciones {
+      text-align: center;
+      min-width: 170px;
+    }
+
+    .btn-accion {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .05);
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin: 0 2px;
+      transition: .15s ease;
+    }
+
+    .btn-accion:hover {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .btn-accion.borrar {
+      border-color: rgba(239, 68, 68, .35);
+      background: rgba(239, 68, 68, .12);
+      color: var(--text);
+    }
+
+    .btn-accion.borrar:hover {
+      background: rgba(239, 68, 68, .16);
+    }
+
+    .btn-accion.borrar.no-click {
+      opacity: .4;
+      cursor: default;
+    }
+
+    .estado-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .06);
+      color: var(--text);
+    }
+
+    .estado-contactar {
+      background: rgba(239, 68, 68, .22);
+      border-color: rgba(239, 68, 68, .35);
+      color: var(--text);
+    }
+
+    .estado-cerrado {
+      background: rgba(34, 197, 94, .22);
+      border-color: rgba(34, 197, 94, .35);
+      color: var(--text);
+    }
+
+    .leyenda {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .leyenda strong {
+      color: var(--text);
+    }
+
+    /* Responsive (mismo criterio que tenías) */
+    @media (max-width: 900px) {
+
+      th:nth-child(2),
+      td:nth-child(2),
+      th:nth-child(6),
+      td:nth-child(6),
+      th:nth-child(7),
+      td:nth-child(7) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      th:nth-child(5),
+      td:nth-child(5),
+      th:nth-child(9),
+      td:nth-child(9) {
+        display: none;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú lateral">☰</button>
+      <div class="logo">
+        <img src="logo-estudio-hm-gibert.svg" alt="Logo Estudio HM Gibert" />
+        <div class="titulo">PROYECTO SISTEMA - Lista de casos</div>
+      </div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>PROYECTO SISTEMA</h1>
+        <span>Liquidador de siniestros</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a data-page="index" href="index.html"><span class="dot"></span>Inicio</a>
+      <a class="active" data-page="lista" href="lista.html"><span class="dot"></span>Listado de Casos</a>
+      <a data-page="tareas" href="tareas.html"><span class="dot"></span>Tareas</a>
+      <a data-page="reportes" href="reportes.html"><span class="dot"></span>Reportes</a>
+      <a data-page="facturacion" href="facturacion.html"><span class="dot"></span>Facturación</a>
+      <a data-page="administracion" href="administracion.html"><span class="dot"></span>Administración</a>
+    </nav>
+
+    <div class="footer-card">
+      <div id="infoUsuarioSidebar"></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="content main" id="content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2>Listado de casos</h2>
+        <p>Se muestran los casos base (datos.js) más los casos adicionales cargados o importados.</p>
+      </div>
+
+      <!-- Acciones (mismos IDs que antes) -->
+      <div class="top-actions">
+        <button type="button" class="btn" id="btn-ver-tareas">Ver todas mis tareas</button>
+        <button type="button" class="btn primary" id="btn-nuevo">Nuevo caso +</button>
+        <button type="button" class="btn" id="btn-importar">Importar casos (CSV)</button>
+        <input type="file" id="input-import" accept=".csv" style="display:none" />
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <!-- Filtros (mismo HTML/IDs) -->
+        <section class="panel">
+          <div class="panel-titulo">Filtros</div>
+          <form id="form-buscador">
+            <div class="filtros">
+              <label>
+                Apellido:
+                <input type="text" id="f-apellido" />
+              </label>
+              <label>
+                N° Siniestro:
+                <input type="text" id="f-siniestro" />
+              </label>
+              <label>
+                DNI:
+                <input type="text" id="f-dni" />
+              </label>
+              <label>
+                N°:
+                <input type="text" id="f-id" />
+              </label>
+              <label>
+                Estado:
+                <select id="f-estado">
+                  <option value="">(Todos)</option>
+                </select>
+              </label>
+
+              <button type="submit">Buscar</button>
+              <button type="button" id="btn-limpiar">Limpiar filtros</button>
+            </div>
+          </form>
+          <div class="hint">
+            Los estados se guardan por número de siniestro en <code>estados_siniestros_v1</code> (localStorage).
+          </div>
+        </section>
+
+        <!-- PANEL NUEVO CASO (integrado) - mismo HTML/IDs -->
+        <section id="panel-nuevo" class="panel">
+          <h3>Nuevo caso</h3>
+          <div id="panel-nuevo-form">
+            <label>
+              Asegurado<br />
+              <input type="text" id="nc-asegurado" />
+            </label>
+            <label>
+              DNI<br />
+              <input type="text" id="nc-dni" />
+            </label>
+            <label>
+              N° de siniestro<br />
+              <input type="text" id="nc-sin" />
+            </label>
+            <label>
+              Póliza<br />
+              <input type="text" id="nc-poliza" />
+            </label>
+            <label>
+              Compañía<br />
+              <select id="nc-cia"></select>
+            </label>
+            <label>
+              Ramo<br />
+              <input type="text" id="nc-ramo" />
+            </label>
+            <label>
+              Causa<br />
+              <input type="text" id="nc-causa" />
+            </label>
+            <label>
+              Mail<br />
+              <input type="text" id="nc-mail" />
+            </label>
+            <label>
+              Teléfono<br />
+              <input type="text" id="nc-tel" />
+            </label>
+            <label>
+              Analista asignado<br />
+              <select id="nc-analista"></select>
+            </label>
+
+            <label style="flex: 1 1 100%;">
+              Comentarios de la compañía<br />
+              <textarea id="nc-comentarios" style="height:80px;"></textarea>
+            </label>
+          </div>
+
+          <div id="panel-nuevo-botones">
+            <button type="button" id="btn-nc-guardar">Guardar</button>
+            <button type="button" id="btn-nc-cancelar">Cancelar</button>
+          </div>
+        </section>
+
+        <!-- TABLA (mismo HTML/IDs) -->
+        <section class="tabla-wrapper">
+          <table id="tabla-casos">
+            <thead>
+              <tr>
+                <th class="sortable" data-col="id">
+                  N° <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="cia">
+                  Compañía <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="asegurado">
+                  Asegurado <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="nSiniestro">
+                  N° Siniestro <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="dni">
+                  DNI <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="poliza">
+                  Póliza <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="ramo">
+                  Ramo <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="estado">
+                  Estado <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-col="analista">
+                  Analista <span class="sort-indicator"></span>
+                </th>
+                <th class="col-acciones">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-casos"></tbody>
+          </table>
+        </section>
+
+        <div class="leyenda">
+          Doble clic sobre una fila para abrir el detalle del caso.<br />
+          Los casos base de <strong>datos.js</strong> no se pueden eliminar desde aquí; solo los casos
+          agregados/importados.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Datos base -->
+  <script src="datos.js"></script>
+  <script src="layout-common.js"></script>
+
+  <script>
+    // ========= VARIABLES =========
+    let listaCompleta = [];
+    let listaFiltrada = [];
+    let sortConfig = { col: "id", dir: 1 };
+
+    let ESTADOS_CASO = [];
+
+    // ========= ANALISTAS =========
+    async function obtenerAnalistasCatalogo() {
+      try {
+        return await window.db.getCatalogo('analistas');
+      } catch (err) {
+        console.error("Error al obtener analistas:", err);
+        return [];
+      }
+    }
+
+    async function poblarSelectAnalistas(selectElem, seleccionado = "") {
+      if (!selectElem) return;
+      const analistas = await obtenerAnalistasCatalogo();
+      selectElem.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Seleccioná un analista";
+      placeholder.disabled = true;
+      placeholder.selected = !seleccionado;
+      selectElem.appendChild(placeholder);
+
+      analistas.filter(a => Number(a.activo) === 1).forEach(a => {
+        const opt = document.createElement("option");
+        opt.value = a.nombre;
+        opt.textContent = a.nombre;
+        if (seleccionado === a.nombre) opt.selected = true;
+        selectElem.appendChild(opt);
+      });
+    }
+
+    // ========= COMPAÑÍAS =========
+    async function poblarSelectCompanias() {
+      const selectElem = document.getElementById("nc-cia");
+      if (!selectElem) return;
+      try {
+        const companias = await window.db.getCatalogo('companias');
+        selectElem.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Seleccioná una compañía";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        selectElem.appendChild(placeholder);
+
+        companias.filter(c => Number(c.activo) === 1).sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.nombre;
+          opt.textContent = c.nombre;
+          selectElem.appendChild(opt);
+        });
+      } catch (err) {
+        console.error("Error al poblar compañías:", err);
+      }
+    }
+
+    // ========= ESTADOS =========
+    async function obtenerEstadosCatalogo() {
+      try {
+        return await window.db.getCatalogo('estados');
+      } catch (err) {
+        console.error("Error al obtener estados:", err);
+        return [];
+      }
+    }
+
+    async function poblarFiltroEstados() {
+      const sel = document.getElementById("f-estado");
+      if (!sel) return;
+      const estados = await obtenerEstadosCatalogo();
+      estados.filter(e => Number(e.activo) === 1).forEach(est => {
+        const opt = document.createElement("option");
+        opt.value = est.nombre;
+        opt.textContent = est.nombre;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ========= LISTA COMPLETA =========
+    async function recargarLista() {
+      try {
+        const data = await window.db.getCasos();
+        // Convertir nombres de DB a JS para compatibilidad
+        listaCompleta = data.map(c => ({
+          id: c.id,
+          cia: c.cia,
+          analista: c.analista,
+          asegurado: c.asegurado,
+          dni: c.dni,
+          nSiniestro: c.n_siniestro,
+          poliza: c.poliza,
+          ramo: c.ramo,
+          causa: c.causa,
+          estado: c.estado,
+          esExtra: true // Todos en la DB se consideran editables
+        }));
+        listaFiltrada = [...listaCompleta];
+        aplicarOrden();
+        renderTabla();
+      } catch (err) {
+        console.error("Error al cargar casos:", err);
+      }
+    }
+
+    // ========= SIGUIENTE ID (Supabase lo maneja, pero por compatibilidad UI) =========
+    function calcularSiguienteId() {
+      return listaCompleta.length ? Math.max(...listaCompleta.map(c => Number(c.id) || 0)) + 1 : 1;
+    }
+
+
+
+    // ========= BUSCADOR / FILTROS =========
+    function aplicarFiltros() {
+      const apellido = document.getElementById("f-apellido").value.trim().toUpperCase();
+      const sin = document.getElementById("f-siniestro").value.trim();
+      const dni = document.getElementById("f-dni").value.trim();
+      const idCaso = document.getElementById("f-id").value.trim();
+      const estadoFiltro = document.getElementById("f-estado").value.trim();
+
+      listaFiltrada = listaCompleta.filter(caso => {
+        if (apellido && !(caso.asegurado || "").toUpperCase().includes(apellido)) return false;
+        if (sin && String(caso.nSiniestro || "") !== sin) return false;
+        if (dni && String(caso.dni || "") !== dni) return false;
+        if (idCaso && String(caso.id || "") !== idCaso) return false;
+        if (estadoFiltro && caso.estado !== estadoFiltro) return false;
+        return true;
+      });
+
+      aplicarOrden();
+      renderTabla();
+    }
+
+    function limpiarFiltros() {
+      document.getElementById("form-buscador").reset();
+      listaFiltrada = [...listaCompleta];
+      aplicarOrden();
+      renderTabla();
+    }
+
+    // ========= ORDENAMIENTO =========
+    function aplicarOrden() {
+      const { col, dir } = sortConfig;
+      listaFiltrada.sort((a, b) => {
+        let va = a[col], vb = b[col];
+        if (va == null) va = ""; if (vb == null) vb = "";
+        if (typeof va === 'string') va = va.toUpperCase();
+        if (typeof vb === 'string') vb = vb.toUpperCase();
+        if (va < vb) return -1 * dir;
+        if (va > vb) return 1 * dir;
+        return 0;
+      });
+    }
+
+    function configurarOrdenPorColumna() {
+      document.querySelectorAll("th.sortable").forEach(th => {
+        th.addEventListener("click", () => {
+          const col = th.dataset.col;
+          sortConfig.dir = (sortConfig.col === col) ? -sortConfig.dir : 1;
+          sortConfig.col = col;
+
+          document.querySelectorAll(".sort-indicator").forEach(s => s.textContent = "");
+          th.querySelector(".sort-indicator").textContent = sortConfig.dir === 1 ? "▲" : "▼";
+
+          aplicarOrden();
+          renderTabla();
+        });
+      });
+    }
+
+    // ========= NAVEGACIÓN A DETALLE =========
+    function irADetalle(caso, modo = "ver") {
+      const siniestro = String(caso.nSiniestro || "").trim();
+      window.location.href = `detalle.html?sin=${encodeURIComponent(siniestro)}&modo=${encodeURIComponent(modo)}`;
+    }
+
+    // ========= TABLA =========
+    function renderTabla() {
+      const tbody = document.getElementById("tbody-casos");
+      tbody.innerHTML = "";
+
+      listaFiltrada.forEach(caso => {
+        const tr = document.createElement("tr");
+        const claseEstado = caso.estado === "CONTACTAR" ? "estado-contactar" : (caso.estado === "CERRADO" ? "estado-cerrado" : "");
+
+        tr.innerHTML = `
+          <td>${caso.id || ""}</td>
+          <td>${caso.cia || ""}</td>
+          <td>${caso.asegurado || ""}</td>
+          <td>${caso.nSiniestro || ""}</td>
+          <td>${caso.dni || ""}</td>
+          <td>${caso.poliza || ""}</td>
+          <td>${caso.ramo || ""}</td>
+          <td>${caso.estado ? `<span class="estado-pill ${claseEstado}">${caso.estado}</span>` : ""}</td>
+          <td>${caso.analista || ""}</td>
+          <td class="col-acciones">
+            <button type="button" class="btn-accion ver">Ver</button>
+            <button type="button" class="btn-accion editar">Editar</button>
+            <button type="button" class="btn-accion borrar">Borrar</button>
+          </td>
+        `;
+
+        tr.addEventListener("dblclick", () => irADetalle(caso, "ver"));
+        tr.querySelector(".ver").addEventListener("click", () => irADetalle(caso, "ver"));
+        tr.querySelector(".editar").addEventListener("click", () => irADetalle(caso, "editar"));
+        tr.querySelector(".borrar").addEventListener("click", async () => {
+          if (confirm("¿Eliminar este caso?")) {
+            await window.db.deleteCaso(caso.nSiniestro);
+            recargarLista();
+          }
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ========= NUEVO CASO =========
+    const panelNuevo = document.getElementById("panel-nuevo");
+    document.getElementById("btn-nuevo").addEventListener("click", () => {
+      poblarSelectAnalistas(document.getElementById("nc-analista"));
+      poblarSelectCompanias();
+      panelNuevo.style.display = "block";
+    });
+
+    document.getElementById("btn-nc-guardar").addEventListener("click", async () => {
+      const nuevo = {
+        cia: document.getElementById("nc-cia").value.trim(),
+        asegurado: document.getElementById("nc-asegurado").value.trim(),
+        dni: document.getElementById("nc-dni").value.trim(),
+        nSiniestro: document.getElementById("nc-sin").value.trim(),
+        poliza: document.getElementById("nc-poliza").value.trim(),
+        ramo: document.getElementById("nc-ramo").value.trim(),
+        causa: document.getElementById("nc-causa").value.trim(),
+        mail: document.getElementById("nc-mail").value.trim(),
+        telefono: document.getElementById("nc-tel").value.trim(),
+        analista: document.getElementById("nc-analista").value,
+        comentariosCompania: document.getElementById("nc-comentarios").value.trim(),
+        estado: "CONTACTAR"
+      };
+
+      if (!nuevo.asegurado || !nuevo.nSiniestro) return alert("Asegurado y N° Siniestro son requeridos.");
+
+      try {
+        await window.db.upsertCaso(nuevo);
+        panelNuevo.style.display = "none";
+        recargarLista();
+      } catch (err) { alert("Error al guardar: " + err.message); }
+    });
+
+    document.getElementById("btn-nc-cancelar").addEventListener("click", () => panelNuevo.style.display = "none");
+
+    // Init
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initCommonLayout({ activePage: "lista" });
+      await poblarFiltroEstados();
+      recargarLista();
+      configurarOrdenPorColumna();
+    });
+
+    document.getElementById("form-buscador").addEventListener("submit", (e) => { e.preventDefault(); aplicarFiltros(); });
+    document.getElementById("btn-limpiar").addEventListener("click", limpiarFiltros);
+    document.getElementById("btn-ver-tareas").addEventListener("click", () => window.location.href = "tareas.html");
+
+  </script>
+</body>
+
+</html>

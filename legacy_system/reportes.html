@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PROYECTO SISTEMA - Reportes</title>
+
+  <link rel="stylesheet" href="layout-common.css">
+  <style>
+    /* =========================
+       REPORTES UI
+       ========================= */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, .18);
+      color: var(--text);
+      outline: none;
+      font-size: 12px;
+    }
+
+    .field small {
+      color: rgba(169, 183, 209, .75);
+    }
+
+    .metrics {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .gestion-analistas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .gestion-card {
+      flex: 1 1 240px;
+      min-width: 220px;
+      border: 1px solid rgba(34, 197, 94, .35);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+      padding: 16px 16px 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: .2s ease;
+    }
+
+    .gestion-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(180px 180px at 90% 0%, rgba(255, 255, 255, .12), transparent 60%);
+      pointer-events: none;
+      opacity: .6;
+    }
+
+    .gestion-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow), 0 10px 26px rgba(34, 197, 94, .18);
+    }
+
+    .ga-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .ga-chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, .22);
+      background: rgba(255, 255, 255, .08);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08);
+    }
+
+    .gestion-card .ga-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      letter-spacing: .2px;
+    }
+
+    .gestion-card .ga-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, .1);
+      font-weight: 600;
+      letter-spacing: .2px;
+      gap: 10px;
+    }
+
+    .gestion-card .ga-row:last-child {
+      border-bottom: none;
+    }
+
+    .ga-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .ga-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, .08);
+    }
+
+    .gestion-card .ga-num {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .ga-sin-contactar {
+      color: var(--danger);
+    }
+
+    .ga-pendientes {
+      color: var(--text);
+    }
+
+    .ga-cerrados {
+      color: var(--accent);
+    }
+
+    .ga-empty {
+      width: 100%;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .gestion-analistas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .gestion-card {
+      flex: 1 1 250px;
+      max-width: 25px;
+      border: 3px solid rgba(0, 255, 94, .35);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+      padding: 14px 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .gestion-card .ga-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 0px;
+      color: var(--text);
+    }
+
+    .gestion-card .ga-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, .1);
+      font-weight: 600;
+      letter-spacing: .2px;
+      gap: 10px;
+    }
+
+    .gestion-card .ga-row:last-child {
+      border-bottom: none;
+    }
+
+    .gestion-card .ga-row span:first-child {
+      font-size: 12px;
+    }
+
+    .gestion-card .ga-num {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .ga-sin-contactar {
+      color: var(--danger);
+    }
+
+    .ga-pendientes {
+      color: var(--text);
+    }
+
+    .ga-cerrados {
+      color: var(--accent);
+    }
+
+    .ga-empty {
+      width: 100%;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .metric {
+      flex: 1 1 190px;
+      min-width: 170px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .03);
+      padding: 12px;
+    }
+
+    .metric .label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .metric .value {
+      font-size: 22px;
+      font-weight: 800;
+      margin-top: 6px;
+      color: var(--text);
+    }
+
+    .metric .sub {
+      margin-top: 6px;
+      font-size: 11px;
+      color: rgba(169, 183, 209, .75);
+    }
+
+    .tablewrap {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: auto;
+      background: rgba(255, 255, 255, .02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(34, 197, 94, .12);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      backdrop-filter: blur(6px);
+    }
+
+    th,
+    td {
+      padding: 8px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(255, 255, 255, .015);
+    }
+
+    tbody tr:hover td {
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .col-num {
+      text-align: right;
+      width: 140px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      background: rgba(255, 255, 255, .06);
+      color: var(--text);
+    }
+
+    .chip.ok {
+      border-color: rgba(34, 197, 94, .30);
+      background: rgba(34, 197, 94, .18);
+    }
+
+    .chip.bad {
+      border-color: rgba(239, 68, 68, .30);
+      background: rgba(239, 68, 68, .16);
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .note {
+      font-size: 11px;
+      color: rgba(169, 183, 209, .75);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .footer {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        margin-top: 14px;
+      }
+    }
+  </style>
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú lateral">☰</button>
+      <div class="logo">
+        <img src="logo-estudio-hm-gibert.svg" alt="Logo Estudio HM Gibert" />
+        <div class="titulo">PROYECTO SISTEMA - Reportes</div>
+      </div>
+    </div>
+    <div class="usuario" id="infoUsuario"></div>
+  </header>
+
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>PROYECTO SISTEMA</h1>
+        <span>Liquidador de siniestros</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a data-page="index" href="index.html"><span class="dot"></span>Inicio</a>
+      <a data-page="lista" href="lista.html"><span class="dot"></span>Listado de Casos</a>
+      <a data-page="tareas" href="tareas.html"><span class="dot"></span>Tareas</a>
+      <a class="active" data-page="reportes" href="reportes.html"><span class="dot"></span>Reportes</a>
+      <a data-page="facturacion" href="facturacion.html"><span class="dot"></span>Facturación</a>
+      <a data-page="administracion" href="administracion.html"><span class="dot"></span>Administración</a>
+    </nav>
+
+    <div class="footer-card">
+      <div id="infoUsuarioSidebar"></div>
+    </div>
+  </nav>
+
+  <main class="content main" id="content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2>Reportes</h2>
+        <p>Estados de casos, carga por analista/compañía y tareas pendientes (según localStorage).</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn" id="btnRecalcular">Recalcular</button>
+        <button class="btn primary" id="btnExportDataset">Exportar dataset (CSV)</button>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- GESTIÓN POR ANALISTA -->
+      <section class="card">
+        <h3>Estado de gestión por analista</h3>
+        <p>Cuenta de casos por estado (según listado) para cada analista en el scope actual.</p>
+
+        <div id="gestionAnalistas" class="gestion-analistas">
+          <div class="ga-empty">Sin datos.</div>
+        </div>
+      </section>
+
+      <!-- FILTROS -->
+      <section class="card">
+        <h3>Filtros generales</h3>
+        <p>Aplican sobre los reportes de esta pantalla (no cambian la Lista).</p>
+
+        <div class="filters">
+          <div class="field">
+            <label>Compañía (contiene)</label>
+            <input type="text" id="filtroCompania" placeholder="Ej: LIFE" />
+            <small>Filtra por texto en compañía.</small>
+          </div>
+
+          <div class="field">
+            <label>Analista (contiene)</label>
+            <input type="text" id="filtroAnalista" placeholder="Ej: Facu" />
+            <small>Filtra por texto en analista.</small>
+          </div>
+
+          <div class="field">
+            <label>Estado</label>
+            <select id="filtroEstado">
+              <option value="">(Todos)</option>
+            </select>
+            <small>Usa estados_siniestros_v1 si existe.</small>
+          </div>
+
+          <div class="field" id="wrapSoloMias">
+            <label style="display:flex;gap:10px;align-items:center;flex-direction:row;">
+              <input type="checkbox" id="soloMias" checked />
+              Solo mis casos
+            </label>
+            <small>Compara contra el analista del caso.</small>
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button class="btn primary" id="btnAplicarFiltros">Aplicar filtros</button>
+          <button class="btn" id="btnLimpiarFiltros">Limpiar</button>
+          <span class="chip" id="chipScope">Scope: todos</span>
+        </div>
+
+        <div class="note">
+          Fuente de casos: <b>datos.js</b> + <b>casos_extra_v1</b>. Estado actual: <b>estados_siniestros_v1</b>
+          (prioridad) y fallback a campos del caso.
+        </div>
+      </section>
+
+      <!-- MÉTRICAS -->
+      <section class="card">
+        <h3>Resumen general</h3>
+        <p>Métricas calculadas con el scope actual (filtros aplicados).</p>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">Total de casos (scope)</div>
+            <div class="value" id="metricTotalCasos">0</div>
+            <div class="sub" id="metricScopeText">—</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Casos en CERRADO</div>
+            <div class="value" id="metricCerrados">0</div>
+            <div class="sub" id="metricCerradosPct">—</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Estados distintos</div>
+            <div class="value" id="metricEstadosDist">0</div>
+            <div class="sub">Contando “Sin estado” si aplica.</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Tareas pendientes (scope)</div>
+            <div class="value" id="metricTareasPendientes">0</div>
+            <div class="sub">De tareas_siniestros_v1 cruzadas con casos.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLA ESTADOS -->
+      <section class="card">
+        <h3>Casos por estado</h3>
+        <p>Distribución del estado actual por cantidad.</p>
+
+        <div class="row-actions">
+          <button class="btn" id="btnExportEstados">Exportar tabla (CSV)</button>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th class="col-num">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPorEstado">
+              <tr>
+                <td colspan="2">Sin datos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TABLA ANALISTA -->
+      <section class="card">
+        <h3>Casos por analista</h3>
+        <p>Distribución de casos según el analista asignado.</p>
+
+        <div class="row-actions">
+          <button class="btn" id="btnExportAnalistas">Exportar tabla (CSV)</button>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Analista</th>
+                <th class="col-num">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPorAnalista">
+              <tr>
+                <td colspan="2">Sin datos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TABLA COMPAÑIA -->
+      <section class="card">
+        <h3>Casos por compañía</h3>
+        <p>Distribución de casos por compañía.</p>
+
+        <div class="row-actions">
+          <button class="btn" id="btnExportCompanias">Exportar tabla (CSV)</button>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Compañía</th>
+                <th class="col-num">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPorCompania">
+              <tr>
+                <td colspan="2">Sin datos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAREAS PENDIENTES POR ANALISTA -->
+      <section class="card">
+        <h3>Tareas pendientes por analista</h3>
+        <p>Cuenta solo tareas <b>no hechas</b> (tareas_siniestros_v1), cruzadas con el analista del caso.</p>
+
+        <div class="row-actions">
+          <button class="btn" id="btnExportTareasAnalista">Exportar tabla (CSV)</button>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Analista</th>
+                <th class="col-num">Pendientes</th>
+              </tr>
+            </thead>
+            <tbody id="tablaTareasPendientesAnalista">
+              <tr>
+                <td colspan="2">Sin datos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          Nota: si un siniestro tiene tareas pero no existe caso cargado, no se puede asignar analista (queda fuera del
+          scope).
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- DATOS BASE -->
+  <script src="datos.js"></script>
+  <script src="layout-common.js"></script>
+
+  <script>
+    let casosExtra = [];
+    let estadoPorCaso = {};
+    let currentUser = null;
+    const wrapSoloMias = document.getElementById("wrapSoloMias");
+    const chkSoloMias = document.getElementById("soloMias");
+
+    async function cargarDatosSupabase() {
+      try {
+        casosBase = await window.db.getCasos();
+        const tareas = await window.db.getTareas();
+        const mapaTareas = {};
+        tareas.forEach(t => {
+          const key = String(t.n_siniestro);
+          if (!mapaTareas[key]) mapaTareas[key] = [];
+          mapaTareas[key].push({ ...t, nSiniestro: t.n_siniestro });
+        });
+        window.todasLasTareasMap = mapaTareas;
+      } catch (err) {
+        console.error("Error cargando datos de Supabase:", err);
+      }
+    }
+
+    function obtenerTodosLosCasos() {
+      return casosBase;
+    }
+
+    function obtenerTareasPorCaso() {
+      return window.todasLasTareasMap || {};
+    }
+
+    // === FILTROS (UI) ===
+    const inputComp = document.getElementById("filtroCompania");
+    const inputAnal = document.getElementById("filtroAnalista");
+    const selEstado = document.getElementById("filtroEstado");
+    const chipScope = document.getElementById("chipScope");
+
+    function normalizar(s) {
+      return (s ?? "").toString().trim();
+    }
+    function upper(s) {
+      return normalizar(s).toUpperCase();
+    }
+    function contiene(haystack, needle) {
+      if (!needle) return true;
+      return upper(haystack).includes(upper(needle));
+    }
+
+    // Poblar combo estados desde catálogo
+    async function poblarComboEstados() {
+      const estados = await window.db.getCatalogo('estados');
+      selEstado.innerHTML = '<option value="">(Todos)</option>';
+      estados.filter(e => Number(e.activo) === 1).forEach(e => {
+        const opt = document.createElement("option");
+        opt.value = e.nombre;
+        opt.textContent = e.nombre;
+        selEstado.appendChild(opt);
+      });
+    }
+
+    function getEstadoActual(caso) {
+      return (caso?.estado || "Sin estado");
+    }
+
+    // === SCOPE (casos filtrados) ===
+    let scopeCasos = [];
+
+    async function aplicarFiltrosAScope() {
+      const all = obtenerTodosLosCasos();
+      const fComp = inputComp.value.trim();
+      const fAnal = inputAnal.value.trim();
+      const fEst = selEstado.value.trim();
+
+      const { data: { user } } = await window.supabaseClient.auth.getUser();
+      const currentUser = user;
+      const soloMias = currentUser ? chkSoloMias.checked : false;
+
+      const nombreRef = currentUser?.user_metadata?.nombre || currentUser?.email || "";
+      const nombreRefUp = upper(nombreRef);
+
+      scopeCasos = all.filter(c => {
+        const cia = normalizar(c.cia) || "Sin compañía";
+        const analista = normalizar(c.analista) || "Sin asignar";
+        const est = getEstadoActual(c);
+
+        if (!contiene(cia, fComp)) return false;
+        if (!contiene(analista, fAnal)) return false;
+        if (fEst && upper(est) !== upper(fEst)) return false;
+
+        if (soloMias && nombreRefUp) {
+          if (upper(analista) !== nombreRefUp) return false;
+        }
+        return true;
+      });
+
+      const parts = [];
+      if (fComp) parts.push("Cía");
+      if (fAnal) parts.push("Analista");
+      if (fEst) parts.push("Estado");
+      if (soloMias) parts.push("Solo mías");
+      const scopeTxt = parts.length ? ("filtrado: " + parts.join(" + ")) : "todos";
+
+      chipScope.textContent = "Scope: " + scopeTxt;
+      chipScope.className = "chip " + (parts.length ? "ok" : "");
+
+      document.getElementById("metricScopeText").textContent =
+        `Casos base: ${casosBase.length} | Scope: ${scopeCasos.length}`;
+    }
+
+    // === REPORTES ===
+    let lastDataset = []; // para export
+    let lastPorEstado = [];
+    let lastPorAnalista = [];
+    let lastPorCompania = [];
+    let lastTareasPendAnalista = [];
+    let lastGestionAnalistas = [];
+
+    async function recalcularReportes() {
+      if (casosBase.length === 0) await cargarDatosSupabase();
+      await aplicarFiltrosAScope();
+
+      const porEstado = {};
+      const porAnalista = {};
+      const porCompania = {};
+
+      // mapa siniestro -> caso (para cruzar tareas dentro del scope)
+      const mapaScope = {};
+      scopeCasos.forEach(c => {
+        const key = normalizar(c.nSiniestro);
+        if (key) mapaScope[key] = c;
+      });
+
+      // dataset base
+      lastDataset = scopeCasos.map(c => {
+        const estado = getEstadoActual(c);
+        const cia = normalizar(c.cia) || "Sin compañía";
+        const analista = normalizar(c.analista) || "Sin asignar";
+        return {
+          id: normalizar(c.id),
+          nSiniestro: normalizar(c.nSiniestro),
+          asegurado: normalizar(c.asegurado),
+          dni: normalizar(c.dni),
+          poliza: normalizar(c.poliza),
+          ramo: normalizar(c.ramo),
+          cia,
+          analista,
+          estado
+        };
+      });
+
+      // agrupar casos
+      lastDataset.forEach(row => {
+        porEstado[row.estado] = (porEstado[row.estado] || 0) + 1;
+        porAnalista[row.analista] = (porAnalista[row.analista] || 0) + 1;
+        porCompania[row.cia] = (porCompania[row.cia] || 0) + 1;
+      });
+
+      // tareas pendientes en scope
+      const tareasPorCaso = obtenerTareasPorCaso();
+      const pendientesPorAnalista = {};
+      let totalPendientes = 0;
+
+      Object.keys(tareasPorCaso).forEach(key => {
+        const caso = mapaScope[key]; // SOLO si el caso está en scope
+        if (!caso) return;
+
+        const analista = normalizar(caso.analista) || "Sin analista";
+        const lista = tareasPorCaso[key] || [];
+        lista.forEach(t => {
+          if (!t || t.hecha) return;
+          pendientesPorAnalista[analista] = (pendientesPorAnalista[analista] || 0) + 1;
+          totalPendientes++;
+        });
+      });
+
+      // métricas
+      const totalCasos = lastDataset.length;
+      const cerrados = lastDataset.filter(r => upper(r.estado) === "CERRADO").length;
+
+      document.getElementById("metricTotalCasos").textContent = totalCasos;
+      document.getElementById("metricCerrados").textContent = cerrados;
+
+      const pct = totalCasos ? Math.round((cerrados / totalCasos) * 100) : 0;
+      document.getElementById("metricCerradosPct").textContent = totalCasos ? `${pct}% del scope` : "—";
+
+      document.getElementById("metricEstadosDist").textContent = Object.keys(porEstado).length;
+      document.getElementById("metricTareasPendientes").textContent = totalPendientes;
+
+      // render tables
+      lastPorEstado = Object.keys(porEstado).map(k => ({ estado: k, cantidad: porEstado[k] }))
+        .sort((a, b) => b.cantidad - a.cantidad);
+
+      lastPorAnalista = Object.keys(porAnalista).map(k => ({ analista: k, cantidad: porAnalista[k] }))
+        .sort((a, b) => b.cantidad - a.cantidad);
+
+      lastPorCompania = Object.keys(porCompania).map(k => ({ compania: k, cantidad: porCompania[k] }))
+        .sort((a, b) => b.cantidad - a.cantidad);
+
+      lastTareasPendAnalista = Object.keys(pendientesPorAnalista).map(k => ({ analista: k, pendientes: pendientesPorAnalista[k] }))
+        .sort((a, b) => b.pendientes - a.pendientes);
+
+      lastGestionAnalistas = calcularGestionPorAnalista(lastDataset);
+
+      renderTablaSimple("tablaPorEstado", lastPorEstado, ["estado", "cantidad"]);
+      renderTablaSimple("tablaPorAnalista", lastPorAnalista, ["analista", "cantidad"]);
+      renderTablaSimple("tablaPorCompania", lastPorCompania, ["compania", "cantidad"]);
+      renderTablaSimple("tablaTareasPendientesAnalista", lastTareasPendAnalista, ["analista", "pendientes"]);
+      renderGestionAnalistas(lastGestionAnalistas);
+    }
+
+    function renderTablaSimple(tbodyId, rows, cols) {
+      const tb = document.getElementById(tbodyId);
+      tb.innerHTML = "";
+
+      if (!rows || rows.length === 0) {
+        tb.innerHTML = `<tr><td colspan="${cols.length}">Sin datos.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = cols.map((c, i) => {
+          const val = (r[c] ?? "");
+          const cls = (i === cols.length - 1) ? "col-num" : "";
+          return `<td class="${cls}">${String(val)}</td>`;
+        }).join("");
+        tb.appendChild(tr);
+      });
+    }
+
+    function clasificarEstadoGestion(estado) {
+      const up = upper(estado);
+      if (up === "CERRADO") return "cerrados";
+      if (up === "CONTACTAR" || up === "SIN CONTACTAR") return "sinContactar";
+      return "pendientes";
+    }
+
+    function calcularGestionPorAnalista(dataset) {
+      const mapa = {};
+      dataset.forEach(row => {
+        const analista = row.analista || "Sin asignar";
+        if (!mapa[analista]) {
+          mapa[analista] = { analista, sinContactar: 0, pendientes: 0, cerrados: 0 };
+        }
+        const grupo = clasificarEstadoGestion(row.estado);
+        mapa[analista][grupo] += 1;
+      });
+
+      return Object.values(mapa).sort((a, b) => a.analista.localeCompare(b.analista));
+    }
+
+    function renderGestionAnalistas(rows) {
+      const wrap = document.getElementById("gestionAnalistas");
+      wrap.innerHTML = "";
+
+      if (!rows || rows.length === 0) {
+        wrap.innerHTML = '<div class="ga-empty">Sin datos.</div>';
+        return;
+      }
+
+      rows.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "gestion-card";
+        const total = r.sinContactar + r.pendientes + r.cerrados;
+        card.innerHTML = `
+          <div class="ga-header">
+            <div class="ga-title">${r.analista}</div>
+            <div class="ga-chip">${total} caso${total === 1 ? "" : "s"}</div>
+          </div>
+          <div class="ga-row ga-sin-contactar">
+            <span class="ga-label"><span class="ga-dot"></span>SIN CONTACTAR</span>
+            <span class="ga-num">${r.sinContactar}</span>
+          </div>
+          <div class="ga-row ga-pendientes">
+            <span class="ga-label"><span class="ga-dot"></span>PENDIENTES</span>
+            <span class="ga-num">${r.pendientes}</span>
+          </div>
+          <div class="ga-row ga-cerrados">
+            <span class="ga-label"><span class="ga-dot"></span>CERRADOS</span>
+            <span class="ga-num">${r.cerrados}</span>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+    }
+
+    // === EXPORT CSV ===
+    function descargarCSV(nombreArchivo, rows, headers) {
+      const esc = (v) => {
+        const s = (v ?? "").toString();
+        // CSV con comillas
+        return '"' + s.replaceAll('"', '""') + '"';
+      };
+
+      const lines = [];
+      lines.push(headers.map(esc).join(","));
+      rows.forEach(r => {
+        lines.push(headers.map(h => esc(r[h])).join(","));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nombreArchivo;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // === UI EVENTS ===
+    document.getElementById("btnRecalcular").addEventListener("click", () => {
+      cargarDatosSupabase().then(() => recalcularReportes());
+    });
+    document.getElementById("btnAplicarFiltros").addEventListener("click", recalcularReportes);
+
+    document.getElementById("btnLimpiarFiltros").addEventListener("click", () => {
+      inputComp.value = "";
+      inputAnal.value = "";
+      selEstado.value = "";
+      if (currentUser) chkSoloMias.checked = true;
+      recalcularReportes();
+    });
+
+    document.getElementById("btnExportDataset").addEventListener("click", () => {
+      descargarCSV(
+        "dataset_casos_scope.csv",
+        lastDataset,
+        ["id", "nSiniestro", "asegurado", "dni", "poliza", "ramo", "cia", "analista", "estado"]
+      );
+    });
+
+    document.getElementById("btnExportEstados").addEventListener("click", () => {
+      descargarCSV("reporte_por_estado.csv", lastPorEstado, ["estado", "cantidad"]);
+    });
+
+    document.getElementById("btnExportAnalistas").addEventListener("click", () => {
+      descargarCSV("reporte_por_analista.csv", lastPorAnalista, ["analista", "cantidad"]);
+    });
+
+    document.getElementById("btnExportCompanias").addEventListener("click", () => {
+      descargarCSV("reporte_por_compania.csv", lastPorCompania, ["compania", "cantidad"]);
+    });
+
+    document.getElementById("btnExportTareasAnalista").addEventListener("click", () => {
+      descargarCSV("tareas_pendientes_por_analista.csv", lastTareasPendAnalista, ["analista", "pendientes"]);
+    });
+
+    // === INIT ===
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initCommonLayout({ activePage: "reportes" });
+      const { data: { user } } = await window.supabaseClient.auth.getUser();
+      currentUser = user;
+      if (!currentUser) {
+        if (wrapSoloMias) wrapSoloMias.style.display = "none";
+        chkSoloMias.checked = false;
+      }
+      await poblarComboEstados();
+      await cargarDatosSupabase();
+      recalcularReportes();
+    });
+  </script>
+</body>
+
+</html>

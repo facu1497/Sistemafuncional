@@ -144,6 +144,25 @@ export const Detalle = () => {
         }
     };
 
+    const handleStatusUpdate = async (status: { estado?: string, sub_estado?: string }) => {
+        const updatedCaso = { ...caso, ...status };
+        setCaso(updatedCaso);
+        setSaving(true);
+        try {
+            const { error } = await supabase
+                .from('casos')
+                .update(status)
+                .eq('id', caso.id);
+
+            if (error) throw error;
+        } catch (err) {
+            console.error("Error updating status:", err);
+            alert("Error al actualizar el estado.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     if (loading) return (
         <Layout>
             <div style={{ color: 'var(--muted-color)', padding: '20px' }}>Cargando detalle del caso...</div>
@@ -169,10 +188,9 @@ export const Detalle = () => {
                     {saving && <span style={{ fontSize: '12px', color: 'var(--accent-color)' }}>Guardando...</span>}
                     <select
                         className={styles.statusSelect}
-                        value={caso.estado || 'SIN ASIGNAR'}
+                        value={caso.estado || 'ENTREVISTAR'}
                         onChange={(e) => handleStatusChange(e.target.value)}
                         style={{
-                            // Basic style inline for now, ideally in css module
                             padding: '6px 12px',
                             borderRadius: '20px',
                             border: 'none',
@@ -183,10 +201,21 @@ export const Detalle = () => {
                             outline: 'none'
                         }}
                     >
-                        {['SIN ASIGNAR', 'EN PROCESO', 'PENDIENTE', 'CERRADO'].map(st => (
+                        {['ENTREVISTAR', 'EN GESTION', 'CERRADO'].map(st => (
                             <option key={st} value={st}>{st}</option>
                         ))}
                     </select>
+                    {caso.sub_estado && (
+                        <span style={{
+                            fontSize: '12px',
+                            color: 'var(--muted-color)',
+                            background: 'rgba(255,255,255,0.05)',
+                            padding: '4px 8px',
+                            borderRadius: '4px'
+                        }}>
+                            {caso.sub_estado}
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -239,6 +268,7 @@ export const Detalle = () => {
                                 data={caso.checklist || []}
                                 causa={caso.causa}
                                 onUpdate={handleSaveChecklist}
+                                onStatusUpdate={handleStatusUpdate}
                             />
                         )}
 
@@ -269,7 +299,11 @@ export const Detalle = () => {
                         )}
 
                         {activeTab === 'gestion' && (
-                            <Gestion nSiniestro={caso.n_siniestro} id={caso.id} />
+                            <Gestion
+                                nSiniestro={caso.n_siniestro}
+                                id={caso.id}
+                                onStatusUpdate={handleStatusUpdate}
+                            />
                         )}
                     </div>
                 </div>

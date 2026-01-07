@@ -449,15 +449,28 @@ export const Lista = () => {
                                     <td style={{ color: 'var(--muted-color)' }}>{caso.cia}</td>
                                     <td style={{ color: 'var(--muted-color)' }}>{caso.analista || '-'}</td>
                                     <td>
-                                        <span
-                                            className={styles.badge}
-                                            style={{
-                                                backgroundColor: getEstadoColor(caso.estado) + '22',
-                                                color: getEstadoColor(caso.estado) === '#ffffff' ? '#333' : getEstadoColor(caso.estado)
-                                            }}
-                                        >
-                                            {caso.estado || 'SIN ESTADO'}
-                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <span
+                                                className={styles.badge}
+                                                style={{
+                                                    backgroundColor: getEstadoColor(caso.estado) + '22',
+                                                    color: getEstadoColor(caso.estado) === '#ffffff' ? '#333' : getEstadoColor(caso.estado)
+                                                }}
+                                            >
+                                                {caso.estado || 'SIN ESTADO'}
+                                            </span>
+                                            {caso.sub_estado && (
+                                                <span style={{
+                                                    fontSize: '10px',
+                                                    color: 'var(--muted-color)',
+                                                    textAlign: 'center',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.5px'
+                                                }}>
+                                                    {caso.sub_estado}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td>
                                         <button

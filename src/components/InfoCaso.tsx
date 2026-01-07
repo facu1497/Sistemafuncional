@@ -151,6 +151,23 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                             {transcribing ? 'Transcribiendo...' : 'Importar Audio/Video'}
                             <Upload size={14} />
                         </button>
+
+                        <button
+                            className={styles.btnSave}
+                            style={{
+                                width: 'auto',
+                                background: '#10b981', /* green-500 */
+                                fontSize: '13px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}
+                            onClick={async () => {
+                                await onUpdate({ ...form, estado: 'EN GESTION', sub_estado: 'DOC PENDIENTE' });
+                            }}
+                        >
+                            Entrevistado
+                        </button>
                     </div>
                 </div>
 

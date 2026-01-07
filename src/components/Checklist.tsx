@@ -11,6 +11,7 @@ interface ChecklistProps {
     data: ChecklistItem[];
     causa: string;
     onUpdate: (items: ChecklistItem[]) => void;
+    onStatusUpdate?: (status: { estado?: string, sub_estado?: string }) => void;
 }
 
 const CHECKLIST_MAP: Record<string, string[]> = {
@@ -21,7 +22,7 @@ const CHECKLIST_MAP: Record<string, string[]> = {
 
 const DEFAULT_ITEMS = ["DNI", "DOCUMENTACIÓN RESPALDATORIA", "FOTOS / PRUEBAS", "OBSERVACIONES"];
 
-export const Checklist = ({ data, causa, onUpdate }: ChecklistProps) => {
+export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistProps) => {
     const [items, setItems] = useState<ChecklistItem[]>([]);
     const [newItemText, setNewItemText] = useState('');
 
@@ -116,6 +117,14 @@ export const Checklist = ({ data, causa, onUpdate }: ChecklistProps) => {
                     <Plus size={16} /> Agregar
                 </button>
             </div>
+
+            <button
+                className={styles.btnAdd}
+                style={{ width: '100%', marginTop: '20px', background: '#3b82f6' }}
+                onClick={() => onStatusUpdate?.({ sub_estado: 'ANALISIS' })}
+            >
+                Documentación completada
+            </button>
         </div>
     );
 };

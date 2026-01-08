@@ -9,7 +9,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
                     <div className={styles.logo}>
-                        <img src="/logo_gibert.png" alt="Logo" />
+                        <img src="logo_gibert.png" alt="Logo" />
                         <div className={styles.titulo}>H.M. Gibert<br /><span style={{ fontSize: '12px', fontWeight: 400, color: 'var(--muted-color)' }}>Sistema de Gestión</span></div>
                     </div>
                 </div>

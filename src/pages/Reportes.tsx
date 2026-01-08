@@ -13,6 +13,7 @@ export const Reportes = () => {
     const [filterCia, setFilterCia] = useState('');
     const [filterAnalista, setFilterAnalista] = useState('');
     const [filterEstado, setFilterEstado] = useState('');
+    const [filterMes, setFilterMes] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
 
     // Catalogs
     const [estadosCat, setEstadosCat] = useState<any[]>([]);
@@ -122,27 +123,22 @@ export const Reportes = () => {
         });
     }, [filteredCasos]);
 
-    const porMes = useMemo(() => {
-        const map: Record<string, number> = {};
-        const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const activityMetrics = useMemo(() => {
+        if (!filterMes) return { ingresados: 0, entrevistados: 0, documentados: 0, cerrados: 0 };
 
-        filteredCasos.forEach(c => {
-            if (!c.fecha_ingreso) return;
-            const date = new Date(c.fecha_ingreso);
-            if (isNaN(date.getTime())) return;
+        const target = filterMes; // YYYY-MM
 
-            const key = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-            map[key] = (map[key] || 0) + 1;
-        });
+        const countInMonth = (list: any[], dateField: string) => {
+            return list.filter(c => c[dateField] && c[dateField].startsWith(target)).length;
+        };
 
-        // Sort by date (parsing key back or using original dates would be better, but for simplicity let's do a basic sort)
-        return Object.entries(map).sort((a, b) => {
-            const [mA, yA] = a[0].split(' ');
-            const [mB, yB] = b[0].split(' ');
-            if (yA !== yB) return Number(yB) - Number(yA);
-            return monthNames.indexOf(mB) - monthNames.indexOf(mA);
-        });
-    }, [filteredCasos]);
+        return {
+            ingresados: countInMonth(casos, 'fecha_ingreso'),
+            entrevistados: countInMonth(casos, 'fecha_entrevista'),
+            documentados: countInMonth(casos, 'fecha_documentacion_completa'),
+            cerrados: countInMonth(casos, 'fecha_cierre')
+        };
+    }, [casos, filterMes]);
 
     if (loading) return (
         <Layout>
@@ -205,7 +201,16 @@ export const Reportes = () => {
                             {estadosCat.map(e => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
                         </select>
                     </div>
-                    <button className={styles.btnAction} onClick={() => { setFilterCia(''); setFilterAnalista(''); setFilterEstado(''); }}>
+                    <div className={styles.field}>
+                        <label className={styles.label}>Actividad del Mes</label>
+                        <input
+                            type="month"
+                            className={styles.input}
+                            value={filterMes}
+                            onChange={e => setFilterMes(e.target.value)}
+                        />
+                    </div>
+                    <button className={styles.btnAction} onClick={() => { setFilterCia(''); setFilterAnalista(''); setFilterEstado(''); setFilterMes(new Date().toISOString().slice(0, 7)); }}>
                         Limpiar Filtros
                     </button>
                     <button className={styles.btnAction} onClick={loadData}>
@@ -229,6 +234,31 @@ export const Reportes = () => {
                 <div className={styles.metricBox}>
                     <div className={styles.metricLabel}>Estados Activos</div>
                     <div className={styles.metricValue}>{metrics.uniqueStates}</div>
+                </div>
+            </div>
+
+            {/* MONTHLY ACTIVITY SUMMARY */}
+            <h3 style={{ marginTop: '30px' }}>Resumen de Actividad: {filterMes}</h3>
+            <div className={styles.metricsGrid} style={{ marginTop: '10px' }}>
+                <div className={styles.metricBox} style={{ borderLeft: '4px solid #3699ff' }}>
+                    <div className={styles.metricLabel}>Ingresados</div>
+                    <div className={styles.metricValue}>{activityMetrics.ingresados}</div>
+                    <div className={styles.metricSub}>En el mes seleccionado</div>
+                </div>
+                <div className={styles.metricBox} style={{ borderLeft: '4px solid #e67e22' }}>
+                    <div className={styles.metricLabel}>Entrevistados</div>
+                    <div className={styles.metricValue}>{activityMetrics.entrevistados}</div>
+                    <div className={styles.metricSub}>En el mes seleccionado</div>
+                </div>
+                <div className={styles.metricBox} style={{ borderLeft: '4px solid #3b82f6' }}>
+                    <div className={styles.metricLabel}>Doc. Completas</div>
+                    <div className={styles.metricValue}>{activityMetrics.documentados}</div>
+                    <div className={styles.metricSub}>En el mes seleccionado</div>
+                </div>
+                <div className={styles.metricBox} style={{ borderLeft: '4px solid #10b981' }}>
+                    <div className={styles.metricLabel}>Cerrados (Salidos)</div>
+                    <div className={styles.metricValue}>{activityMetrics.cerrados}</div>
+                    <div className={styles.metricSub}>En el mes seleccionado</div>
                 </div>
             </div>
 
@@ -282,24 +312,6 @@ export const Reportes = () => {
                             <thead><tr><th>Compañía</th><th className={styles.colNum}>Cant.</th></tr></thead>
                             <tbody>
                                 {porCia.map(([k, v]) => (
-                                    <tr key={k}><td>{k}</td><td className={styles.colNum}>{v}</td></tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Por Mes (Ingresados) */}
-                <div className={styles.card}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3>Ingresados por Mes</h3>
-                        <button className={styles.btnAction} style={{ padding: '4px 8px', height: 'auto' }}><Download size={14} /></button>
-                    </div>
-                    <div className={styles.tableWrapper}>
-                        <table className={styles.table}>
-                            <thead><tr><th>Mes</th><th className={styles.colNum}>Cant.</th></tr></thead>
-                            <tbody>
-                                {porMes.map(([k, v]) => (
                                     <tr key={k}><td>{k}</td><td className={styles.colNum}>{v}</td></tr>
                                 ))}
                             </tbody>

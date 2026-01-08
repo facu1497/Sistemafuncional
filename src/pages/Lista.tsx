@@ -15,7 +15,8 @@ export const Lista = () => {
     const [catalogs, setCatalogs] = useState({
         companias: [] as any[],
         analistas: [] as any[],
-        estados: [] as any[]
+        estados: [] as any[],
+        sub_estados: [] as any[]
     });
 
     const [filters, setFilters] = useState({
@@ -25,6 +26,7 @@ export const Lista = () => {
         compania: '',
         analista: '',
         estado: '',
+        subEstado: '',
         misCasos: false
     });
 
@@ -78,16 +80,18 @@ export const Lista = () => {
         setLoading(true);
         try {
             // 1. Load Catalogs
-            const [ciaRes, anaRes, estRes] = await Promise.all([
+            const [ciaRes, anaRes, estRes, subRes] = await Promise.all([
                 supabase.from('companias').select('*').eq('activo', 1),
                 supabase.from('analistas').select('*').eq('activo', 1),
-                supabase.from('estados').select('*').eq('activo', 1)
+                supabase.from('estados').select('*').eq('activo', 1),
+                supabase.from('sub_estados').select('*').eq('activo', 1)
             ]);
 
             setCatalogs({
                 companias: ciaRes.data || [],
                 analistas: anaRes.data || [],
-                estados: estRes.data || []
+                estados: estRes.data || [],
+                sub_estados: subRes.data || []
             });
 
             // 2. Load Casos
@@ -122,6 +126,7 @@ export const Lista = () => {
         if (filters.compania) res = res.filter(c => c.cia === filters.compania);
         if (filters.analista) res = res.filter(c => c.analista === filters.analista);
         if (filters.estado) res = res.filter(c => c.estado === filters.estado);
+        if (filters.subEstado) res = res.filter(c => c.sub_estado === filters.subEstado);
 
         // Sorting
         res.sort((a, b) => {
@@ -557,6 +562,13 @@ export const Lista = () => {
                         <select className={styles.select} value={filters.estado} onChange={e => handleFilterChange('estado', e.target.value)}>
                             <option value="">Todos</option>
                             {catalogs.estados.map(e => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
+                        </select>
+                    </div>
+                    <div className={styles.filterGroup}>
+                        <label>Subestado</label>
+                        <select className={styles.select} value={filters.subEstado} onChange={e => handleFilterChange('subEstado', e.target.value)}>
+                            <option value="">Todos</option>
+                            {catalogs.sub_estados.map(s => <option key={s.id} value={s.nombre}>{s.nombre}</option>)}
                         </select>
                     </div>
                     <div className={styles.filterGroup} style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: '8px' }}>

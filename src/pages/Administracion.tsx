@@ -13,7 +13,8 @@ export const Administracion = () => {
         causas: [] as any[],
         coberturas: [] as any[],
         estados: [] as any[],
-        usuarios: [] as any[]
+        usuarios: [] as any[],
+        sub_estados: [] as any[]
     });
 
     const [formState, setFormState] = useState({
@@ -22,7 +23,8 @@ export const Administracion = () => {
         causas: { id: null, nombre: '', tipo: '', activo: '1' },
         coberturas: { id: null, nombre: '', ramo: '', activo: '1' },
         estados: { id: null, nombre: '', color: '', activo: '1' },
-        usuarios: { id: null, nombre: '', email: '', password: '', rol: 'user', activo: '1' }
+        usuarios: { id: null, nombre: '', email: '', password: '', rol: 'user', activo: '1' },
+        sub_estados: { id: null, nombre: '', activo: '1' }
     });
 
     const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -38,6 +40,7 @@ export const Administracion = () => {
         { key: 'coberturas', label: 'Coberturas' },
         { key: 'estados', label: 'Estados' },
         { key: 'usuarios', label: 'Usuarios' },
+        { key: 'sub_estados', label: 'Subestados' },
     ];
 
     const TABLE_NAMES: any = {
@@ -46,7 +49,8 @@ export const Administracion = () => {
         causas: 'causas',
         coberturas: 'coberturas',
         estados: 'estados',
-        usuarios: 'perfiles'
+        usuarios: 'perfiles',
+        sub_estados: 'sub_estados'
     };
 
     const loadData = async (key: string) => {
@@ -464,6 +468,20 @@ export const Administracion = () => {
         </div>
     );
 
+    const renderSubEstados = () => (
+        <div className={styles.grid}>
+            {renderCommonForm('sub_estados', [
+                { label: 'Nombre', field: 'nombre', placeholder: 'Ej: DOC PENDIENTE' },
+                { label: 'Estado', field: 'activo', type: 'select', options: [{ val: '1', label: 'Activo' }, { val: '0', label: 'Inactivo' }] }
+            ])}
+            {renderTable('sub_estados', [
+                { field: 'id', header: 'ID' },
+                { field: 'nombre', header: 'Nombre' },
+                { field: 'activo', header: 'Activo', render: v => v === 1 ? <span className={styles.activeTag}>Sí</span> : <span className={styles.inactiveTag}>No</span> }
+            ])}
+        </div>
+    );
+
 
     return (
         <Layout>
@@ -481,6 +499,7 @@ export const Administracion = () => {
                 {activeTab === 'coberturas' && renderCoberturas()}
                 {activeTab === 'estados' && renderEstados()}
                 {activeTab === 'usuarios' && renderUsuarios()}
+                {activeTab === 'sub_estados' && renderSubEstados()}
             </div>
         </Layout>
     );

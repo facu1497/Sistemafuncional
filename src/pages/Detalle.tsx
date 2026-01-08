@@ -325,6 +325,7 @@ export const Detalle = () => {
                             <Gestion
                                 nSiniestro={caso.n_siniestro}
                                 id={caso.id}
+                                mail={caso.mail}
                                 checklist={caso.checklist || []}
                                 onStatusUpdate={handleStatusUpdate}
                             />

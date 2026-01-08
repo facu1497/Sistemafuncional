@@ -122,7 +122,16 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
                             <button
                                 key={sub}
                                 className={styles.btn}
-                                style={{ background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}
+                                style={{
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    borderColor: 'rgba(16, 185, 129, 0.2)',
+                                    color: '#10b981',
+                                    fontWeight: '800',
+                                    textAlign: 'center',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}
                                 onClick={async () => {
                                     if (confirm(`¿Está seguro de cerrar el caso como ${sub}?`)) {
                                         const hoy = new Date().toISOString().split('T')[0];

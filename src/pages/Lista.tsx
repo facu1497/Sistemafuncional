@@ -306,13 +306,31 @@ export const Lista = () => {
                     return;
                 }
 
-                const { error } = await supabase.from('casos').insert(mappedData);
+                // --- DUPLICATE CHECK ---
+                const allSiniestros = mappedData.map(m => m.n_siniestro).filter(Boolean);
+                const { data: existingCasos } = await supabase
+                    .from('casos')
+                    .select('n_siniestro')
+                    .in('n_siniestro', allSiniestros);
+
+                const existingSet = new Set(existingCasos?.map(c => c.n_siniestro) || []);
+                const finalData = mappedData.filter(m => !existingSet.has(m.n_siniestro));
+                const skippedCount = mappedData.length - finalData.length;
+
+                if (finalData.length === 0) {
+                    alert(`No hay casos nuevos para importar. Los ${mappedData.length} casos ya existen en el sistema.`);
+                    return;
+                }
+
+                const { error } = await supabase.from('casos').insert(finalData);
 
                 if (error) {
                     console.error('Error importing cases:', error);
                     alert('Error al importar casos: ' + error.message);
                 } else {
-                    alert(`${mappedData.length} casos importados correctamente.`);
+                    let msg = `${finalData.length} casos importados correctamente.`;
+                    if (skippedCount > 0) msg += ` Se omitieron ${skippedCount} casos por estar ya registrados.`;
+                    alert(msg);
                     loadData();
                 }
 

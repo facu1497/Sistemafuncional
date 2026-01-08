@@ -64,6 +64,23 @@ export const Detalle = () => {
         }
     };
 
+    const createAutoTask = async (estado: string, subEstado?: string) => {
+        if (!caso?.n_siniestro) return;
+        const texto = subEstado ? `${estado} - ${subEstado}` : estado;
+
+        try {
+            await supabase.from('tareas').insert([{
+                n_siniestro: caso.n_siniestro,
+                texto: texto,
+                hecha: false,
+                asignado_a: caso.analista || null,
+                creada_en: new Date().toISOString()
+            }]);
+        } catch (err) {
+            console.error("Error creating auto task:", err);
+        }
+    };
+
     const handleSaveDanos = async (nuevasCoberturas: any[]) => {
         // Update local state immediately for UI responsiveness
         const updatedCaso = { ...caso, tabla_daños: nuevasCoberturas };
@@ -109,6 +126,8 @@ export const Detalle = () => {
     };
 
     const handleStatusChange = async (newStatus: string) => {
+        if (caso.estado === newStatus) return;
+
         const updatedCaso = { ...caso, estado: newStatus };
         setCaso(updatedCaso);
         setSaving(true);
@@ -119,6 +138,9 @@ export const Detalle = () => {
                 .eq('id', caso.id);
 
             if (error) throw error;
+
+            // Auto task
+            await createAutoTask(newStatus, caso.sub_estado);
         } catch (err) {
             console.error("Error saving status:", err);
             alert("Error al actualizar estado.");
@@ -129,6 +151,11 @@ export const Detalle = () => {
 
     const handleUpdateInfo = async (updatedData: any) => {
         const { id, ...dataToUpdate } = updatedData; // Exclude ID from update payload to avoid checking it
+
+        // Check if status changed via InfoCaso (e.g. Entrevistado button)
+        const statusChanged = (dataToUpdate.estado && dataToUpdate.estado !== caso.estado) ||
+            (dataToUpdate.sub_estado && dataToUpdate.sub_estado !== caso.sub_estado);
+
         setCaso(updatedData);
         setSaving(true);
         try {
@@ -138,6 +165,10 @@ export const Detalle = () => {
                 .eq('id', caso.id);
 
             if (error) throw error;
+
+            if (statusChanged) {
+                await createAutoTask(dataToUpdate.estado || caso.estado, dataToUpdate.sub_estado || caso.sub_estado);
+            }
         } catch (err) {
             console.error("Error saving info:", err);
             alert("Error al guardar cambios de información.");
@@ -162,6 +193,10 @@ export const Detalle = () => {
         fecha_entrevista?: string | null,
         fecha_documentacion_completa?: string | null
     }) => {
+        // Check if status changed
+        const statusChanged = (status.estado && status.estado !== caso.estado) ||
+            (status.sub_estado && status.sub_estado !== caso.sub_estado);
+
         const updatedCaso = { ...caso, ...status };
         setCaso(updatedCaso);
         setSaving(true);
@@ -172,6 +207,10 @@ export const Detalle = () => {
                 .eq('id', caso.id);
 
             if (error) throw error;
+
+            if (statusChanged) {
+                await createAutoTask(status.estado || caso.estado, status.sub_estado || caso.sub_estado);
+            }
         } catch (err) {
             console.error("Error updating status:", err);
             alert("Error al actualizar el estado.");

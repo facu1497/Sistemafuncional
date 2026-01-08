@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sidebar } from '../components/Sidebar';
 import styles from './Layout.module.css';
+import logo from '../assets/logo_gibert.png';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
@@ -9,7 +10,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
                     <div className={styles.logo}>
-                        <img src={`${import.meta.env.BASE_URL}logo_gibert.png`} alt="Logo" />
+                        <img src={logo} alt="Logo" />
                         <div className={styles.titulo}>H.M. Gibert<br /><span style={{ fontSize: '12px', fontWeight: 400, color: 'var(--muted-color)' }}>Sistema de Gestión</span></div>
                     </div>
                 </div>

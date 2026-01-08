@@ -121,7 +121,7 @@ export const Gestion = ({ nSiniestro, id, checklist = [], onStatusUpdate }: Gest
                             <button
                                 key={sub}
                                 className={styles.btn}
-                                style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                                style={{ background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}
                                 onClick={async () => {
                                     if (confirm(`¿Está seguro de cerrar el caso como ${sub}?`)) {
                                         const hoy = new Date().toISOString().split('T')[0];

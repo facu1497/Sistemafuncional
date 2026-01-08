@@ -151,7 +151,7 @@ export const Lista = () => {
             const payload = {
                 cia, asegurado, dni, n_siniestro: nSiniestro, poliza, ramo, analista,
                 telefono, mail, fecha_ingreso, fecha_denuncia, fecha_siniestro, motivo_derivacion,
-                estado: 'Ingresado', // Default state
+                estado: 'ENTREVISTAR', // Default state
                 // fecha_ingreso is now user-defined
             };
 
@@ -214,7 +214,7 @@ export const Lista = () => {
                     ramo: findVal(row, ['ramo', 'tipo', 'cobertura']),
                     analista: findVal(row, ['analista', 'gestor', 'asignado', 'asignado a']),
                     patente: findVal(row, ['patente', 'dominio', 'vehiculo', 'matricula']),
-                    estado: 'Ingresado',
+                    estado: 'ENTREVISTAR',
                     fecha_ingreso: new Date().toISOString()
                 })).filter((item: any) => item.n_siniestro && item.cia);
 
@@ -448,13 +448,19 @@ export const Lista = () => {
                                     </td>
                                     <td style={{ color: 'var(--muted-color)' }}>{caso.cia}</td>
                                     <td style={{ color: 'var(--muted-color)' }}>{caso.analista || '-'}</td>
-                                    <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                                             <span
                                                 className={styles.badge}
                                                 style={{
-                                                    backgroundColor: getEstadoColor(caso.estado) + '22',
-                                                    color: getEstadoColor(caso.estado) === '#ffffff' ? '#333' : getEstadoColor(caso.estado)
+                                                    backgroundColor: getEstadoColor(caso.estado) + '15',
+                                                    color: getEstadoColor(caso.estado),
+                                                    borderColor: getEstadoColor(caso.estado) + '30',
+                                                    fontSize: '11px',
+                                                    fontWeight: '700',
+                                                    padding: '4px 10px',
+                                                    borderRadius: '12px',
+                                                    width: 'fit-content'
                                                 }}
                                             >
                                                 {caso.estado || 'SIN ESTADO'}
@@ -463,6 +469,9 @@ export const Lista = () => {
                                                 <span style={{
                                                     fontSize: '10px',
                                                     color: 'var(--muted-color)',
+                                                    background: 'rgba(255,255,255,0.05)',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px',
                                                     textAlign: 'center',
                                                     textTransform: 'uppercase',
                                                     letterSpacing: '0.5px'

@@ -120,7 +120,7 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
 
             <button
                 className={styles.btnAdd}
-                style={{ width: '100%', marginTop: '20px', background: '#3b82f6' }}
+                style={{ width: '100%', marginTop: '20px', background: '#10b981' }}
                 onClick={() => {
                     const hoy = new Date().toISOString().split('T')[0];
                     onStatusUpdate?.({

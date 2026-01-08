@@ -19,7 +19,7 @@ export const Detalle = () => {
     const [caso, setCaso] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [catalogs, setCatalogs] = useState<{ analistas: any[], companias: any[] }>({ analistas: [], companias: [] });
+    const [catalogs, setCatalogs] = useState<{ analistas: any[], companias: any[], estados: any[] }>({ analistas: [], companias: [], estados: [] });
 
     useEffect(() => {
         if (id) {
@@ -30,13 +30,15 @@ export const Detalle = () => {
 
     const loadCatalogs = async () => {
         try {
-            const [resA, resC] = await Promise.all([
+            const [resA, resC, resE] = await Promise.all([
                 supabase.from('analistas').select('nombre'),
-                supabase.from('companias').select('nombre')
+                supabase.from('companias').select('nombre'),
+                supabase.from('estados').select('*').eq('activo', 1)
             ]);
             setCatalogs({
                 analistas: resA.data || [],
-                companias: resC.data || []
+                companias: resC.data || [],
+                estados: resE.data || []
             });
         } catch (err) {
             console.error("Error fetching catalogs:", err);
@@ -144,6 +146,15 @@ export const Detalle = () => {
         }
     };
 
+    const getEstadoColor = (nombre: string) => {
+        const est = catalogs.estados.find(e => e.nombre === nombre);
+        if (est) return est.color;
+        if (nombre === 'ENTREVISTAR') return '#ef4444';
+        if (nombre === 'EN GESTION') return '#f59e0b';
+        if (nombre === 'CERRADO') return '#10b981';
+        return '#3699ff';
+    };
+
     const handleStatusUpdate = async (status: {
         estado?: string,
         sub_estado?: string,
@@ -190,34 +201,40 @@ export const Detalle = () => {
                         <ChevronLeft size={16} /> Volver al listado
                     </Link>
                 </div>
-                <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {saving && <span style={{ fontSize: '12px', color: 'var(--accent-color)' }}>Guardando...</span>}
-                    <select
-                        className={styles.statusSelect}
-                        value={caso.estado || 'ENTREVISTAR'}
-                        onChange={(e) => handleStatusChange(e.target.value)}
-                        style={{
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            border: 'none',
-                            backgroundColor: '#e1f0ff',
-                            color: '#3699ff',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            outline: 'none'
-                        }}
-                    >
-                        {['ENTREVISTAR', 'EN GESTION', 'CERRADO'].map(st => (
-                            <option key={st} value={st}>{st}</option>
-                        ))}
-                    </select>
+                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {saving && <span style={{ fontSize: '12px', color: 'var(--accent-color)' }}>Guardando...</span>}
+                        <select
+                            className={styles.statusSelect}
+                            value={caso.estado || 'ENTREVISTAR'}
+                            onChange={(e) => handleStatusChange(e.target.value)}
+                            style={{
+                                padding: '6px 14px',
+                                borderRadius: '20px',
+                                border: `1px solid ${getEstadoColor(caso.estado || 'ENTREVISTAR')}30`,
+                                backgroundColor: getEstadoColor(caso.estado || 'ENTREVISTAR') + '15',
+                                color: getEstadoColor(caso.estado || 'ENTREVISTAR'),
+                                fontWeight: '700',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                outline: 'none',
+                                textAlign: 'center'
+                            }}
+                        >
+                            {['ENTREVISTAR', 'EN GESTION', 'CERRADO'].map(st => (
+                                <option key={st} value={st} style={{ background: '#1a1a1a', color: '#fff' }}>{st}</option>
+                            ))}
+                        </select>
+                    </div>
                     {caso.sub_estado && (
                         <span style={{
-                            fontSize: '12px',
+                            fontSize: '11px',
                             color: 'var(--muted-color)',
                             background: 'rgba(255,255,255,0.05)',
-                            padding: '4px 8px',
-                            borderRadius: '4px'
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
                         }}>
                             {caso.sub_estado}
                         </span>

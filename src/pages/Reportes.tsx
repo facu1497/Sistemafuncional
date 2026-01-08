@@ -107,7 +107,7 @@ export const Reportes = () => {
         return analysts.map(name => {
             const cases = filteredCasos.filter(c => c.analista === name);
 
-            const sinContactar = cases.filter(c => c.estado === 'ENTREVISTAR' || c.estado === 'ASIGNADO' || c.estado === 'Ingresado').length;
+            const sinContactar = cases.filter(c => c.estado === 'ENTREVISTAR').length;
 
             const pendientes = cases.filter(c => c.estado === 'EN GESTION').length;
 
@@ -245,12 +245,12 @@ export const Reportes = () => {
                     <div className={styles.metricValue}>{activityMetrics.ingresados}</div>
                     <div className={styles.metricSub}>En el mes seleccionado</div>
                 </div>
-                <div className={styles.metricBox} style={{ borderLeft: '4px solid #e67e22' }}>
+                <div className={styles.metricBox} style={{ borderLeft: '4px solid #ef4444' }}>
                     <div className={styles.metricLabel}>Entrevistados</div>
                     <div className={styles.metricValue}>{activityMetrics.entrevistados}</div>
                     <div className={styles.metricSub}>En el mes seleccionado</div>
                 </div>
-                <div className={styles.metricBox} style={{ borderLeft: '4px solid #3b82f6' }}>
+                <div className={styles.metricBox} style={{ borderLeft: '4px solid #f59e0b' }}>
                     <div className={styles.metricLabel}>Doc. Completas</div>
                     <div className={styles.metricValue}>{activityMetrics.documentados}</div>
                     <div className={styles.metricSub}>En el mes seleccionado</div>

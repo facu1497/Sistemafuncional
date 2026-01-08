@@ -33,22 +33,19 @@ export const Gestion = ({ nSiniestro, id, checklist = [], onStatusUpdate }: Gest
         }
 
         if (action === 'Interrupción de Plazos') {
-            const missingDocs = checklist
+            alert("Preparando el correo de interrupción...");
+            console.log("Generando mail de interrupción...");
+            const missingDocs = (checklist || [])
                 .filter(item => !item.checked)
-                .map(item => `* ${item.text}`)
-                .join('\n');
+                .map(item => `- ${item.text}`)
+                .join('\r\n');
 
-            const subject = encodeURIComponent(`Interrupción de Plazos - Siniestro ${nSiniestro}`);
-            const body = encodeURIComponent(
-                `Buenas tardes,
-De nuestra mayor consideración:
-Nos dirigimos a Usted en relación al siniestro de referencia. Al respecto le informamos que, a los efectos de completar la evaluación del mismo, resulta imprescindible que nos sea remitida la siguiente documentación:
-${missingDocs}
-Se hace notar que hasta tanto sea recepcionada la documentación solicitada quedan suspendidos los plazos previstos para pronunciarse acerca del reclamo indemnizatorio, según lo establecido en el Art. 51 párrafo 2º de la ley 17.418.
-Sin otro particular, saludamos atentamente.`
-            );
+            const subject = `Interrupción de Plazos - Siniestro ${nSiniestro}`;
+            const body = `Buenas tardes,\r\nDe nuestra mayor consideración:\r\n\r\nNos dirigimos a Usted en relación al siniestro de referencia. Al respecto le informamos que, a los efectos de completar la evaluación del mismo, resulta imprescindible que nos sea remitida la siguiente documentación:\r\n\r\n${missingDocs}\r\n\r\nSe hace notar que hasta tanto sea recepcionada la documentación solicitada quedan suspendidos los plazos previstos para pronunciarse acerca del reclamo indemnizatorio, según lo establecido en el Art. 51 párrafo 2º de la ley 17.418.\r\n\r\nSin otro particular, saludamos atentamente.`;
 
-            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+            window.location.href = mailtoUrl;
             return;
         }
 

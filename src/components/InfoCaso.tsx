@@ -163,7 +163,13 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                                 gap: '6px'
                             }}
                             onClick={async () => {
-                                await onUpdate({ ...form, estado: 'EN GESTION', sub_estado: 'DOC PENDIENTE' });
+                                const hoy = new Date().toISOString().split('T')[0];
+                                await onUpdate({
+                                    ...form,
+                                    estado: 'EN GESTION',
+                                    sub_estado: 'DOC PENDIENTE',
+                                    fecha_entrevista: hoy
+                                });
                             }}
                         >
                             Entrevistado

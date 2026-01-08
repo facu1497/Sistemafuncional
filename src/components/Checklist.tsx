@@ -11,7 +11,7 @@ interface ChecklistProps {
     data: ChecklistItem[];
     causa: string;
     onUpdate: (items: ChecklistItem[]) => void;
-    onStatusUpdate?: (status: { estado?: string, sub_estado?: string }) => void;
+    onStatusUpdate?: (status: { estado?: string, sub_estado?: string, fecha_documentacion_completa?: string | null }) => void;
 }
 
 const CHECKLIST_MAP: Record<string, string[]> = {
@@ -121,7 +121,13 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
             <button
                 className={styles.btnAdd}
                 style={{ width: '100%', marginTop: '20px', background: '#3b82f6' }}
-                onClick={() => onStatusUpdate?.({ sub_estado: 'ANALISIS' })}
+                onClick={() => {
+                    const hoy = new Date().toISOString().split('T')[0];
+                    onStatusUpdate?.({
+                        sub_estado: 'ANALISIS',
+                        fecha_documentacion_completa: hoy
+                    });
+                }}
             >
                 Documentación completada
             </button>

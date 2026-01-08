@@ -101,26 +101,46 @@ export const Reportes = () => {
     const analystStats = useMemo(() => {
         const analysts = Array.from(new Set(filteredCasos.map(c => c.analista).filter(Boolean)));
         const now = new Date();
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(now.getMonth() - 1);
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
         return analysts.map(name => {
             const cases = filteredCasos.filter(c => c.analista === name);
 
-            // "Sin contactar" -> Assuming 'ASIGNADO' or similar initial state. Or maybe 'Ingresado'.
-            // Let's use 'Ingresado' as default "Sin Contactar" if exists, or 'PENDIENTE' logic.
-            // Adjust loop based on actual State names: likely 'Ingresado', 'En Proceso', 'Pendiente', 'Cerrado'.
-            const sinContactar = cases.filter(c => c.estado === 'Ingresado' || c.estado === 'ASIGNADO').length;
+            const sinContactar = cases.filter(c => c.estado === 'ENTREVISTAR' || c.estado === 'ASIGNADO' || c.estado === 'Ingresado').length;
 
-            const pendientes = cases.filter(c => c.estado !== 'CERRADO' && c.estado !== 'Ingresado' && c.estado !== 'ASIGNADO').length;
+            const pendientes = cases.filter(c => c.estado === 'EN GESTION').length;
 
-            // Cerrados Last Month
-            // Using fecha_ingreso is wrong for closing date. 
-            // We'll just count TOTAL Cerrados for now as we lack 'fecha_cierre'.
-            // TODO: Add fecha_cierre to DB.
-            const cerradosMes = cases.filter(c => c.estado === 'CERRADO').length;
+            // Cerrados Last Month (using newly added fecha_cierre)
+            const cerradosMes = cases.filter(c => {
+                if (c.estado !== 'CERRADO') return false;
+                if (!c.fecha_cierre) return false;
+                const d = new Date(c.fecha_cierre);
+                return d >= firstDayOfMonth;
+            }).length;
 
             return { name, sinContactar, pendientes, cerradosMes };
+        });
+    }, [filteredCasos]);
+
+    const porMes = useMemo(() => {
+        const map: Record<string, number> = {};
+        const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+        filteredCasos.forEach(c => {
+            if (!c.fecha_ingreso) return;
+            const date = new Date(c.fecha_ingreso);
+            if (isNaN(date.getTime())) return;
+
+            const key = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            map[key] = (map[key] || 0) + 1;
+        });
+
+        // Sort by date (parsing key back or using original dates would be better, but for simplicity let's do a basic sort)
+        return Object.entries(map).sort((a, b) => {
+            const [mA, yA] = a[0].split(' ');
+            const [mB, yB] = b[0].split(' ');
+            if (yA !== yB) return Number(yB) - Number(yA);
+            return monthNames.indexOf(mB) - monthNames.indexOf(mA);
         });
     }, [filteredCasos]);
 
@@ -158,7 +178,7 @@ export const Reportes = () => {
                             <span className={`${styles.acValue} ${styles.valWarning}`}>{stat.pendientes}</span>
                         </div>
                         <div className={styles.acRow}>
-                            <span>Cerrados (Global)</span>
+                            <span>Cerrados (Mes)</span>
                             <span className={`${styles.acValue} ${styles.valSuccess}`}>{stat.cerradosMes}</span>
                         </div>
                     </div>
@@ -262,6 +282,24 @@ export const Reportes = () => {
                             <thead><tr><th>Compañía</th><th className={styles.colNum}>Cant.</th></tr></thead>
                             <tbody>
                                 {porCia.map(([k, v]) => (
+                                    <tr key={k}><td>{k}</td><td className={styles.colNum}>{v}</td></tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Por Mes (Ingresados) */}
+                <div className={styles.card}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3>Ingresados por Mes</h3>
+                        <button className={styles.btnAction} style={{ padding: '4px 8px', height: 'auto' }}><Download size={14} /></button>
+                    </div>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead><tr><th>Mes</th><th className={styles.colNum}>Cant.</th></tr></thead>
+                            <tbody>
+                                {porMes.map(([k, v]) => (
                                     <tr key={k}><td>{k}</td><td className={styles.colNum}>{v}</td></tr>
                                 ))}
                             </tbody>

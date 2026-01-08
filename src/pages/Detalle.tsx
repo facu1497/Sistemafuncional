@@ -19,6 +19,7 @@ export const Detalle = () => {
     const [caso, setCaso] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [refreshTasks, setRefreshTasks] = useState(0); // Key to force refresh Tareas component
     const [catalogs, setCatalogs] = useState<{ analistas: any[], companias: any[], estados: any[] }>({ analistas: [], companias: [], estados: [] });
 
     useEffect(() => {
@@ -75,13 +76,21 @@ export const Detalle = () => {
             // Use number if possible to match DB expectation in some parts of the app
             const nSiniestroNum = typeof nSiniestro === 'string' ? parseInt(nSiniestro) : nSiniestro;
 
-            // Calculate tomorrow's date
+            // Calculate tomorrow's date in LOCAL time
             const now = new Date();
             const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setDate(now.getDate() + 1);
 
-            const fechaTomorrow = tomorrow.toISOString().split('T')[0];
-            const horaNow = now.toTimeString().split(' ')[0].substring(0, 5); // HH:mm
+            // YYYY-MM-DD LOCAL
+            const y = tomorrow.getFullYear();
+            const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const d = String(tomorrow.getDate()).padStart(2, '0');
+            const fechaTomorrow = `${y}-${m}-${d}`;
+
+            // HH:mm LOCAL
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const horaNow = `${hh}:${mm}`;
 
             const { error } = await supabase.from('tareas').insert([{
                 n_siniestro: nSiniestroNum,
@@ -95,6 +104,8 @@ export const Detalle = () => {
 
             if (error) {
                 console.error("Supabase error creating auto task:", error);
+            } else {
+                setRefreshTasks(prev => prev + 1); // Trigger refresh
             }
         } catch (err) {
             console.error("Exception in createAutoTask:", err);
@@ -377,6 +388,7 @@ export const Detalle = () => {
 
                         {activeTab === 'tareas' && (
                             <Tareas
+                                key={refreshTasks}
                                 nSiniestro={caso.n_siniestro} // or caso.id depending on what tasks table uses. Usually n_siniestro.
                                 defaultAssignee={caso.analista}
                             />

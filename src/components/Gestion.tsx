@@ -34,7 +34,8 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
         }
 
         if (action === 'Interrupción de Plazos') {
-            console.log("Generando mail de interrupción...");
+            console.log("Generando mail de interrupción para:", mail);
+            alert(`Destinatario: ${mail || 'No definido'}`);
             const checklistArray = Array.isArray(checklist) ? checklist : [];
             const missingDocs = checklistArray
                 .filter(item => !item.checked)

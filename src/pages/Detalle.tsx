@@ -281,9 +281,10 @@ export const Detalle = () => {
                         <ChevronLeft size={16} /> Volver al listado
                     </Link>
                 </div>
-                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {saving && <span style={{ fontSize: '12px', color: 'var(--accent-color)' }}>Guardando...</span>}
+                <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {saving && <span style={{ fontSize: '12px', color: 'var(--accent-color)' }}>Guardando...</span>}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <select
                             className={styles.statusSelect}
                             value={caso.estado || 'ENTREVISTAR'}
@@ -298,27 +299,36 @@ export const Detalle = () => {
                                 fontSize: '13px',
                                 cursor: 'pointer',
                                 outline: 'none',
-                                textAlign: 'center'
+                                textAlign: 'center',
+                                height: '32px'
                             }}
                         >
                             {['ENTREVISTAR', 'EN GESTION', 'CERRADO'].map(st => (
                                 <option key={st} value={st} style={{ background: '#1a1a1a', color: '#fff' }}>{st}</option>
                             ))}
                         </select>
+
+                        {caso.sub_estado && (
+                            <span style={{
+                                padding: '6px 14px',
+                                borderRadius: '20px',
+                                border: '1px solid var(--border-color)',
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                color: 'var(--text-color)',
+                                fontWeight: '700',
+                                fontSize: '12px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '32px',
+                                whiteSpace: 'nowrap'
+                            }}>
+                                {caso.sub_estado}
+                            </span>
+                        )}
                     </div>
-                    {caso.sub_estado && (
-                        <span style={{
-                            fontSize: '11px',
-                            color: 'var(--muted-color)',
-                            background: 'rgba(255,255,255,0.05)',
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                        }}>
-                            {caso.sub_estado}
-                        </span>
-                    )}
                 </div>
             </div>
 

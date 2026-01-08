@@ -5,7 +5,7 @@ import { FileText, Mail, FileCheck, ArrowRight, Printer } from 'lucide-react';
 interface GestionProps {
     nSiniestro: string;
     id: number | string;
-    onStatusUpdate?: (status: { estado?: string, sub_estado?: string }) => Promise<void>;
+    onStatusUpdate?: (status: { estado?: string, sub_estado?: string, fecha_cierre?: string | null }) => Promise<void>;
 }
 
 const SUB_ESTADOS_CERRADO = ["DESISTIDO", "RECHAZADO", "PAGADO", "DADO DE BAJA"];
@@ -97,7 +97,12 @@ export const Gestion = ({ nSiniestro, id, onStatusUpdate }: GestionProps) => {
                                 style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
                                 onClick={async () => {
                                     if (confirm(`¿Está seguro de cerrar el caso como ${sub}?`)) {
-                                        await onStatusUpdate?.({ estado: 'CERRADO', sub_estado: sub });
+                                        const hoy = new Date().toISOString().split('T')[0];
+                                        await onStatusUpdate?.({
+                                            estado: 'CERRADO',
+                                            sub_estado: sub,
+                                            fecha_cierre: hoy
+                                        });
                                         alert(`Caso cerrado como ${sub}`);
                                     }
                                 }}

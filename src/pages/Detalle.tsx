@@ -144,7 +144,7 @@ export const Detalle = () => {
         }
     };
 
-    const handleStatusUpdate = async (status: { estado?: string, sub_estado?: string }) => {
+    const handleStatusUpdate = async (status: { estado?: string, sub_estado?: string, fecha_cierre?: string | null }) => {
         const updatedCaso = { ...caso, ...status };
         setCaso(updatedCaso);
         setSaving(true);

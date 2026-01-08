@@ -75,17 +75,26 @@ export const Detalle = () => {
             // Use number if possible to match DB expectation in some parts of the app
             const nSiniestroNum = typeof nSiniestro === 'string' ? parseInt(nSiniestro) : nSiniestro;
 
+            // Calculate tomorrow's date
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const fechaTomorrow = tomorrow.toISOString().split('T')[0];
+            const horaNow = now.toTimeString().split(' ')[0].substring(0, 5); // HH:mm
+
             const { error } = await supabase.from('tareas').insert([{
                 n_siniestro: nSiniestroNum,
                 texto: texto,
                 hecha: false,
                 asignado_a: analista || null,
-                creada_en: new Date().toISOString()
+                fecha: fechaTomorrow,
+                hora: horaNow,
+                creada_en: now.toISOString()
             }]);
 
             if (error) {
                 console.error("Supabase error creating auto task:", error);
-                alert(`DEBUG: Error al crear tarea automática: ${error.message} - Código: ${error.code}`);
             }
         } catch (err) {
             console.error("Exception in createAutoTask:", err);

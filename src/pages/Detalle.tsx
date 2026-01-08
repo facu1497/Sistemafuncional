@@ -64,20 +64,31 @@ export const Detalle = () => {
         }
     };
 
-    const createAutoTask = async (estado: string, subEstado?: string) => {
-        if (!caso?.n_siniestro) return;
+    const createAutoTask = async (nSiniestro: string | number, analista: string | null, estado: string, subEstado?: string) => {
+        if (!nSiniestro) {
+            console.warn("Cannot create auto task: nSiniestro is missing");
+            return;
+        }
         const texto = subEstado ? `${estado} - ${subEstado}` : estado;
 
         try {
-            await supabase.from('tareas').insert([{
-                n_siniestro: caso.n_siniestro,
+            // Use number if possible to match DB expectation in some parts of the app
+            const nSiniestroNum = typeof nSiniestro === 'string' ? parseInt(nSiniestro) : nSiniestro;
+
+            const { error } = await supabase.from('tareas').insert([{
+                n_siniestro: nSiniestroNum,
                 texto: texto,
                 hecha: false,
-                asignado_a: caso.analista || null,
+                asignado_a: analista || null,
                 creada_en: new Date().toISOString()
             }]);
+
+            if (error) {
+                console.error("Supabase error creating auto task:", error);
+                alert(`DEBUG: Error al crear tarea automática: ${error.message} - Código: ${error.code}`);
+            }
         } catch (err) {
-            console.error("Error creating auto task:", err);
+            console.error("Exception in createAutoTask:", err);
         }
     };
 
@@ -140,7 +151,7 @@ export const Detalle = () => {
             if (error) throw error;
 
             // Auto task
-            await createAutoTask(newStatus, caso.sub_estado);
+            await createAutoTask(caso.n_siniestro, caso.analista, newStatus, caso.sub_estado);
         } catch (err) {
             console.error("Error saving status:", err);
             alert("Error al actualizar estado.");
@@ -167,7 +178,12 @@ export const Detalle = () => {
             if (error) throw error;
 
             if (statusChanged) {
-                await createAutoTask(dataToUpdate.estado || caso.estado, dataToUpdate.sub_estado || caso.sub_estado);
+                await createAutoTask(
+                    updatedData.n_siniestro || caso.n_siniestro,
+                    updatedData.analista || caso.analista,
+                    dataToUpdate.estado || caso.estado,
+                    dataToUpdate.sub_estado || caso.sub_estado
+                );
             }
         } catch (err) {
             console.error("Error saving info:", err);
@@ -209,7 +225,12 @@ export const Detalle = () => {
             if (error) throw error;
 
             if (statusChanged) {
-                await createAutoTask(status.estado || caso.estado, status.sub_estado || caso.sub_estado);
+                await createAutoTask(
+                    caso.n_siniestro,
+                    caso.analista,
+                    status.estado || caso.estado,
+                    status.sub_estado || caso.sub_estado
+                );
             }
         } catch (err) {
             console.error("Error updating status:", err);

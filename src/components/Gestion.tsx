@@ -13,7 +13,7 @@ const SUB_ESTADOS_CERRADO = ["DESISTIDO", "RECHAZADO", "PAGADO", "DADO DE BAJA"]
 export const Gestion = ({ nSiniestro, id, onStatusUpdate }: GestionProps) => {
     const navigate = useNavigate();
 
-    const handleAction = (action: string) => {
+    const handleAction = async (action: string) => {
         if (action === 'Generar Informe') {
             navigate(`/informe/${id}`);
             return;
@@ -22,6 +22,15 @@ export const Gestion = ({ nSiniestro, id, onStatusUpdate }: GestionProps) => {
             navigate(`/informe-desiste/${id}`);
             return;
         }
+
+        // Logic for Notas: Transition to NOTA PENDIENTE
+        const noteActions = ['Nota Desiste', 'Nota Desiste C/Póliza', 'Nota Orden de Compra', 'Nota Efectivo'];
+        if (noteActions.includes(action)) {
+            await onStatusUpdate?.({ sub_estado: 'NOTA PENDIENTE' });
+            alert(`Acción "${action}" iniciada. Sub-estado actualizado a NOTA PENDIENTE.`);
+            return;
+        }
+
         alert(`Acción "${action}" para el siniestro ${nSiniestro} aún no implementada.`);
     };
 

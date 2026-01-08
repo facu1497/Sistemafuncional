@@ -5,12 +5,13 @@ import { FileText, Mail, FileCheck, ArrowRight, Printer } from 'lucide-react';
 interface GestionProps {
     nSiniestro: string;
     id: number | string;
+    checklist?: { text: string; checked: boolean }[];
     onStatusUpdate?: (status: { estado?: string, sub_estado?: string, fecha_cierre?: string | null }) => Promise<void>;
 }
 
 const SUB_ESTADOS_CERRADO = ["DESISTIDO", "RECHAZADO", "PAGADO", "DADO DE BAJA"];
 
-export const Gestion = ({ nSiniestro, id, onStatusUpdate }: GestionProps) => {
+export const Gestion = ({ nSiniestro, id, checklist = [], onStatusUpdate }: GestionProps) => {
     const navigate = useNavigate();
 
     const handleAction = async (action: string) => {
@@ -28,6 +29,26 @@ export const Gestion = ({ nSiniestro, id, onStatusUpdate }: GestionProps) => {
         if (noteActions.includes(action)) {
             await onStatusUpdate?.({ sub_estado: 'NOTA PENDIENTE' });
             alert(`Acción "${action}" iniciada. Sub-estado actualizado a NOTA PENDIENTE.`);
+            return;
+        }
+
+        if (action === 'Interrupción de Plazos') {
+            const missingDocs = checklist
+                .filter(item => !item.checked)
+                .map(item => `* ${item.text}`)
+                .join('\n');
+
+            const subject = encodeURIComponent(`Interrupción de Plazos - Siniestro ${nSiniestro}`);
+            const body = encodeURIComponent(
+                `Buenas tardes,
+De nuestra mayor consideración:
+Nos dirigimos a Usted en relación al siniestro de referencia. Al respecto le informamos que, a los efectos de completar la evaluación del mismo, resulta imprescindible que nos sea remitida la siguiente documentación:
+${missingDocs}
+Se hace notar que hasta tanto sea recepcionada la documentación solicitada quedan suspendidos los plazos previstos para pronunciarse acerca del reclamo indemnizatorio, según lo establecido en el Art. 51 párrafo 2º de la ley 17.418.
+Sin otro particular, saludamos atentamente.`
+            );
+
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
             return;
         }
 

@@ -308,6 +308,7 @@ export const Detalle = () => {
                             <Gestion
                                 nSiniestro={caso.n_siniestro}
                                 id={caso.id}
+                                checklist={caso.checklist || []}
                                 onStatusUpdate={handleStatusUpdate}
                             />
                         )}

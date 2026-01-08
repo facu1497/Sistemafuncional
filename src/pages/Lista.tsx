@@ -43,7 +43,22 @@ export const Lista = () => {
         fecha_ingreso: new Date().toISOString().split('T')[0],
         fecha_denuncia: '',
         fecha_siniestro: '',
-        motivo_derivacion: ''
+        motivo_derivacion: '',
+        causa: '',
+        tramitador: '',
+        fecha_contratacion: '',
+        vigencia_hasta: '',
+        calle: '',
+        nro: '',
+        piso: '',
+        localidad: '',
+        provincia: '',
+        calle_riesgo: '',
+        nro_r: '',
+        piso_r: '',
+        localidad_r: '',
+        provincia_r: '',
+        patente: ''
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -138,22 +153,22 @@ export const Lista = () => {
 
     const handleSaveNewCase = async () => {
         const {
-            cia, asegurado, dni, nSiniestro, poliza, ramo, analista,
-            telefono, mail, fecha_ingreso, fecha_denuncia, fecha_siniestro, motivo_derivacion
+            cia, asegurado, nSiniestro, fecha_ingreso
         } = newCase;
 
-        if (!cia || !asegurado || !nSiniestro) {
-            alert("Completa los campos obligatorios (*)");
+        if (!cia || !asegurado || !nSiniestro || !fecha_ingreso) {
+            alert("Completa los campos obligatorios (*): Asegurado, Compañía, N° Siniestro y Fecha de Asignación");
             return;
         }
 
         try {
             const payload = {
-                cia, asegurado, dni, n_siniestro: nSiniestro, poliza, ramo, analista,
-                telefono, mail, fecha_ingreso, fecha_denuncia, fecha_siniestro, motivo_derivacion,
-                estado: 'ENTREVISTAR', // Default state
-                // fecha_ingreso is now user-defined
+                ...newCase,
+                n_siniestro: newCase.nSiniestro,
+                estado: 'ENTREVISTAR'
             };
+            // Remove the temporary camelCase key
+            delete (payload as any).nSiniestro;
 
             const { error } = await supabase.from('casos').insert(payload);
             if (error) throw error;
@@ -161,8 +176,34 @@ export const Lista = () => {
             alert("Caso creado correctamente");
             setShowNewCase(false);
             setNewCase({
-                cia: '', asegurado: '', dni: '', nSiniestro: '', poliza: '', ramo: '', analista: '',
-                telefono: '', mail: '', fecha_ingreso: new Date().toISOString().split('T')[0], fecha_denuncia: '', fecha_siniestro: '', motivo_derivacion: ''
+                cia: '',
+                asegurado: '',
+                dni: '',
+                nSiniestro: '',
+                poliza: '',
+                ramo: '',
+                analista: '',
+                telefono: '',
+                mail: '',
+                fecha_ingreso: new Date().toISOString().split('T')[0],
+                fecha_denuncia: '',
+                fecha_siniestro: '',
+                motivo_derivacion: '',
+                causa: '',
+                tramitador: '',
+                fecha_contratacion: '',
+                vigencia_hasta: '',
+                calle: '',
+                nro: '',
+                piso: '',
+                localidad: '',
+                provincia: '',
+                calle_riesgo: '',
+                nro_r: '',
+                piso_r: '',
+                localidad_r: '',
+                provincia_r: '',
+                patente: ''
             });
             loadData(); // Reload list
         } catch (err: any) {
@@ -205,18 +246,40 @@ export const Lista = () => {
                 };
 
                 // Map data to DB columns using fuzzy matching
-                const mappedData = data.map((row: any) => ({
-                    n_siniestro: findVal(row, ['siniestro', 'n_siniestro', 'n siniestro', 'numero siniestro', 'num siniestro', 'nro siniestro', 'expediente', 'carpeta', 'caso']),
-                    cia: findVal(row, ['compania', 'cia', 'aseguradora', 'empresa', 'cliente']),
-                    asegurado: findVal(row, ['asegurado', 'nombre', 'asociado', 'tercero']),
-                    dni: findVal(row, ['dni', 'documento', 'cuit', 'cuil', 'nro doc']),
-                    poliza: findVal(row, ['poliza', 'nro poliza', 'num poliza', 'policy']),
-                    ramo: findVal(row, ['ramo', 'tipo', 'cobertura']),
-                    analista: findVal(row, ['analista', 'gestor', 'asignado', 'asignado a']),
-                    patente: findVal(row, ['patente', 'dominio', 'vehiculo', 'matricula']),
-                    estado: 'ENTREVISTAR',
-                    fecha_ingreso: new Date().toISOString()
-                })).filter((item: any) => item.n_siniestro && item.cia);
+                const mappedData = data.map((row: any) => {
+                    const mapped = {
+                        n_siniestro: findVal(row, ['siniestro', 'n_siniestro', 'n siniestro', 'numero siniestro', 'num siniestro', 'nro siniestro', 'expediente', 'carpeta', 'caso']),
+                        cia: findVal(row, ['compania', 'cia', 'aseguradora', 'empresa', 'cliente']),
+                        asegurado: findVal(row, ['asegurado', 'nombre', 'asociado', 'tercero']),
+                        dni: findVal(row, ['dni', 'documento', 'cuit', 'cuil', 'nro doc']),
+                        poliza: findVal(row, ['poliza', 'nro poliza', 'num poliza', 'policy']),
+                        ramo: findVal(row, ['ramo', 'tipo', 'cobertura']),
+                        analista: findVal(row, ['analista', 'gestor', 'asignado', 'asignado a']),
+                        patente: findVal(row, ['patente', 'dominio', 'vehiculo', 'matricula']),
+                        telefono: findVal(row, ['telefono', 'tel', 'celular', 'cel']),
+                        mail: findVal(row, ['mail', 'correo', 'email']),
+                        fecha_ingreso: findVal(row, ['fecha ingreso', 'fecha_ingreso', 'asignacion', 'fecha asignacion', 'f_ingreso', 'f_asignacion']) || new Date().toISOString().split('T')[0],
+                        fecha_denuncia: findVal(row, ['fecha denuncia', 'fecha_denuncia', 'f_denuncia']),
+                        fecha_siniestro: findVal(row, ['fecha siniestro', 'fecha_siniestro', 'f_siniestro', 'fecha del hecho']),
+                        motivo_derivacion: findVal(row, ['comentarios', 'comentario derivacion', 'motivo', 'derivacion', 'obs', 'observaciones']),
+                        causa: findVal(row, ['causa', 'motivo siniestro']),
+                        tramitador: findVal(row, ['tramitador', 'inspector']),
+                        fecha_contratacion: findVal(row, ['contratacion', 'fecha contratacion', 'f_contratacion']),
+                        vigencia_hasta: findVal(row, ['vigencia', 'vigencia hasta', 'vencimiento']),
+                        calle: findVal(row, ['calle', 'domicilio', 'direccion']),
+                        nro: findVal(row, ['nro', 'numero', 'altura']),
+                        piso: findVal(row, ['piso', 'depto', 'departamento']),
+                        localidad: findVal(row, ['localidad', 'ciudad']),
+                        provincia: findVal(row, ['provincia', 'estado prov']),
+                        calle_riesgo: findVal(row, ['calle riesgo', 'direccion riesgo', 'lugar del hecho']),
+                        nro_r: findVal(row, ['nro riesgo', 'numero riesgo']),
+                        piso_r: findVal(row, ['piso riesgo', 'depto riesgo']),
+                        localidad_r: findVal(row, ['localidad riesgo', 'ciudad riesgo']),
+                        provincia_r: findVal(row, ['provincia riesgo']),
+                        estado: 'ENTREVISTAR'
+                    };
+                    return mapped;
+                }).filter((item: any) => item.n_siniestro && item.cia && item.asegurado && item.fecha_ingreso);
 
                 if (mappedData.length === 0) {
                     alert('No se pudieron encontrar casos válidos. Verifique los nombres de las columnas (Siniestro, Compania, Asegurado).');
@@ -276,88 +339,134 @@ export const Lista = () => {
             {showNewCase && (
                 <div className={styles.newCasePanel}>
                     <h3 className={styles.filterHeader}>Alta de Nuevo Caso</h3>
-                    <div className={styles.formGrid}>
-                        <div className={styles.filterGroup}>
-                            <label>Compañía *</label>
-                            <select
-                                className={styles.select}
-                                value={newCase.cia}
-                                onChange={e => setNewCase({ ...newCase, cia: e.target.value })}
-                            >
-                                <option value="">Seleccionar...</option>
-                                {catalogs.companias.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
-                            </select>
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Asegurado *</label>
-                            <input className={styles.input} type="text" placeholder="Nombre completo"
-                                value={newCase.asegurado} onChange={e => setNewCase({ ...newCase, asegurado: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>DNI</label>
-                            <input className={styles.input} type="text"
-                                value={newCase.dni} onChange={e => setNewCase({ ...newCase, dni: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>N° Siniestro *</label>
-                            <input className={styles.input} type="text"
-                                value={newCase.nSiniestro} onChange={e => setNewCase({ ...newCase, nSiniestro: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Póliza</label>
-                            <input className={styles.input} type="text"
-                                value={newCase.poliza} onChange={e => setNewCase({ ...newCase, poliza: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Mail</label>
-                            <input className={styles.input} type="text"
-                                value={newCase.mail} onChange={e => setNewCase({ ...newCase, mail: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Teléfono</label>
-                            <input className={styles.input} type="text"
-                                value={newCase.telefono} onChange={e => setNewCase({ ...newCase, telefono: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Fecha Asignación</label>
-                            <input className={styles.input} type="date"
-                                value={newCase.fecha_ingreso} onChange={e => setNewCase({ ...newCase, fecha_ingreso: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Fecha Denuncia</label>
-                            <input className={styles.input} type="date"
-                                value={newCase.fecha_denuncia} onChange={e => setNewCase({ ...newCase, fecha_denuncia: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Fecha Siniestro</label>
-                            <input className={styles.input} type="date"
-                                value={newCase.fecha_siniestro} onChange={e => setNewCase({ ...newCase, fecha_siniestro: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup} style={{ gridColumn: '1 / -1' }}>
-                            <label>Comentario de Derivación</label>
-                            <textarea className={styles.textarea} style={{ height: '60px' }}
-                                value={newCase.motivo_derivacion} onChange={e => setNewCase({ ...newCase, motivo_derivacion: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Ramo</label>
-                            <input className={styles.input} type="text"
-                                value={newCase.ramo} onChange={e => setNewCase({ ...newCase, ramo: e.target.value })} />
-                        </div>
-                        <div className={styles.filterGroup}>
-                            <label>Analista</label>
-                            <select
-                                className={styles.select}
-                                value={newCase.analista}
-                                onChange={e => setNewCase({ ...newCase, analista: e.target.value })}
-                            >
-                                <option value="">Seleccionar...</option>
-                                {catalogs.analistas.map(a => <option key={a.id} value={a.nombre}>{a.nombre}</option>)}
-                            </select>
+
+                    <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                        <div style={{ color: 'var(--primary-color)', fontWeight: 600, borderBottom: '1px solid var(--line-color)', paddingBottom: '8px', marginBottom: '15px' }}>Datos Principales</div>
+                        <div className={styles.formGrid}>
+                            <div className={styles.filterGroup}>
+                                <label>Compañía *</label>
+                                <select className={styles.select} value={newCase.cia} onChange={e => setNewCase({ ...newCase, cia: e.target.value })}>
+                                    <option value="">Seleccionar...</option>
+                                    {catalogs.companias.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+                                </select>
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Asegurado *</label>
+                                <input className={styles.input} type="text" placeholder="Nombre completo" value={newCase.asegurado} onChange={e => setNewCase({ ...newCase, asegurado: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>N° Siniestro *</label>
+                                <input className={styles.input} type="text" value={newCase.nSiniestro} onChange={e => setNewCase({ ...newCase, nSiniestro: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Fecha Asignación *</label>
+                                <input className={styles.input} type="date" value={newCase.fecha_ingreso} onChange={e => setNewCase({ ...newCase, fecha_ingreso: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Analista</label>
+                                <select className={styles.select} value={newCase.analista} onChange={e => setNewCase({ ...newCase, analista: e.target.value })}>
+                                    <option value="">Seleccionar...</option>
+                                    {catalogs.analistas.map(a => <option key={a.id} value={a.nombre}>{a.nombre}</option>)}
+                                </select>
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>DNI</label>
+                                <input className={styles.input} type="text" value={newCase.dni} onChange={e => setNewCase({ ...newCase, dni: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Póliza</label>
+                                <input className={styles.input} type="text" value={newCase.poliza} onChange={e => setNewCase({ ...newCase, poliza: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Ramo</label>
+                                <input className={styles.input} type="text" value={newCase.ramo} onChange={e => setNewCase({ ...newCase, ramo: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Patente</label>
+                                <input className={styles.input} type="text" value={newCase.patente} onChange={e => setNewCase({ ...newCase, patente: e.target.value })} />
+                            </div>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <button className={styles.primaryBtn} onClick={handleSaveNewCase}>Guardar Caso</button>
-                        <button className={styles.secondaryBtn} onClick={() => setShowNewCase(false)}>Cancelar</button>
+
+                    <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                        <div style={{ color: 'var(--primary-color)', fontWeight: 600, borderBottom: '1px solid var(--line-color)', paddingBottom: '8px', marginBottom: '15px' }}>Contacto y Detalles</div>
+                        <div className={styles.formGrid}>
+                            <div className={styles.filterGroup}>
+                                <label>Mail</label>
+                                <input className={styles.input} type="text" value={newCase.mail} onChange={e => setNewCase({ ...newCase, mail: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Teléfono</label>
+                                <input className={styles.input} type="text" value={newCase.telefono} onChange={e => setNewCase({ ...newCase, telefono: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Causa</label>
+                                <input className={styles.input} type="text" value={newCase.causa} onChange={e => setNewCase({ ...newCase, causa: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Tramitador</label>
+                                <input className={styles.input} type="text" value={newCase.tramitador} onChange={e => setNewCase({ ...newCase, tramitador: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup} style={{ gridColumn: '1 / -1' }}>
+                                <label>Motivo de Derivación (Comentarios)</label>
+                                <textarea className={styles.textarea} style={{ height: '60px' }} value={newCase.motivo_derivacion} onChange={e => setNewCase({ ...newCase, motivo_derivacion: e.target.value })} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                        <div style={{ color: 'var(--primary-color)', fontWeight: 600, borderBottom: '1px solid var(--line-color)', paddingBottom: '8px', marginBottom: '15px' }}>Fechas Adicionales</div>
+                        <div className={styles.formGrid}>
+                            <div className={styles.filterGroup}>
+                                <label>Fecha Siniestro</label>
+                                <input className={styles.input} type="date" value={newCase.fecha_siniestro} onChange={e => setNewCase({ ...newCase, fecha_siniestro: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Fecha Denuncia</label>
+                                <input className={styles.input} type="date" value={newCase.fecha_denuncia} onChange={e => setNewCase({ ...newCase, fecha_denuncia: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Fecha Contratación</label>
+                                <input className={styles.input} type="date" value={newCase.fecha_contratacion} onChange={e => setNewCase({ ...newCase, fecha_contratacion: e.target.value })} />
+                            </div>
+                            <div className={styles.filterGroup}>
+                                <label>Vigencia Hasta</label>
+                                <input className={styles.input} type="date" value={newCase.vigencia_hasta} onChange={e => setNewCase({ ...newCase, vigencia_hasta: e.target.value })} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                        <div style={{ color: 'var(--primary-color)', fontWeight: 600, borderBottom: '1px solid var(--line-color)', paddingBottom: '8px', marginBottom: '15px' }}>Domicilios</div>
+                        <div className={styles.formGrid}>
+                            <div className={styles.filterGroup}><label>Calle</label><input className={styles.input} value={newCase.calle} onChange={e => setNewCase({ ...newCase, calle: e.target.value })} /></div>
+                            <div className={styles.filterGroup}><label>Nro</label><input className={styles.input} value={newCase.nro} onChange={e => setNewCase({ ...newCase, nro: e.target.value })} /></div>
+                            <div className={styles.filterGroup}><label>Piso</label><input className={styles.input} value={newCase.piso} onChange={e => setNewCase({ ...newCase, piso: e.target.value })} /></div>
+                            <div className={styles.filterGroup}><label>Localidad</label><input className={styles.input} value={newCase.localidad} onChange={e => setNewCase({ ...newCase, localidad: e.target.value })} /></div>
+                            <div className={styles.filterGroup} style={{ gridColumn: 'span 2' }}><label>Provincia</label><input className={styles.input} value={newCase.provincia} onChange={e => setNewCase({ ...newCase, provincia: e.target.value })} /></div>
+
+                            <div className={styles.filterGroup} style={{ gridColumn: '1 / -1', marginTop: '10px', paddingTop: '10px', borderTop: '1px dotted var(--line-color)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                    <input type="checkbox" id="copyAddr" onChange={e => {
+                                        if (e.target.checked) {
+                                            setNewCase(prev => ({ ...prev, calle_riesgo: prev.calle, nro_r: prev.nro, piso_r: prev.piso, localidad_r: prev.localidad, provincia_r: prev.provincia }));
+                                        }
+                                    }} />
+                                    <label htmlFor="copyAddr" style={{ margin: 0, cursor: 'pointer' }}>Mismo domicilio de riesgo</label>
+                                </div>
+                            </div>
+
+                            <div className={styles.filterGroup}><label>Calle (R)</label><input className={styles.input} value={newCase.calle_riesgo} onChange={e => setNewCase({ ...newCase, calle_riesgo: e.target.value })} /></div>
+                            <div className={styles.filterGroup}><label>Nro (R)</label><input className={styles.input} value={newCase.nro_r} onChange={e => setNewCase({ ...newCase, nro_r: e.target.value })} /></div>
+                            <div className={styles.filterGroup}><label>Piso (R)</label><input className={styles.input} value={newCase.piso_r} onChange={e => setNewCase({ ...newCase, piso_r: e.target.value })} /></div>
+                            <div className={styles.filterGroup}><label>Localidad (R)</label><input className={styles.input} value={newCase.localidad_r} onChange={e => setNewCase({ ...newCase, localidad_r: e.target.value })} /></div>
+                            <div className={styles.filterGroup} style={{ gridColumn: 'span 2' }}><label>Provincia (R)</label><input className={styles.input} value={newCase.provincia_r} onChange={e => setNewCase({ ...newCase, provincia_r: e.target.value })} /></div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>
+                        <button className={styles.primaryBtn} onClick={handleSaveNewCase} style={{ padding: '12px 30px', fontSize: '16px' }}>Guardar Todo el Caso</button>
+                        <button className={styles.secondaryBtn} onClick={() => setShowNewCase(false)} style={{ padding: '12px 30px', fontSize: '16px' }}>Cancelar</button>
                     </div>
                 </div>
             )}

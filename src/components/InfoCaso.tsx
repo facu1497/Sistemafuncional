@@ -178,7 +178,7 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                 </div>
 
                 <button className={styles.btnSave} onClick={handleSave} style={{ background: 'var(--secondary-color)' }}>
-                    Guardar Cambios Principales
+                    Guardar
                 </button>
 
                 {/* TOGGLE FULL FORM */}
@@ -240,7 +240,7 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                     <div className={styles.field}><label className={styles.label}>Provincia (R)</label><input className={styles.input} value={form.provincia_r || ''} onChange={e => handleChange('provincia_r', e.target.value)} /></div>
 
                     <button className={styles.btnSave} onClick={handleSave} style={{ marginTop: '20px', background: 'var(--secondary-color)' }}>
-                        Guardar Todos los Cambios
+                        Guardar
                     </button>
                 </>
             )}

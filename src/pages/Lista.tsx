@@ -25,7 +25,6 @@ export const Lista = () => {
         compania: '',
         analista: '',
         estado: '',
-        patente: '',
         misCasos: false
     });
 
@@ -57,8 +56,7 @@ export const Lista = () => {
         nro_r: '',
         piso_r: '',
         localidad_r: '',
-        provincia_r: '',
-        patente: ''
+        provincia_r: ''
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -202,8 +200,7 @@ export const Lista = () => {
                 nro_r: '',
                 piso_r: '',
                 localidad_r: '',
-                provincia_r: '',
-                patente: ''
+                provincia_r: ''
             });
             loadData(); // Reload list
         } catch (err: any) {
@@ -255,7 +252,6 @@ export const Lista = () => {
                         poliza: findVal(row, ['poliza', 'nro poliza', 'num poliza', 'policy']),
                         ramo: findVal(row, ['ramo', 'tipo', 'cobertura']),
                         analista: findVal(row, ['analista', 'gestor', 'asignado', 'asignado a']),
-                        patente: findVal(row, ['patente', 'dominio', 'vehiculo', 'matricula']),
                         telefono: findVal(row, ['telefono', 'tel', 'celular', 'cel']),
                         mail: findVal(row, ['mail', 'correo', 'email']),
                         fecha_ingreso: findVal(row, ['fecha ingreso', 'fecha_ingreso', 'asignacion', 'fecha asignacion', 'f_ingreso', 'f_asignacion']) || new Date().toISOString().split('T')[0],
@@ -382,8 +378,8 @@ export const Lista = () => {
                                 <input className={styles.input} type="text" value={newCase.ramo} onChange={e => setNewCase({ ...newCase, ramo: e.target.value })} />
                             </div>
                             <div className={styles.filterGroup}>
-                                <label>Patente</label>
-                                <input className={styles.input} type="text" value={newCase.patente} onChange={e => setNewCase({ ...newCase, patente: e.target.value })} />
+                                <label>Causa</label>
+                                <input className={styles.input} type="text" value={newCase.causa} onChange={e => setNewCase({ ...newCase, causa: e.target.value })} />
                             </div>
                         </div>
                     </div>
@@ -398,10 +394,6 @@ export const Lista = () => {
                             <div className={styles.filterGroup}>
                                 <label>Teléfono</label>
                                 <input className={styles.input} type="text" value={newCase.telefono} onChange={e => setNewCase({ ...newCase, telefono: e.target.value })} />
-                            </div>
-                            <div className={styles.filterGroup}>
-                                <label>Causa</label>
-                                <input className={styles.input} type="text" value={newCase.causa} onChange={e => setNewCase({ ...newCase, causa: e.target.value })} />
                             </div>
                             <div className={styles.filterGroup}>
                                 <label>Tramitador</label>
@@ -465,7 +457,7 @@ export const Lista = () => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>
-                        <button className={styles.primaryBtn} onClick={handleSaveNewCase} style={{ padding: '12px 30px', fontSize: '16px' }}>Guardar Todo el Caso</button>
+                        <button className={styles.primaryBtn} onClick={handleSaveNewCase} style={{ padding: '12px 30px', fontSize: '16px' }}>Guardar</button>
                         <button className={styles.secondaryBtn} onClick={() => setShowNewCase(false)} style={{ padding: '12px 30px', fontSize: '16px' }}>Cancelar</button>
                     </div>
                 </div>

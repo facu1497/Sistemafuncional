@@ -269,7 +269,7 @@ export const Lista = () => {
                 // Map data to DB columns using fuzzy matching
                 const mappedData = data.map((row: any) => {
                     const mapped = {
-                        n_siniestro: findVal(row, ['siniestro', 'n_siniestro', 'n siniestro', 'numero siniestro', 'num siniestro', 'nro siniestro', 'expediente', 'carpeta', 'caso']),
+                        n_siniestro: String(findVal(row, ['siniestro', 'n_siniestro', 'n siniestro', 'numero siniestro', 'num siniestro', 'nro siniestro', 'expediente', 'carpeta', 'caso']) || '').trim(),
                         cia: findVal(row, ['compania', 'cia', 'aseguradora', 'empresa', 'cliente']),
                         asegurado: findVal(row, ['asegurado', 'nombre', 'asociado', 'tercero']),
                         dni: findVal(row, ['dni', 'documento', 'cuit', 'cuil', 'nro doc']),
@@ -307,18 +307,29 @@ export const Lista = () => {
                 }
 
                 // --- DUPLICATE CHECK ---
-                const allSiniestros = mappedData.map(m => m.n_siniestro).filter(Boolean);
+                // 1. Internal deduplication (within the same Excel)
+                const uniqueInFile: any[] = [];
+                const seenInFile = new Set();
+                mappedData.forEach(m => {
+                    if (!seenInFile.has(m.n_siniestro)) {
+                        seenInFile.add(m.n_siniestro);
+                        uniqueInFile.push(m);
+                    }
+                });
+
+                // 2. Database check
+                const allSiniestros = uniqueInFile.map(m => m.n_siniestro);
                 const { data: existingCasos } = await supabase
                     .from('casos')
                     .select('n_siniestro')
                     .in('n_siniestro', allSiniestros);
 
-                const existingSet = new Set(existingCasos?.map(c => c.n_siniestro) || []);
-                const finalData = mappedData.filter(m => !existingSet.has(m.n_siniestro));
+                const existingSet = new Set(existingCasos?.map(c => String(c.n_siniestro).trim()) || []);
+                const finalData = uniqueInFile.filter(m => !existingSet.has(m.n_siniestro));
                 const skippedCount = mappedData.length - finalData.length;
 
                 if (finalData.length === 0) {
-                    alert(`No hay casos nuevos para importar. Los ${mappedData.length} casos ya existen en el sistema.`);
+                    alert(`No hay casos nuevos para importar. Los ${mappedData.length} casos ya existen en el sistema (o están duplicados en su Excel).`);
                     return;
                 }
 

@@ -268,6 +268,9 @@ export const Lista = () => {
 
                 // Map data to DB columns using fuzzy matching
                 const mappedData = data.map((row: any) => {
+                    const statusVal = String(findVal(row, ['estado', 'status', 'situacion']) || '').toUpperCase().trim();
+                    const validStatus = catalogs.estados.find(e => e.nombre.toUpperCase() === statusVal);
+
                     const mapped = {
                         n_siniestro: String(findVal(row, ['siniestro', 'n_siniestro', 'n siniestro', 'numero siniestro', 'num siniestro', 'nro siniestro', 'expediente', 'carpeta', 'caso']) || '').trim(),
                         cia: findVal(row, ['compania', 'cia', 'aseguradora', 'empresa', 'cliente']),
@@ -296,7 +299,7 @@ export const Lista = () => {
                         piso_r: findVal(row, ['piso riesgo', 'depto riesgo']),
                         localidad_r: findVal(row, ['localidad riesgo', 'ciudad riesgo']),
                         provincia_r: findVal(row, ['provincia riesgo']),
-                        estado: 'ENTREVISTAR'
+                        estado: validStatus ? validStatus.nombre : 'ENTREVISTAR'
                     };
                     return mapped;
                 }).filter((item: any) => item.n_siniestro && item.cia && item.asegurado && item.fecha_ingreso);

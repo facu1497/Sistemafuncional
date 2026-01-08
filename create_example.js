@@ -23,7 +23,8 @@ const data = [
         "Localidad": "CABA",
         "Provincia": "Buenos Aires",
         "Calle Riesgo": "Av. Corrientes 500",
-        "Localidad Riesgo": "CABA"
+        "Localidad Riesgo": "CABA",
+        "Estado": "ENTREVISTAR"
     },
     {
         "Siniestro": "67890/2024",
@@ -42,7 +43,8 @@ const data = [
         "Fecha Siniestro": "05/01/2026",
         "Calle": "Calle Falsa 123",
         "Localidad": "Lanus",
-        "Provincia": "Buenos Aires"
+        "Provincia": "Buenos Aires",
+        "Estado": "EN GESTION"
     }
 ];
 

@@ -242,6 +242,30 @@ export const Lista = () => {
                     return match ? row[match] : null;
                 };
 
+                const parseDate = (val: any) => {
+                    if (!val) return null;
+                    // If it's a number (Excel serial date)
+                    if (typeof val === 'number') {
+                        const date = new Date((val - 25569) * 86400 * 1000);
+                        return date.toISOString().split('T')[0];
+                    }
+                    // If it's a string
+                    if (typeof val === 'string') {
+                        // Check if it's DD/MM/YYYY
+                        const parts = val.split('/');
+                        if (parts.length === 3) {
+                            const d = parts[0].padStart(2, '0');
+                            const m = parts[1].padStart(2, '0');
+                            const y = parts[2];
+                            return `${y}-${m}-${d}`;
+                        }
+                        // Default browser parsing (for ISO etc)
+                        const d = new Date(val);
+                        if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+                    }
+                    return val;
+                };
+
                 // Map data to DB columns using fuzzy matching
                 const mappedData = data.map((row: any) => {
                     const mapped = {
@@ -254,14 +278,14 @@ export const Lista = () => {
                         analista: findVal(row, ['analista', 'gestor', 'asignado', 'asignado a']),
                         telefono: findVal(row, ['telefono', 'tel', 'celular', 'cel']),
                         mail: findVal(row, ['mail', 'correo', 'email']),
-                        fecha_ingreso: findVal(row, ['fecha ingreso', 'fecha_ingreso', 'asignacion', 'fecha asignacion', 'f_ingreso', 'f_asignacion']) || new Date().toISOString().split('T')[0],
-                        fecha_denuncia: findVal(row, ['fecha denuncia', 'fecha_denuncia', 'f_denuncia']),
-                        fecha_siniestro: findVal(row, ['fecha siniestro', 'fecha_siniestro', 'f_siniestro', 'fecha del hecho']),
+                        fecha_ingreso: parseDate(findVal(row, ['fecha ingreso', 'fecha_ingreso', 'asignacion', 'fecha asignacion', 'f_ingreso', 'f_asignacion'])) || new Date().toISOString().split('T')[0],
+                        fecha_denuncia: parseDate(findVal(row, ['fecha denuncia', 'fecha_denuncia', 'f_denuncia'])),
+                        fecha_siniestro: parseDate(findVal(row, ['fecha siniestro', 'fecha_siniestro', 'f_siniestro', 'fecha del hecho'])),
                         motivo_derivacion: findVal(row, ['comentarios', 'comentario derivacion', 'motivo', 'derivacion', 'obs', 'observaciones']),
                         causa: findVal(row, ['causa', 'motivo siniestro']),
                         tramitador: findVal(row, ['tramitador', 'inspector']),
-                        fecha_contratacion: findVal(row, ['contratacion', 'fecha contratacion', 'f_contratacion']),
-                        vigencia_hasta: findVal(row, ['vigencia', 'vigencia hasta', 'vencimiento']),
+                        fecha_contratacion: parseDate(findVal(row, ['contratacion', 'fecha contratacion', 'f_contratacion'])),
+                        vigencia_hasta: parseDate(findVal(row, ['vigencia', 'vigencia hasta', 'vencimiento'])),
                         calle: findVal(row, ['calle', 'domicilio', 'direccion']),
                         nro: findVal(row, ['nro', 'numero', 'altura']),
                         piso: findVal(row, ['piso', 'depto', 'departamento']),

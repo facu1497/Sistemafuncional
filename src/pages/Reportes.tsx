@@ -17,6 +17,8 @@ export const Reportes = () => {
 
     // Catalogs
     const [estadosCat, setEstadosCat] = useState<any[]>([]);
+    const [companiasCat, setCompaniasCat] = useState<any[]>([]);
+    const [analistasCat, setAnalistasCat] = useState<any[]>([]);
 
     useEffect(() => {
         loadData();
@@ -25,14 +27,17 @@ export const Reportes = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [casosRes, estadosRes] = await Promise.all([
+            const [casosRes, estadosRes, ciaRes, anaRes] = await Promise.all([
                 supabase.from('casos').select('*'),
                 supabase.from('estados').select('*').eq('activo', 1),
-                // supabase.from('tareas').select('*') // If we need global task stats
+                supabase.from('companias').select('*').eq('activo', 1),
+                supabase.from('analistas').select('*').eq('activo', 1)
             ]);
 
             setCasos(casosRes.data || []);
             setEstadosCat(estadosRes.data || []);
+            setCompaniasCat(ciaRes.data || []);
+            setAnalistasCat(anaRes.data || []);
         } catch (err) {
             console.error(err);
         } finally {
@@ -43,8 +48,8 @@ export const Reportes = () => {
     // --- SCOPE & FILTERING ---
     const filteredCasos = useMemo(() => {
         return casos.filter(c => {
-            if (filterCia && !c.cia?.toLowerCase().includes(filterCia.toLowerCase())) return false;
-            if (filterAnalista && !c.analista?.toLowerCase().includes(filterAnalista.toLowerCase())) return false;
+            if (filterCia && c.cia !== filterCia) return false;
+            if (filterAnalista && c.analista !== filterAnalista) return false;
             if (filterEstado && c.estado !== filterEstado) return false;
             return true;
         });
@@ -188,11 +193,17 @@ export const Reportes = () => {
                 <div className={styles.filters}>
                     <div className={styles.field}>
                         <label className={styles.label}>Compañía</label>
-                        <input className={styles.input} value={filterCia} onChange={e => setFilterCia(e.target.value)} placeholder="Contiene..." />
+                        <select className={styles.select} value={filterCia} onChange={e => setFilterCia(e.target.value)}>
+                            <option value="">(Todas)</option>
+                            {companiasCat.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+                        </select>
                     </div>
                     <div className={styles.field}>
                         <label className={styles.label}>Analista</label>
-                        <input className={styles.input} value={filterAnalista} onChange={e => setFilterAnalista(e.target.value)} placeholder="Contiene..." />
+                        <select className={styles.select} value={filterAnalista} onChange={e => setFilterAnalista(e.target.value)}>
+                            <option value="">(Todos)</option>
+                            {analistasCat.map(a => <option key={a.id} value={a.nombre}>{a.nombre}</option>)}
+                        </select>
                     </div>
                     <div className={styles.field}>
                         <label className={styles.label}>Estado</label>

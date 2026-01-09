@@ -20,6 +20,7 @@ export const Lista = () => {
     });
 
     const [filters, setFilters] = useState({
+        id: '',
         siniestro: '',
         asegurado: '',
         dni: '',
@@ -120,6 +121,7 @@ export const Lista = () => {
             }
         }
 
+        if (filters.id) res = res.filter(c => String(c.id).toLowerCase().includes(filters.id.toLowerCase()));
         if (filters.siniestro) res = res.filter(c => String(c.n_siniestro).toLowerCase().includes(filters.siniestro.toLowerCase()));
         if (filters.asegurado) res = res.filter(c => c.asegurado?.toLowerCase().includes(filters.asegurado.toLowerCase()));
         if (filters.dni) res = res.filter(c => String(c.dni).includes(filters.dni));
@@ -528,6 +530,11 @@ export const Lista = () => {
             <div className={styles.filterPanel}>
                 <div className={styles.filterHeader}>FILTROS DE BÚSQUEDA</div>
                 <div className={styles.filters}>
+                    <div className={styles.filterGroup}>
+                        <label>N° Caso (ID)</label>
+                        <input className={styles.input} type="text" placeholder="Buscar..."
+                            value={filters.id} onChange={e => handleFilterChange('id', e.target.value)} />
+                    </div>
                     <div className={styles.filterGroup}>
                         <label>N° Siniestro</label>
                         <input className={styles.input} type="text" placeholder="Buscar..."

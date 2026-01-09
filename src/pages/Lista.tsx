@@ -30,7 +30,10 @@ export const Lista = () => {
         subEstado: [] as string[],
         misCasos: false
     });
+    const [showEstadoDropdown, setShowEstadoDropdown] = useState(false);
     const [showSubEstadoDropdown, setShowSubEstadoDropdown] = useState(false);
+
+    const estadoDropdownRef = useRef<HTMLDivElement>(null);
     const subEstadoDropdownRef = useRef<HTMLDivElement>(null);
 
     const [showNewCase, setShowNewCase] = useState(false);
@@ -81,6 +84,9 @@ export const Lista = () => {
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            if (estadoDropdownRef.current && !estadoDropdownRef.current.contains(event.target as Node)) {
+                setShowEstadoDropdown(false);
+            }
             if (subEstadoDropdownRef.current && !subEstadoDropdownRef.current.contains(event.target as Node)) {
                 setShowSubEstadoDropdown(false);
             }
@@ -598,29 +604,41 @@ export const Lista = () => {
                             {catalogs.analistas.map(a => <option key={a.id} value={a.nombre}>{a.nombre}</option>)}
                         </select>
                     </div>
-                    <div className={styles.filterGroup} style={{ minWidth: '200px' }}>
-                        <label>Estados (Selección múltiple)</label>
-                        <div className={styles.multiSelect}>
-                            {catalogs.estados.map(e => (
-                                <label key={e.id} className={styles.checkboxLabel}>
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.estado.includes(e.nombre)}
-                                        onChange={() => toggleEstadoFilter(e.nombre)}
-                                    />
-                                    <span
-                                        className={styles.miniBadge}
-                                        style={{
-                                            backgroundColor: e.color + '15',
-                                            color: e.color,
-                                            borderColor: e.color + '30'
-                                        }}
-                                    >
-                                        {e.nombre}
-                                    </span>
-                                </label>
-                            ))}
+                    <div className={styles.filterGroup} style={{ position: 'relative' }} ref={estadoDropdownRef}>
+                        <label>Estados</label>
+                        <div
+                            className={styles.dropdownToggle}
+                            onClick={() => setShowEstadoDropdown(!showEstadoDropdown)}
+                        >
+                            {filters.estado.length === 0
+                                ? 'Todos los estados'
+                                : `${filters.estado.length} seleccionados`}
+                            <span className={styles.arrow}>{showEstadoDropdown ? '▲' : '▼'}</span>
                         </div>
+
+                        {showEstadoDropdown && (
+                            <div className={styles.dropdownContent}>
+                                {catalogs.estados.map(e => (
+                                    <label key={e.id} className={styles.checkboxLabel}>
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.estado.includes(e.nombre)}
+                                            onChange={() => toggleEstadoFilter(e.nombre)}
+                                        />
+                                        <span
+                                            className={styles.miniBadge}
+                                            style={{
+                                                backgroundColor: e.color + '15',
+                                                color: e.color,
+                                                borderColor: e.color + '30'
+                                            }}
+                                        >
+                                            {e.nombre}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className={styles.filterGroup} style={{ position: 'relative' }} ref={subEstadoDropdownRef}>
                         <label>Subestados</label>

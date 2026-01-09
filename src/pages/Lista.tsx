@@ -604,6 +604,9 @@ export const Lista = () => {
                                     Estado {sortConfig.key === 'estado' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
                                 </th>
                                 <th>Acciones</th>
+                                <th onClick={() => requestSort('fecha_ingreso')} style={{ cursor: 'pointer' }}>
+                                    Días de Gestión {sortConfig.key === 'fecha_ingreso' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -661,11 +664,27 @@ export const Lista = () => {
                                             Ver Detalle
                                         </button>
                                     </td>
+                                    <td style={{ textAlign: 'center', fontWeight: 700, color: 'var(--primary-color)' }}>
+                                        {(() => {
+                                            if (!caso.fecha_ingreso) return '-';
+                                            try {
+                                                const [y, m, d] = caso.fecha_ingreso.split('-').map(Number);
+                                                const start = new Date(y, m - 1, d);
+                                                const today = new Date();
+                                                today.setHours(0, 0, 0, 0);
+                                                const diffTime = today.getTime() - start.getTime();
+                                                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                                return diffDays < 0 ? 0 : diffDays;
+                                            } catch (e) {
+                                                return '-';
+                                            }
+                                        })()}
+                                    </td>
                                 </tr>
                             ))}
                             {filteredCasos.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: 'var(--muted-color)' }}>
+                                    <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: 'var(--muted-color)' }}>
                                         No se encontraron casos que coincidan con los filtros.
                                     </td>
                                 </tr>

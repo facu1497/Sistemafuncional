@@ -27,9 +27,11 @@ export const Lista = () => {
         compania: '',
         analista: '',
         estado: [] as string[],
-        subEstado: '',
+        subEstado: [] as string[],
         misCasos: false
     });
+    const [showSubEstadoDropdown, setShowSubEstadoDropdown] = useState(false);
+    const subEstadoDropdownRef = useRef<HTMLDivElement>(null);
 
     const [showNewCase, setShowNewCase] = useState(false);
     const [newCase, setNewCase] = useState({
@@ -76,6 +78,16 @@ export const Lista = () => {
     useEffect(() => {
         applyFilters();
     }, [filters, casos, sortConfig]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (subEstadoDropdownRef.current && !subEstadoDropdownRef.current.contains(event.target as Node)) {
+                setShowSubEstadoDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const loadData = async () => {
         setLoading(true);
@@ -128,7 +140,7 @@ export const Lista = () => {
         if (filters.compania) res = res.filter(c => c.cia === filters.compania);
         if (filters.analista) res = res.filter(c => c.analista === filters.analista);
         if (filters.estado && filters.estado.length > 0) res = res.filter(c => filters.estado.includes(c.estado));
-        if (filters.subEstado) res = res.filter(c => c.sub_estado === filters.subEstado);
+        if (filters.subEstado && filters.subEstado.length > 0) res = res.filter(c => filters.subEstado.includes(c.sub_estado));
 
         // Sorting
         res.sort((a, b) => {
@@ -163,6 +175,17 @@ export const Lista = () => {
                 return { ...prev, estado: current.filter(e => e !== estado) };
             } else {
                 return { ...prev, estado: [...current, estado] };
+            }
+        });
+    };
+
+    const toggleSubEstadoFilter = (subEstado: string) => {
+        setFilters(prev => {
+            const current = prev.subEstado;
+            if (current.includes(subEstado)) {
+                return { ...prev, subEstado: current.filter(e => e !== subEstado) };
+            } else {
+                return { ...prev, subEstado: [...current, subEstado] };
             }
         });
     };
@@ -599,12 +622,37 @@ export const Lista = () => {
                             ))}
                         </div>
                     </div>
-                    <div className={styles.filterGroup}>
-                        <label>Subestado</label>
-                        <select className={styles.select} value={filters.subEstado} onChange={e => handleFilterChange('subEstado', e.target.value)}>
-                            <option value="">Todos</option>
-                            {catalogs.sub_estados.map(s => <option key={s.id} value={s.nombre}>{s.nombre}</option>)}
-                        </select>
+                    <div className={styles.filterGroup} style={{ position: 'relative' }} ref={subEstadoDropdownRef}>
+                        <label>Subestados</label>
+                        <div
+                            className={styles.dropdownToggle}
+                            onClick={() => setShowSubEstadoDropdown(!showSubEstadoDropdown)}
+                        >
+                            {filters.subEstado.length === 0
+                                ? 'Todos los subestados'
+                                : `${filters.subEstado.length} seleccionados`}
+                            <span className={styles.arrow}>{showSubEstadoDropdown ? '▲' : '▼'}</span>
+                        </div>
+
+                        {showSubEstadoDropdown && (
+                            <div className={styles.dropdownContent}>
+                                {catalogs.sub_estados.map(s => (
+                                    <label key={s.id} className={styles.checkboxLabel}>
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.subEstado.includes(s.nombre)}
+                                            onChange={() => toggleSubEstadoFilter(s.nombre)}
+                                        />
+                                        <span>{s.nombre}</span>
+                                    </label>
+                                ))}
+                                {catalogs.sub_estados.length === 0 && (
+                                    <div style={{ padding: '8px', fontSize: '11px', color: 'var(--muted-color)' }}>
+                                        No hay subestados activos
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div className={styles.filterGroup} style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: '8px' }}>
                         <input type="checkbox" id="misCasos"

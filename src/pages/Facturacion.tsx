@@ -167,11 +167,66 @@ export const Facturacion = () => {
 
     const resumen = getResumen(filteredFacturas);
 
+    // --- ANALYST SUMMARY LOGIC ---
+    const summaryByAnalyst = useMemo(() => {
+        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+        const monthFacturas = facturas.filter(f => f.fecha_emision?.startsWith(currentMonth));
+
+        const analystsMap: Record<string, { total: number, cias: Record<string, number> }> = {};
+
+        monthFacturas.forEach(f => {
+            const name = f.casos?.analista || 'Sin Analista';
+            const cia = f.casos?.cia || 'Sin Compañía';
+            const amount = f.total_general || 0;
+
+            if (!analystsMap[name]) {
+                analystsMap[name] = { total: 0, cias: {} };
+            }
+
+            analystsMap[name].total += amount;
+            analystsMap[name].cias[cia] = (analystsMap[name].cias[cia] || 0) + amount;
+        });
+
+        return Object.entries(analystsMap).map(([name, data]) => ({
+            name,
+            total: data.total,
+            cias: Object.entries(data.cias).sort((a, b) => b[1] - a[1]) // Sort by amount desc
+        })).sort((a, b) => b.total - a.total);
+    }, [facturas]);
+
     return (
         <Layout>
             <div className={styles.topBar}>
                 <h2>Facturación</h2>
                 <p style={{ color: 'var(--muted-color)', fontSize: '14px' }}>Control de facturas, pagos y cobranzas.</p>
+            </div>
+
+            {/* RESUMEN POR ANALISTA (Mes Actual) */}
+            <div className={styles.summarySection}>
+                <h3 className={styles.sectionTitle}>Resumen de Facturación - Mes Actual</h3>
+                <div className={styles.analystSummaryGrid}>
+                    {summaryByAnalyst.map(stat => (
+                        <div key={stat.name} className={styles.analystSumCard}>
+                            <div className={styles.analystSumHeader}>
+                                <span className={styles.analystSumName}>{stat.name}</span>
+                                <span className={styles.analystSumTotal}>$ {stat.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className={styles.analystSumBody}>
+                                {stat.cias.map(([cia, amount]) => (
+                                    <div key={cia} className={styles.ciaSumRow}>
+                                        <span className={styles.ciaSumName}>{cia}</span>
+                                        <span className={styles.ciaSumAmount}>$ {amount.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                    {summaryByAnalyst.length === 0 && (
+                        <div style={{ color: 'var(--muted-color)', padding: '20px', fontSize: '14px' }}>
+                            No hay facturas registradas en el mes actual.
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* FILTROS */}

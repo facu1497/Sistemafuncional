@@ -173,3 +173,82 @@
 .resumen strong {
     color: var(--text-color);
 }
+
+.summarySection {
+    margin-bottom: 24px;
+}
+
+.sectionTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.analystSummaryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.analystSumCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line-color);
+    border-radius: 12px;
+    padding: 16px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.analystSumCard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.analystSumHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line-color);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.analystSumName {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--primary-color);
+}
+
+.analystSumTotal {
+    font-weight: 800;
+    font-size: 14px;
+    color: #86efac;
+}
+
+.analystSumBody {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ciaSumRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.85;
+}
+
+.ciaSumName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 8px;
+}
+
+.ciaSumAmount {
+    font-weight: 600;
+    white-space: nowrap;
+}

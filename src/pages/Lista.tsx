@@ -26,7 +26,7 @@ export const Lista = () => {
         dni: '',
         compania: '',
         analista: '',
-        estado: '',
+        estado: [] as string[],
         subEstado: '',
         misCasos: false
     });
@@ -127,7 +127,7 @@ export const Lista = () => {
         if (filters.dni) res = res.filter(c => String(c.dni).includes(filters.dni));
         if (filters.compania) res = res.filter(c => c.cia === filters.compania);
         if (filters.analista) res = res.filter(c => c.analista === filters.analista);
-        if (filters.estado) res = res.filter(c => c.estado === filters.estado);
+        if (filters.estado && filters.estado.length > 0) res = res.filter(c => filters.estado.includes(c.estado));
         if (filters.subEstado) res = res.filter(c => c.sub_estado === filters.subEstado);
 
         // Sorting
@@ -154,6 +154,17 @@ export const Lista = () => {
 
     const handleFilterChange = (field: string, value: any) => {
         setFilters(prev => ({ ...prev, [field]: value }));
+    };
+
+    const toggleEstadoFilter = (estado: string) => {
+        setFilters(prev => {
+            const current = prev.estado;
+            if (current.includes(estado)) {
+                return { ...prev, estado: current.filter(e => e !== estado) };
+            } else {
+                return { ...prev, estado: [...current, estado] };
+            }
+        });
     };
 
     const handleSaveNewCase = async () => {
@@ -564,12 +575,29 @@ export const Lista = () => {
                             {catalogs.analistas.map(a => <option key={a.id} value={a.nombre}>{a.nombre}</option>)}
                         </select>
                     </div>
-                    <div className={styles.filterGroup}>
-                        <label>Estado</label>
-                        <select className={styles.select} value={filters.estado} onChange={e => handleFilterChange('estado', e.target.value)}>
-                            <option value="">Todos</option>
-                            {catalogs.estados.map(e => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
-                        </select>
+                    <div className={styles.filterGroup} style={{ minWidth: '200px' }}>
+                        <label>Estados (Selección múltiple)</label>
+                        <div className={styles.multiSelect}>
+                            {catalogs.estados.map(e => (
+                                <label key={e.id} className={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.estado.includes(e.nombre)}
+                                        onChange={() => toggleEstadoFilter(e.nombre)}
+                                    />
+                                    <span
+                                        className={styles.miniBadge}
+                                        style={{
+                                            backgroundColor: e.color + '15',
+                                            color: e.color,
+                                            borderColor: e.color + '30'
+                                        }}
+                                    >
+                                        {e.nombre}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
                     <div className={styles.filterGroup}>
                         <label>Subestado</label>

@@ -177,7 +177,7 @@ export const Facturacion = () => {
         monthFacturas.forEach(f => {
             const name = f.casos?.analista || 'Sin Analista';
             const cia = f.casos?.cia || 'Sin Compañía';
-            const amount = f.total_general || 0;
+            const amount = f.total_neto || 0;
 
             if (!analystsMap[name]) {
                 analystsMap[name] = { total: 0, cias: {} };
@@ -203,7 +203,7 @@ export const Facturacion = () => {
 
             {/* RESUMEN POR ANALISTA (Mes Actual) */}
             <div className={styles.summarySection}>
-                <h3 className={styles.sectionTitle}>Resumen de Facturación - Mes Actual</h3>
+                <h3 className={styles.sectionTitle}>Resumen de Facturación (Monto Neto) - Mes Actual</h3>
                 <div className={styles.analystSummaryGrid}>
                     {summaryByAnalyst.map(stat => (
                         <div key={stat.name} className={styles.analystSumCard}>

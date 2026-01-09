@@ -664,17 +664,31 @@ export const Lista = () => {
                                             Ver Detalle
                                         </button>
                                     </td>
-                                    <td style={{ textAlign: 'center', fontWeight: 700, color: 'var(--primary-color)' }}>
+                                    <td style={{ textAlign: 'center', fontWeight: 700 }}>
                                         {(() => {
                                             if (!caso.fecha_ingreso) return '-';
                                             try {
                                                 const [y, m, d] = caso.fecha_ingreso.split('-').map(Number);
                                                 const start = new Date(y, m - 1, d);
-                                                const today = new Date();
-                                                today.setHours(0, 0, 0, 0);
-                                                const diffTime = today.getTime() - start.getTime();
+
+                                                let end = new Date();
+                                                if (caso.estado === 'CERRADO' && caso.fecha_cierre) {
+                                                    const [cy, cm, cd] = caso.fecha_cierre.split('-').map(Number);
+                                                    end = new Date(cy, cm - 1, cd);
+                                                }
+
+                                                end.setHours(0, 0, 0, 0);
+                                                const diffTime = end.getTime() - start.getTime();
                                                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                                                return diffDays < 0 ? 0 : diffDays;
+                                                const finalDays = diffDays < 0 ? 0 : diffDays;
+
+                                                let color = 'var(--primary-color)';
+                                                if (caso.estado !== 'CERRADO') {
+                                                    if (finalDays > 30) color = '#ef4444'; // Red
+                                                    else if (finalDays > 20) color = '#f59e0b'; // Yellow/Orange
+                                                }
+
+                                                return <span style={{ color }}>{finalDays}</span>;
                                             } catch (e) {
                                                 return '-';
                                             }

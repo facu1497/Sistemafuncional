@@ -59,6 +59,24 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         }
     };
 
+    const parseMonto = (val: string | number) => {
+        if (typeof val === 'number') return val;
+        if (!val) return 0;
+        let s = String(val).trim();
+        s = s.replace(/\./g, '');
+        s = s.replace(',', '.');
+        const num = parseFloat(s);
+        return isNaN(num) ? 0 : num;
+    };
+
+    const calculateTotalFromDanos = (danos: any[]) => {
+        if (!danos || !Array.isArray(danos)) return 0;
+        return danos.reduce((sum, cob) => {
+            const items = cob.items || [];
+            return sum + items.reduce((iSum: number, item: any) => iSum + parseMonto(item.montoIndemnizacion), 0);
+        }, 0);
+    };
+
     const handleAction = async (action: string) => {
         if (action === 'Generar Informe') {
             navigate(`/informe/${id}`);
@@ -93,27 +111,35 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         }
 
         if (action === 'Mail a Proveedor') {
-            // Get total from factura
-            const { data: fact } = await supabase.from('facturas').select('total_general').eq('n_siniestro', n_siniestro).single();
-            const monto = fact?.total_general || 0;
+            // Get total from tabla_daños instead of facturas
+            const monto = calculateTotalFromDanos(caso.tabla_daños);
             const montoTexto = numeroALetras(monto);
             const statusMonto = monto > 0 ? `$ ${monto.toLocaleString('es-AR')}` : '[ORDEN DE COMPRA]';
             const statusLetras = monto > 0 ? montoTexto : '[ENLETRASOC]';
 
             const subject = `Orden de Compra Abierta - Siniestro ${n_siniestro}`;
-            const body = `Por medio de la presente solicitamos la siguiente ORDEN DE COMPRA ABIERTA\r\n\r\n` +
-                `Por un monto de ${statusMonto} (pesos ${statusLetras}).\r\n` +
-                `Aseguradora: ${cia || '[compañía]'}\r\n\r\n` +
-                `DATOS DE CONTACTO:\r\n\r\n` +
-                `ASEGURADO: ${asegurado || '[NOMBRE]'}\r\n` +
-                `DNI: ${dni || '[DNI]'}\r\n` +
-                `TE DE CONTACTO: ${telefono || '[telefono]'}\r\n` +
-                `DOMICILIO: ${calle || ''} ${nro || ''}, ${localidad || ''}, ${provincia || ''}\r\n` +
-                `STRO. NRO.: ${n_siniestro || '[SINIESTRO]'}\r\n` +
-                `PÓLIZA NRO.: ${poliza || '[POLIZA]'}\r\n` +
-                `CORREO: ${mail || '[mail]'}\r\n\r\n` +
-                `FAVOR CONTACTAR PRONTAMENTE. CONFIRMAR RECEPCIÓN GRACIAS\r\n\r\n` +
-                `TRAMITADOR: ${tramitador || analista || '[tramitador]'} ${companyEmail || '[mail de compañía]'}`;
+
+            // Build a more structured "boxed" body using brackets and dashes
+            let body = `Por medio de la presente solicitamos la siguiente ORDEN DE COMPRA ABIERTA\r\n\r\n`;
+            body += `+-----------------------+-------------------------------------------------------------+\r\n`;
+            body += `| Por un monto de       | ${statusMonto} (pesos ${statusLetras}).\r\n`;
+            body += `+-----------------------+-------------------------------------------------------------+\r\n`;
+            body += `| Aseguradora           | ${cia || '[compañía]'}\r\n`;
+            body += `+-----------------------+-------------------------------------------------------------+\r\n\r\n`;
+
+            body += `DATOS DE CONTACTO:\r\n\r\n`;
+            body += `+-----------------------+-------------------------------------------------------------+\r\n`;
+            body += `| ASEGURADO             | ${asegurado || '[NOMBRE]'}\r\n`;
+            body += `| DNI                   | ${dni || '[DNI]'}\r\n`;
+            body += `| TE DE CONTACTO        | ${telefono || '[telefono]'}\r\n`;
+            body += `| DOMICILIO             | ${calle || ''} ${nro || ''}, ${localidad || ''}, ${provincia || ''}\r\n`;
+            body += `| STRO. NRO.            | ${n_siniestro || '[SINIESTRO]'}\r\n`;
+            body += `| PÓLIZA NRO.           | ${poliza || '[POLIZA]'}\r\n`;
+            body += `| CORREO                | ${mail || '[mail]'}\r\n`;
+            body += `+-----------------------+-------------------------------------------------------------+\r\n\r\n`;
+
+            body += `FAVOR CONTACTAR PRONTAMENTE. CONFIRMAR RECEPCIÓN GRACIAS\r\n\r\n`;
+            body += `TRAMITADOR: ${tramitador || analista || '[tramitador]'} <${companyEmail || ''}>`;
 
             const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.location.href = mailtoUrl;

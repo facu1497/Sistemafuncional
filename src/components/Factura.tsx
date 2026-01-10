@@ -154,6 +154,25 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
 
         try {
             setLoading(true);
+
+            // 1. Upload file to storage
+            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            const filePath = `casos/${nSiniestro}/FACTURA_${Date.now()}_${sanitizedName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('documentos')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (uploadError) {
+                console.error("Error uploading invoice file:", uploadError);
+                // We continue with parsing even if upload fails, but alert the user
+                alert(`Error al subir archivo de factura: ${uploadError.message}. Se intentará procesar los datos igualmente.`);
+            }
+
+            // 2. Parse PDF contents
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 

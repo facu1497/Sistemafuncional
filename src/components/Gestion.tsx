@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Gestion.module.css';
-import { FileText, Mail, FileCheck, ArrowRight, Printer } from 'lucide-react';
+import { FileText, Mail, FileCheck, ArrowRight, Printer, Paperclip } from 'lucide-react';
+import { supabase } from '../supabaseClient';
+import { Dropzone } from './Dropzone';
 
 interface GestionProps {
     nSiniestro: string;
@@ -11,9 +14,12 @@ interface GestionProps {
 }
 
 const SUB_ESTADOS_CERRADO = ["DESISTIDO", "RECHAZADO", "PAGADO", "DADO DE BAJA"];
+const BUCKET = 'documentos';
 
 export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpdate }: GestionProps) => {
     const navigate = useNavigate();
+    const [uploadingReport, setUploadingReport] = useState(false);
+    const [reportFile, setReportFile] = useState<{ name: string, url: string } | null>(null);
 
     const handleAction = async (action: string) => {
         if (action === 'Generar Informe') {
@@ -34,7 +40,6 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
         }
 
         if (action === 'Interrupción de Plazos') {
-            console.log("Generando mail de interrupción para:", mail);
             const checklistArray = Array.isArray(checklist) ? checklist : [];
             const missingDocs = checklistArray
                 .filter(item => !item.checked)
@@ -45,12 +50,85 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
             const body = `Buenas tardes,\r\nDe nuestra mayor consideración:\r\n\r\nNos dirigimos a Usted en relación al siniestro de referencia. Al respecto le informamos que, a los efectos de completar la evaluación del mismo, resulta imprescindible que nos sea remitida la siguiente documentación:\r\n\r\n${missingDocs}\r\n\r\nSe hace notar que hasta tanto sea recepcionada la documentación solicitada quedan suspendidos los plazos previstos para pronunciarse acerca del reclamo indemnizatorio, según lo establecido en el Art. 51 párrafo 2º de la ley 17.418.\r\n\r\nSin otro particular, saludamos atentamente.`;
 
             const mailtoUrl = `mailto:${mail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoUrl;
+            return;
+        }
 
+        if (action === 'Enviar a Informes') {
+            // Find invoice and report links
+            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${nSiniestro}`);
+
+            let invoiceLink = "";
+            let reportLink = "";
+
+            if (files) {
+                // Get latest invoice
+                const invoiceFile = files
+                    .filter(f => f.name.startsWith('FACTURA_'))
+                    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+
+                if (invoiceFile) {
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${invoiceFile.name}`);
+                    invoiceLink = data.publicUrl;
+                }
+
+                // Get latest report
+                const reportFileFromStorage = files
+                    .filter(f => f.name.startsWith('INFORME_GESTION_'))
+                    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+
+                if (reportFileFromStorage) {
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${reportFileFromStorage.name}`);
+                    reportLink = data.publicUrl;
+                }
+            }
+
+            const subject = `Informe y Factura - Siniestro ${nSiniestro}`;
+            let body = `Adjunto informe y factura por el presente caso.\r\n\r\n`;
+
+            if (reportLink) body += `Link Informe: ${reportLink}\r\n`;
+            if (invoiceLink) body += `Link Factura: ${invoiceLink}\r\n`;
+
+            if (!reportLink && !invoiceLink) {
+                body += `(Nota: No se encontraron archivos cargados en las pestañas correspondientes)\r\n`;
+            }
+
+            const mailtoUrl = `mailto:${mail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.location.href = mailtoUrl;
             return;
         }
 
         alert(`Acción "${action}" para el siniestro ${nSiniestro} aún no implementada.`);
+    };
+
+    const handleUploadReport = async (files: File[]) => {
+        const file = files[0];
+        if (!file) return;
+
+        setUploadingReport(true);
+        try {
+            const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            const filePath = `casos/${nSiniestro}/INFORME_GESTION_${Date.now()}_${sanitizedName}`;
+
+            const { error } = await supabase.storage
+                .from(BUCKET)
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            const { data } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+            setReportFile({ name: file.name, url: data.publicUrl });
+            alert("Informe cargado correctamente.");
+
+        } catch (error: any) {
+            console.error("Error uploading report:", error);
+            alert(`Error al subir informe: ${error.message}`);
+        } finally {
+            setUploadingReport(false);
+        }
     };
 
     return (
@@ -148,9 +226,30 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
                             </button>
                         ))}
                     </div>
+
+                    {/* NUEVO CAMPO ADJUNTAR PDF */}
+                    <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--line-color)' }}>
+                        <div className={styles.title} style={{ borderBottom: 'none', margin: 0, padding: 0, fontSize: '12px' }}>Adjuntar Informe PDF (Gestión)</div>
+                        {uploadingReport ? (
+                            <div style={{ textAlign: 'center', padding: '10px', color: 'var(--primary-color)' }}>Subiendo...</div>
+                        ) : (
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <div style={{ flex: 1 }}>
+                                    <Dropzone
+                                        onFileSelect={handleUploadReport}
+                                        label={reportFile ? reportFile.name : "Seleccionar Informe"}
+                                        subLabel="PDF format"
+                                        accept="application/pdf"
+                                    />
+                                </div>
+                                {reportFile && <Paperclip size={20} color="var(--primary-color)" />}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
             </div>
         </div>
     );
 };
+

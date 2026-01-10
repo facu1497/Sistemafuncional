@@ -119,24 +119,20 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
 
             const subject = `Orden de Compra Abierta - Siniestro ${n_siniestro}`;
 
-            // Build a more structured "boxed" body using brackets and dashes
             let body = `Por medio de la presente solicitamos la siguiente ORDEN DE COMPRA ABIERTA\r\n\r\n`;
-            body += `+-----------------------+-------------------------------------------------------------+\r\n`;
-            body += `| Por un monto de       | ${statusMonto} (pesos ${statusLetras}).\r\n`;
-            body += `+-----------------------+-------------------------------------------------------------+\r\n`;
-            body += `| Aseguradora           | ${cia || '[compañía]'}\r\n`;
-            body += `+-----------------------+-------------------------------------------------------------+\r\n\r\n`;
 
-            body += `DATOS DE CONTACTO:\r\n\r\n`;
-            body += `+-----------------------+-------------------------------------------------------------+\r\n`;
-            body += `| ASEGURADO             | ${asegurado || '[NOMBRE]'}\r\n`;
-            body += `| DNI                   | ${dni || '[DNI]'}\r\n`;
-            body += `| TE DE CONTACTO        | ${telefono || '[telefono]'}\r\n`;
-            body += `| DOMICILIO             | ${calle || ''} ${nro || ''}, ${localidad || ''}, ${provincia || ''}\r\n`;
-            body += `| STRO. NRO.            | ${n_siniestro || '[SINIESTRO]'}\r\n`;
-            body += `| PÓLIZA NRO.           | ${poliza || '[POLIZA]'}\r\n`;
-            body += `| CORREO                | ${mail || '[mail]'}\r\n`;
-            body += `+-----------------------+-------------------------------------------------------------+\r\n\r\n`;
+            body += `MONTO: ${statusMonto} (pesos ${statusLetras})\r\n`;
+            body += `ASEGURADORA: ${cia || '[compañía]'}\r\n\r\n`;
+
+            body += `DATOS DE CONTACTO:\r\n`;
+            body += `--------------------------\r\n`;
+            body += `ASEGURADO: ${asegurado || '[NOMBRE]'}\r\n`;
+            body += `DNI: ${dni || '[DNI]'}\r\n`;
+            body += `TE DE CONTACTO: ${telefono || '[telefono]'}\r\n`;
+            body += `DOMICILIO: ${calle || ''} ${nro || ''}, ${localidad || ''}, ${provincia || ''}\r\n`;
+            body += `STRO. NRO.: ${n_siniestro || '[SINIESTRO]'}\r\n`;
+            body += `PÓLIZA NRO.: ${poliza || '[POLIZA]'}\r\n`;
+            body += `CORREO: ${mail || '[mail]'}\r\n\r\n`;
 
             body += `FAVOR CONTACTAR PRONTAMENTE. CONFIRMAR RECEPCIÓN GRACIAS\r\n\r\n`;
             body += `TRAMITADOR: ${tramitador || analista || '[tramitador]'} <${companyEmail || ''}>`;

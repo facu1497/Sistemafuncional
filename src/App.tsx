@@ -9,6 +9,7 @@ import { Reportes } from './pages/Reportes';
 import { Administracion } from './pages/Administracion';
 import { Informe } from './pages/Informe';
 import { InformeDesiste } from './pages/InformeDesiste';
+import { NotaEfectivo } from './pages/NotaEfectivo';
 
 import React from 'react';
 
@@ -70,6 +71,11 @@ function App() {
           <Route path="/informe-desiste/:id" element={
             <PrivateRoute>
               <InformeDesiste />
+            </PrivateRoute>
+          } />
+          <Route path="/nota-efectivo/:id" element={
+            <PrivateRoute>
+              <NotaEfectivo />
             </PrivateRoute>
           } />
           <Route path="/" element={<Navigate to="/lista" />} />

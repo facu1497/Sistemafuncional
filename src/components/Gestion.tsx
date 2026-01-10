@@ -104,7 +104,11 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         const noteActions = ['Nota Desiste', 'Nota Desiste C/Póliza', 'Nota Orden de Compra', 'Nota Efectivo'];
         if (noteActions.includes(action)) {
             await onStatusUpdate?.({ sub_estado: 'NOTA PENDIENTE' });
-            alert(`Acción "${action}" iniciada. Sub-estado actualizado a NOTA PENDIENTE.`);
+            if (action === 'Nota Efectivo') {
+                navigate(`/nota-efectivo/${id}`);
+            } else {
+                alert(`Acción "${action}" iniciada. Sub-estado actualizado a NOTA PENDIENTE.`);
+            }
             return;
         }
 

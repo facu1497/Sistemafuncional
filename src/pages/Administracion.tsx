@@ -371,6 +371,7 @@ export const Administracion = () => {
             {renderCommonForm('companias', [
                 { label: 'Nombre', field: 'nombre', placeholder: 'Ej: Life Seguros' },
                 { label: 'CUIT', field: 'cuit', placeholder: '30-12345678-9' },
+                { label: 'Email', field: 'email', placeholder: 'siniestros@compania.com' },
                 { label: 'Estado', field: 'activo', type: 'select', options: [{ val: '1', label: 'Activa' }, { val: '0', label: 'Inactiva' }] },
                 { label: 'Notas', field: 'notas', type: 'textarea' }
             ])}
@@ -378,6 +379,7 @@ export const Administracion = () => {
                 { field: 'id', header: 'ID' },
                 { field: 'nombre', header: 'Nombre' },
                 { field: 'cuit', header: 'CUIT' },
+                { field: 'email', header: 'Email' },
                 { field: 'activo', header: 'Activo', render: v => v === 1 ? <span className={styles.activeTag}>Sí</span> : <span className={styles.inactiveTag}>No</span> }
             ])}
         </div>

@@ -414,10 +414,7 @@ export const Detalle = () => {
 
                         {activeTab === 'gestion' && (
                             <Gestion
-                                nSiniestro={caso.n_siniestro}
-                                id={caso.id}
-                                mail={caso.mail}
-                                checklist={caso.checklist || []}
+                                caso={caso}
                                 onStatusUpdate={handleStatusUpdate}
                             />
                         )}

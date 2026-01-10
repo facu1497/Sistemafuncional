@@ -4,39 +4,53 @@ import styles from './Gestion.module.css';
 import { FileText, Mail, FileCheck, ArrowRight, Printer, Paperclip, Download } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { Dropzone } from './Dropzone';
+import { numeroALetras } from '../utils/NumberToWords';
 
 interface GestionProps {
-    nSiniestro: string;
-    id: number | string;
-    mail?: string;
-    checklist?: { text: string; checked: boolean }[];
-    onStatusUpdate?: (status: { estado?: string, sub_estado?: string, fecha_cierre?: string | null }) => Promise<void>;
+    caso: any;
+    onStatusUpdate?: (status: {
+        estado?: string,
+        sub_estado?: string,
+        fecha_cierre?: string | null,
+        fecha_entrevista?: string | null,
+        fecha_documentacion_completa?: string | null
+    }) => Promise<void>;
 }
 
 const SUB_ESTADOS_CERRADO = ["DESISTIDO", "RECHAZADO", "PAGADO", "DADO DE BAJA"];
 const BUCKET = 'documentos';
 
-export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpdate }: GestionProps) => {
+export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
     const navigate = useNavigate();
     const [uploadingReport, setUploadingReport] = useState(false);
     const [reportFile, setReportFile] = useState<{ name: string, url: string } | null>(null);
+    const [companyEmail, setCompanyEmail] = useState('');
+
+    const { n_siniestro, id, mail, checklist = [], cia, asegurado, dni, telefono, calle, nro, localidad, provincia, poliza, analista, tramitador } = caso;
 
     useEffect(() => {
-        if (nSiniestro) {
+        if (n_siniestro) {
             fetchExistingReport();
+            fetchCompanyEmail();
         }
-    }, [nSiniestro]);
+    }, [n_siniestro, cia]);
+
+    const fetchCompanyEmail = async () => {
+        if (!cia) return;
+        const { data } = await supabase.from('companias').select('email').eq('nombre', cia).single();
+        if (data?.email) setCompanyEmail(data.email);
+    };
 
     const fetchExistingReport = async () => {
         try {
-            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${nSiniestro}`);
+            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${n_siniestro}`);
             if (files) {
                 const reportFileFromStorage = files
                     .filter(f => f.name.startsWith('INFORME_GESTION_'))
                     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
 
                 if (reportFileFromStorage) {
-                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${reportFileFromStorage.name}`);
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${n_siniestro}/${reportFileFromStorage.name}`);
                     setReportFile({ name: reportFileFromStorage.name.split('_').slice(2).join('_'), url: data.publicUrl });
                 }
             }
@@ -70,7 +84,7 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
                 .map(item => `- ${item.text}`)
                 .join('\r\n');
 
-            const subject = `Interrupción de Plazos - Siniestro ${nSiniestro}`;
+            const subject = `Interrupción de Plazos - Siniestro ${n_siniestro}`;
             const body = `Buenas tardes,\r\nDe nuestra mayor consideración:\r\n\r\nNos dirigimos a Usted en relación al siniestro de referencia. Al respecto le informamos que, a los efectos de completar la evaluación del mismo, resulta imprescindible que nos sea remitida la siguiente documentación:\r\n\r\n${missingDocs}\r\n\r\nSe hace notar que hasta tanto sea recepcionada la documentación solicitada quedan suspendidos los plazos previstos para pronunciarse acerca del reclamo indemnizatorio, según lo establecido en el Art. 51 párrafo 2º de la ley 17.418.\r\n\r\nSin otro particular, saludamos atentamente.`;
 
             const mailtoUrl = `mailto:${mail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -78,9 +92,37 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
             return;
         }
 
+        if (action === 'Mail a Proveedor') {
+            // Get total from factura
+            const { data: fact } = await supabase.from('facturas').select('total_general').eq('n_siniestro', n_siniestro).single();
+            const monto = fact?.total_general || 0;
+            const montoTexto = numeroALetras(monto);
+            const statusMonto = monto > 0 ? `$ ${monto.toLocaleString('es-AR')}` : '[ORDEN DE COMPRA]';
+            const statusLetras = monto > 0 ? montoTexto : '[ENLETRASOC]';
+
+            const subject = `Orden de Compra Abierta - Siniestro ${n_siniestro}`;
+            const body = `Por medio de la presente solicitamos la siguiente ORDEN DE COMPRA ABIERTA\r\n\r\n` +
+                `Por un monto de ${statusMonto} (pesos ${statusLetras}).\r\n` +
+                `Aseguradora: ${cia || '[compañía]'}\r\n\r\n` +
+                `DATOS DE CONTACTO:\r\n\r\n` +
+                `ASEGURADO: ${asegurado || '[NOMBRE]'}\r\n` +
+                `DNI: ${dni || '[DNI]'}\r\n` +
+                `TE DE CONTACTO: ${telefono || '[telefono]'}\r\n` +
+                `DOMICILIO: ${calle || ''} ${nro || ''}, ${localidad || ''}, ${provincia || ''}\r\n` +
+                `STRO. NRO.: ${n_siniestro || '[SINIESTRO]'}\r\n` +
+                `PÓLIZA NRO.: ${poliza || '[POLIZA]'}\r\n` +
+                `CORREO: ${mail || '[mail]'}\r\n\r\n` +
+                `FAVOR CONTACTAR PRONTAMENTE. CONFIRMAR RECEPCIÓN GRACIAS\r\n\r\n` +
+                `TRAMITADOR: ${tramitador || analista || '[tramitador]'} ${companyEmail || '[mail de compañía]'}`;
+
+            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoUrl;
+            return;
+        }
+
         if (action === 'Enviar a Informes') {
             // Find invoice and report links
-            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${nSiniestro}`);
+            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${n_siniestro}`);
 
             let invoiceLink = "";
             let reportLink = "";
@@ -92,7 +134,7 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
                     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
 
                 if (invoiceFile) {
-                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${invoiceFile.name}`);
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${n_siniestro}/${invoiceFile.name}`);
                     invoiceLink = data.publicUrl;
                 }
 
@@ -102,12 +144,12 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
                     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
 
                 if (reportFileFromStorage) {
-                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${reportFileFromStorage.name}`);
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${n_siniestro}/${reportFileFromStorage.name}`);
                     reportLink = data.publicUrl;
                 }
             }
 
-            const subject = `Informe y Factura - Siniestro ${nSiniestro}`;
+            const subject = `Informe y Factura - Siniestro ${n_siniestro}`;
             let body = `Adjunto informe y factura por el presente caso.\r\n\r\n`;
 
             if (reportLink) body += `Link Informe: ${reportLink}\r\n`;
@@ -122,7 +164,7 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
             return;
         }
 
-        alert(`Acción "${action}" para el siniestro ${nSiniestro} aún no implementada.`);
+        alert(`Acción "${action}" para el siniestro ${n_siniestro} aún no implementada.`);
     };
 
     const handleUploadReport = async (files: File[]) => {
@@ -132,7 +174,7 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
         setUploadingReport(true);
         try {
             const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-            const filePath = `casos/${nSiniestro}/INFORME_GESTION_${Date.now()}_${sanitizedName}`;
+            const filePath = `casos/${n_siniestro}/INFORME_GESTION_${Date.now()}_${sanitizedName}`;
 
             const { error } = await supabase.storage
                 .from(BUCKET)
@@ -207,8 +249,8 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
                         <button className={styles.btn} onClick={() => handleAction('Enviar a Informes')}>
                             <span>ENVIAR A INFORMES</span> <ArrowRight size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Mail a OnCity')}>
-                            <span>MAIL A ONCITY</span> <Mail size={16} />
+                        <button className={styles.btn} onClick={() => handleAction('Mail a Proveedor')}>
+                            <span>MAIL A PROVEEDOR</span> <Mail size={16} />
                         </button>
                         <button className={styles.btn} onClick={() => handleAction('Declaración')}>
                             <span>DECLARACIÓN</span> <FileCheck size={16} />
@@ -303,4 +345,3 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
         </div>
     );
 };
-

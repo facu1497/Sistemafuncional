@@ -400,7 +400,6 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
                                             sub_estado: sub,
                                             fecha_cierre: hoy
                                         });
-                                        alert(`Caso cerrado como ${sub}`);
                                     }
                                 }}
                             >

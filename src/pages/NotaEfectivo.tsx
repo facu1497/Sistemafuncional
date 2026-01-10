@@ -138,7 +138,7 @@ export const NotaEfectivo = () => {
 
                 <div className={styles.footer}>
                     Atentamente,
-                    <br /><br /><br /><br />
+                    <br /><br />
                     <div className={styles.signatureLine}>FIRMA</div>
                     <div className={styles.infoLine}><strong>Aclaración:</strong> {caso.asegurado || '.....................'}</div>
                     <div className={styles.infoLine}><strong>DNI:</strong> {caso.dni || '.....................'}</div>

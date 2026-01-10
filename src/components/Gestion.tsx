@@ -107,25 +107,25 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         y += 15;
 
         addText(`Sr. Gerente\n${cia || '.....................'}`, 11, true);
-        y += 4;
+        y += 1;
         addText('De mi mayor consideración:', 11);
-        y += 5;
+        y += 4;
         addText(`Referencia:\nSINIESTRO ${n_siniestro || '.......'} / POLIZA ${poliza || '.......'}`, 11, true);
-        y += 6;
+        y += 4;
 
         addText(`Por la presente, informo que, habiendo cumplido con la entrega de toda la información y documentación requerida por el Estudio Gibert con fecha actual, acepto, conforme a las condiciones contractuales vigentes, la siguiente liquidación en concepto de indemnización:`, 11);
 
         y += 3;
         const montoStrQuery = numeroALetras(total);
-        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery}).`, 11, true);
+        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery})`, 11, true);
 
-        y += 6;
+        y += 3;
         addText(`Solicito, asimismo, que el monto mencionado sea transferido a la siguiente cuenta bancaria de mi titularidad en el Banco ________________________:`, 11);
 
         y += 3;
         addText('TIPO DE CUENTA:\nNRO DE CUENTA:\nCBU:\nFILIAL:', 11, true, 7);
 
-        y += 4;
+        y += 1;
         addText(`Declaro que, una vez percibida la indemnización señalada, renuncio expresamente a cualquier otro reclamo relacionado con el presente caso.`, 11);
         y += 1;
         addText(`Asimismo, confirmo que la única póliza vigente relacionada con el siniestro es aquella contratada con ${cia || '.......'} y ratifico íntegramente las circunstancias que dieron lugar al evento denunciado.`, 11);
@@ -134,15 +134,16 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         y += 1;
         addText(`Quedo a disposición para cualquier aclaración adicional y, sin otro particular, saludo a usted con la mayor consideración.`, 11);
 
-        y += 10;
+        y += 5;
         addText('Atentamente,', 11);
-        y += 15;
+        y += 3;
         addText('FIRMA', 11, true);
-        y += 12;
+        y += 3;
         addText(`Aclaración: ${asegurado || '.....................'}`, 11, true, 7);
+        y += 3;
         addText(`DNI: ${dni || '.....................'}`, 11, true, 7);
 
-        y = 265;
+        y = 255;
         doc.setLineWidth(0.2);
         doc.line(margin, y, 190, y);
         y += 6;

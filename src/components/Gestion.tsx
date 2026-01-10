@@ -69,11 +69,14 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         return isNaN(num) ? 0 : num;
     };
 
-    const calculateTotalFromDanos = (danos: any[]) => {
+    const calculateTotalFromDanos = (danos: any[], soloProveedor: boolean = false) => {
         if (!danos || !Array.isArray(danos)) return 0;
         return danos.reduce((sum, cob) => {
             const items = cob.items || [];
-            return sum + items.reduce((iSum: number, item: any) => iSum + parseMonto(item.montoIndemnizacion), 0);
+            return sum + items.reduce((iSum: number, item: any) => {
+                if (soloProveedor && !item.esProveedor) return iSum;
+                return iSum + parseMonto(item.montoIndemnizacion);
+            }, 0);
         }, 0);
     };
 
@@ -111,8 +114,8 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         }
 
         if (action === 'Mail a Proveedor') {
-            // Get total from tabla_daños instead of facturas
-            const monto = calculateTotalFromDanos(caso.tabla_daños);
+            // Get total from tabla_daños ONLY for items marked as esProveedor
+            const monto = calculateTotalFromDanos(caso.tabla_daños, true);
             const montoTexto = numeroALetras(monto);
             const statusMonto = monto > 0 ? `$ ${monto.toLocaleString('es-AR')}` : '[ORDEN DE COMPRA]';
             const statusLetras = monto > 0 ? montoTexto : '[ENLETRASOC]';

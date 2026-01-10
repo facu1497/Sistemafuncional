@@ -87,13 +87,13 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
     const generateNotaEfectivo = () => {
         const total = calculateTotalFromDanos(caso.tabla_daños, false);
         const doc = new jsPDF('p', 'mm', 'a4');
-        const margin = 20;
-        let y = 20;
+        const margin = 30; // 3 cm left/right margins
+        let y = 25; // 2.5 cm top margin
 
         const addText = (text: string, size = 11, bold = false, spacing = 5.5) => {
             doc.setFontSize(size);
             doc.setFont('times', bold ? 'bold' : 'normal');
-            const lines = doc.splitTextToSize(text, 170);
+            const lines = doc.splitTextToSize(text, 150); // 210mm - 30mm - 30mm = 150mm
             doc.text(lines, margin, y);
             const increment = lines.length * spacing;
             y += increment;
@@ -103,7 +103,8 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         const fecha = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
         doc.setFontSize(11);
         doc.setFont('times', 'normal');
-        doc.text(`Buenos Aires, ${fecha}`, 190, y, { align: 'right' });
+        // Right align date at 180mm (210mm - 30mm margin)
+        doc.text(`Buenos Aires, ${fecha}`, 180, y, { align: 'right' });
         y += 15;
 
         addText(`Sr. Gerente\n${cia || '.....................'}`, 11, true);
@@ -143,9 +144,10 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         y += 3;
         addText(`DNI: ${dni || '.....................'}`, 11, true, 7);
 
-        y += 10; // Reducido el espacio drásticamente de y += 25 a y += 10
+        y += 10;
         doc.setLineWidth(0.2);
-        doc.line(margin, y, 190, y);
+        // Line from left margin (30) to right margin (180)
+        doc.line(margin, y, 180, y);
         y += 6;
         addText('Nota aclaratoria:', 9, true, 4);
         addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 8.5, false, 3.5);

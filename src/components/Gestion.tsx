@@ -90,24 +90,27 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         const margin = 20;
         let y = 30;
 
-        const addText = (text: string, size = 11, bold = false) => {
+        const addText = (text: string, size = 11, bold = false, spacing = 6) => {
             doc.setFontSize(size);
             doc.setFont('times', bold ? 'bold' : 'normal');
             const lines = doc.splitTextToSize(text, 170);
             doc.text(lines, margin, y);
-            y += (lines.length * (size * 0.5)) + 5;
+            const increment = lines.length * spacing;
+            y += increment;
+            return increment;
         };
 
         const fecha = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        doc.setFontSize(10);
+        doc.setFontSize(11);
+        doc.setFont('times', 'normal');
         doc.text(`Buenos Aires, ${fecha}`, 190, y, { align: 'right' });
-        y += 15;
+        y += 20;
 
         addText(`Sr. Gerente\n${cia || '.....................'}`, 11, true);
         y += 5;
         addText('De mi mayor consideración:', 11);
-        y += 5;
+        y += 10;
         addText(`Referencia:\nSINIESTRO ${n_siniestro || '.......'} / POLIZA ${poliza || '.......'}`, 11, true);
         y += 10;
 
@@ -116,33 +119,29 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
 
         y += 5;
         const montoStrQuery = numeroALetras(total);
-        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery} PESOS).`, 11, true);
+        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery}).`, 11, true);
 
-        y += 5;
+        y += 10;
         addText(`Solicito, asimismo, que el monto mencionado sea transferido a la siguiente cuenta bancaria de mi titularidad en el Banco ________________________:`, 11);
-
         y += 5;
-        addText('TIPO DE CUENTA:\nNRO DE CUENTA:\nCBU:\nFILIAL:', 11, true);
-
+        addText('TIPO DE CUENTA:\nNRO DE CUENTA:\nCBU:\nFILIAL:', 11, true, 8);
         y += 10;
         const body2 = `Declaro que, una vez percibida la indemnización señalada, renuncio expresamente a cualquier otro reclamo relacionado con el presente caso.\n\nAsimismo, confirmo que la única póliza vigente relacionada con el siniestro es aquella contratada con ${cia || '.......'} y ratifico íntegramente las circunstancias que dieron lugar al evento denunciado.\n\nAdicionalmente, declaro bajo juramento que no me encuentro incluido ni alcanzado dentro de la categoría de "Personas Expuestas Políticamente" según la normativa vigente.\n\nQuedo a disposición para cualquier aclaración adicional y, sin otro particular, saludo a usted con la mayor consideración.`;
         addText(body2, 11);
 
-        y += 15;
-        addText('Atentamente,', 11);
         y += 20;
-        addText('FIRMA', 11, true);
-        addText(`Aclaración: ${asegurado || '.....................'}`, 11, true);
-        addText(`DNI: ${dni || '.....................'}`, 11, true);
+        addText('Atentamente,', 11);
+        y += 25;
+        addText('FIRMA', 11, true, 8);
+        addText(`Aclaración: ${asegurado || '.....................'}`, 11, true, 8);
+        addText(`DNI: ${dni || '.....................'}`, 11, true, 8);
 
-        y += 10;
-        doc.setLineWidth(0.5);
+        y = 250;
+        doc.setLineWidth(0.3);
         doc.line(margin, y, 190, y);
-        y += 10;
-
-        addText('Nota aclaratoria:', 10, true);
-        y -= 3;
-        addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 9);
+        y += 8;
+        addText('Nota aclaratoria:', 9, true, 4);
+        addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 9, false, 4.5);
 
         doc.save(`Nota_Efectivo_${n_siniestro}.pdf`);
     };

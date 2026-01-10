@@ -197,3 +197,52 @@
     cursor: pointer;
     accent-color: var(--accent-color);
 }
+
+.reopenBtn {
+    background: rgba(54, 153, 255, 0.1);
+    color: #3699ff;
+    border: 1px solid rgba(54, 153, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reopenBtn:hover {
+    background: rgba(54, 153, 255, 0.2);
+}
+
+.statusWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.closingDateWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted-color);
+    padding-right: 8px;
+}
+
+.closingDateInput {
+    background: transparent;
+    border: none;
+    color: var(--muted-color);
+    font-size: 11px;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+}
+
+.closingDateText {
+    font-weight: 600;
+}

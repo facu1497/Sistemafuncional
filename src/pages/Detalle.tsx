@@ -12,15 +12,21 @@ import { Documentacion } from '../components/Documentacion';
 import { Comentarios } from '../components/Comentarios';
 import { Gestion } from '../components/Gestion';
 import { InfoCaso } from '../components/InfoCaso';
+import { useAuth } from '../contexts/AuthContext';
+import { RefreshCcw, Calendar } from 'lucide-react';
 
 export const Detalle = () => {
     const { id } = useParams();
+    const { profile } = useAuth();
     const [activeTab, setActiveTab] = useState('info');
     const [caso, setCaso] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [refreshTasks, setRefreshTasks] = useState(0); // Key to force refresh Tareas component
     const [catalogs, setCatalogs] = useState<{ analistas: any[], companias: any[], estados: any[] }>({ analistas: [], companias: [], estados: [] });
+
+    const isAdmin = profile?.rol === 'Administrador';
+    const isClosed = caso?.estado === 'CERRADO';
 
     useEffect(() => {
         if (id) {
@@ -159,13 +165,27 @@ export const Detalle = () => {
     const handleStatusChange = async (newStatus: string) => {
         if (caso.estado === newStatus) return;
 
+        // Block if closed and not admin
+        if (isClosed && !isAdmin) {
+            alert("Solo un Administrador puede cambiar el estado de un caso cerrado.");
+            return;
+        }
+
         const updatedCaso = { ...caso, estado: newStatus };
+
+        // If changing TO closed, set auto closing date if not set
+        const updatePayload: any = { estado: newStatus };
+        if (newStatus === 'CERRADO' && !caso.fecha_cierre) {
+            updatePayload.fecha_cierre = new Date().toISOString().split('T')[0];
+            updatedCaso.fecha_cierre = updatePayload.fecha_cierre;
+        }
+
         setCaso(updatedCaso);
         setSaving(true);
         try {
             const { error } = await supabase
                 .from('casos')
-                .update({ estado: newStatus })
+                .update(updatePayload)
                 .eq('id', caso.id);
 
             if (error) throw error;
@@ -178,6 +198,13 @@ export const Detalle = () => {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleReopen = async () => {
+        if (!isAdmin) return;
+        if (!confirm("¿Deseas volver a abrir este caso? El estado cambiará a EN GESTION.")) return;
+
+        await handleStatusChange('EN GESTION');
     };
 
     const handleUpdateInfo = async (updatedData: any) => {
@@ -285,28 +312,61 @@ export const Detalle = () => {
                     {saving && <span style={{ fontSize: '12px', color: 'var(--accent-color)' }}>Guardando...</span>}
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <select
-                            className={styles.statusSelect}
-                            value={caso.estado || 'ENTREVISTAR'}
-                            onChange={(e) => handleStatusChange(e.target.value)}
-                            style={{
-                                padding: '6px 14px',
-                                borderRadius: '20px',
-                                border: `1px solid ${getEstadoColor(caso.estado || 'ENTREVISTAR')}30`,
-                                backgroundColor: getEstadoColor(caso.estado || 'ENTREVISTAR') + '15',
-                                color: getEstadoColor(caso.estado || 'ENTREVISTAR'),
-                                fontWeight: '700',
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                outline: 'none',
-                                textAlign: 'center',
-                                height: '32px'
-                            }}
-                        >
-                            {['ENTREVISTAR', 'EN GESTION', 'CERRADO'].map(st => (
-                                <option key={st} value={st} style={{ background: '#1a1a1a', color: '#fff' }}>{st}</option>
-                            ))}
-                        </select>
+                        {isClosed && isAdmin && (
+                            <button
+                                className={styles.reopenBtn}
+                                onClick={handleReopen}
+                                title="Volver a abrir el caso"
+                            >
+                                <RefreshCcw size={16} />
+                                <span>REABRIR</span>
+                            </button>
+                        )}
+
+                        <div className={styles.statusWrapper}>
+                            <select
+                                className={styles.statusSelect}
+                                value={caso.estado || 'ENTREVISTAR'}
+                                onChange={(e) => handleStatusChange(e.target.value)}
+                                disabled={isClosed && !isAdmin}
+                                style={{
+                                    padding: '6px 14px',
+                                    borderRadius: '20px',
+                                    border: `1px solid ${getEstadoColor(caso.estado || 'ENTREVISTAR')}30`,
+                                    backgroundColor: getEstadoColor(caso.estado || 'ENTREVISTAR') + '15',
+                                    color: getEstadoColor(caso.estado || 'ENTREVISTAR'),
+                                    fontWeight: '700',
+                                    fontSize: '13px',
+                                    cursor: (isClosed && !isAdmin) ? 'not-allowed' : 'pointer',
+                                    outline: 'none',
+                                    textAlign: 'center',
+                                    height: '32px',
+                                    opacity: (isClosed && !isAdmin) ? 0.8 : 1
+                                }}
+                            >
+                                {['ENTREVISTAR', 'EN GESTION', 'CERRADO'].map(st => (
+                                    <option key={st} value={st} style={{ background: '#1a1a1a', color: '#fff' }}>{st}</option>
+                                ))}
+                            </select>
+
+                            {isClosed && (
+                                <div className={styles.closingDateWrapper}>
+                                    <Calendar size={12} />
+                                    {isAdmin ? (
+                                        <input
+                                            type="date"
+                                            className={styles.closingDateInput}
+                                            value={caso.fecha_cierre || ''}
+                                            onChange={(e) => handleStatusUpdate({ fecha_cierre: e.target.value })}
+                                        />
+                                    ) : (
+                                        <span className={styles.closingDateText}>
+                                            {caso.fecha_cierre ? new Date(caso.fecha_cierre + 'T00:00:00').toLocaleDateString('es-AR') : 'Sin fecha'}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
                         {caso.sub_estado && (
                             <span style={{

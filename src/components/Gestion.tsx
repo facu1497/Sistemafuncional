@@ -5,6 +5,7 @@ import { FileText, Mail, FileCheck, ArrowRight, Printer, Paperclip, Download } f
 import { supabase } from '../supabaseClient';
 import { Dropzone } from './Dropzone';
 import { numeroALetras } from '../utils/NumberToWords';
+import { useAuth } from '../contexts/AuthContext';
 
 interface GestionProps {
     caso: any;
@@ -22,6 +23,7 @@ const BUCKET = 'documentos';
 
 export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
     const navigate = useNavigate();
+    const { profile } = useAuth();
     const [uploadingReport, setUploadingReport] = useState(false);
     const [reportFile, setReportFile] = useState<{ name: string, url: string } | null>(null);
     const [companyEmail, setCompanyEmail] = useState('');
@@ -81,6 +83,14 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
     };
 
     const handleAction = async (action: string) => {
+        const isAdmin = profile?.rol === 'Administrador';
+        const isClosed = caso?.estado === 'CERRADO';
+
+        if (isClosed && !isAdmin) {
+            alert("El caso está cerrado. Las acciones están bloqueadas.");
+            return;
+        }
+
         if (action === 'Generar Informe') {
             navigate(`/informe/${id}`);
             return;
@@ -193,6 +203,14 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
     };
 
     const handleUploadReport = async (files: File[]) => {
+        const isAdmin = profile?.rol === 'Administrador';
+        const isClosed = caso?.estado === 'CERRADO';
+
+        if (isClosed && !isAdmin) {
+            alert("No se pueden subir informes a un caso cerrado.");
+            return;
+        }
+
         const file = files[0];
         if (!file) return;
 
@@ -228,6 +246,10 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         }
     };
 
+    const isAdmin = profile?.rol === 'Administrador';
+    const isClosed = caso?.estado === 'CERRADO';
+    const actionsDisabled = isClosed && !isAdmin;
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.grid}>
@@ -236,13 +258,28 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
                 <div className={styles.col}>
                     <div className={styles.title}>Informes</div>
                     <div className={styles.buttons}>
-                        <button className={styles.btn} onClick={() => handleAction('Generar Informe')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Generar Informe')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>INFORME</span> <Printer size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Informe Desiste')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Informe Desiste')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>INFORME DESISTE</span> <FileText size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Preinforme')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Preinforme')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>PREINFORME</span> <FileText size={16} />
                         </button>
                     </div>
@@ -252,16 +289,36 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
                 <div className={styles.col}>
                     <div className={styles.title}>Notas</div>
                     <div className={styles.buttons}>
-                        <button className={styles.btn} onClick={() => handleAction('Nota Desiste')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Nota Desiste')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>NOTA DESISTE</span> <FileText size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Nota Desiste C/Póliza')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Nota Desiste C/Póliza')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>NOTA DESISTE C/PÓLIZA</span> <FileText size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Nota Orden de Compra')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Nota Orden de Compra')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>NOTA ORDEN DE COMPRA</span> <FileText size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Nota Efectivo')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Nota Efectivo')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>NOTA EFECTIVO</span> <FileText size={16} />
                         </button>
                     </div>
@@ -271,19 +328,44 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
                 <div className={styles.col}>
                     <div className={styles.title}>Gestión</div>
                     <div className={styles.buttons}>
-                        <button className={styles.btn} onClick={() => handleAction('Enviar a Informes')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Enviar a Informes')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>ENVIAR A INFORMES</span> <ArrowRight size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Mail a Proveedor')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Mail a Proveedor')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>MAIL A PROVEEDOR</span> <Mail size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Declaración')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Declaración')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>DECLARACIÓN</span> <FileCheck size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Interrupción de Plazos')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Interrupción de Plazos')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>INTERRUPCIÓN DE PLAZOS</span> <FileText size={16} />
                         </button>
-                        <button className={styles.btn} onClick={() => handleAction('Consulta de Antecedentes')}>
+                        <button
+                            className={styles.btn}
+                            onClick={() => handleAction('Consulta de Antecedentes')}
+                            disabled={actionsDisabled}
+                            style={{ opacity: actionsDisabled ? 0.6 : 1, cursor: actionsDisabled ? 'not-allowed' : 'pointer' }}
+                        >
                             <span>CONSULTA DE ANTECEDENTES</span> <FileText size={16} />
                         </button>
                     </div>
@@ -297,6 +379,7 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
                             <button
                                 key={sub}
                                 className={styles.btn}
+                                disabled={actionsDisabled}
                                 style={{
                                     background: 'rgba(16, 185, 129, 0.1)',
                                     borderColor: 'rgba(16, 185, 129, 0.2)',
@@ -305,7 +388,9 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
                                     textAlign: 'center',
                                     display: 'flex',
                                     justifyContent: 'center',
-                                    alignItems: 'center'
+                                    alignItems: 'center',
+                                    opacity: actionsDisabled ? 0.6 : 1,
+                                    cursor: actionsDisabled ? 'not-allowed' : 'pointer'
                                 }}
                                 onClick={async () => {
                                     if (confirm(`¿Está seguro de cerrar el caso como ${sub}?`)) {

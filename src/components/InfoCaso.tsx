@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './InfoCaso.module.css';
 import { Upload, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface InfoCasoProps {
     caso: any;
@@ -12,10 +13,15 @@ interface InfoCasoProps {
 }
 
 export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
+    const { profile } = useAuth();
     const [form, setForm] = useState<any>(caso || {});
     const [expanded, setExpanded] = useState(false);
     const [transcribing, setTranscribing] = useState(false);
     const audioInputRef = useRef<HTMLInputElement>(null);
+
+    const isAdmin = profile?.rol === 'Administrador';
+    const isClosed = caso?.estado === 'CERRADO';
+    const disabled = isClosed && !isAdmin;
 
     useEffect(() => {
         setForm(caso || {});
@@ -144,9 +150,18 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                         />
                         <button
                             className={styles.btnSave}
-                            style={{ width: 'auto', background: 'var(--secondary-color)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                            style={{
+                                width: 'auto',
+                                background: 'var(--secondary-color)',
+                                fontSize: '13px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                opacity: disabled ? 0.6 : 1,
+                                cursor: disabled ? 'not-allowed' : 'pointer'
+                            }}
                             onClick={() => audioInputRef.current?.click()}
-                            disabled={transcribing}
+                            disabled={transcribing || disabled}
                         >
                             {transcribing ? 'Transcribiendo...' : 'Importar Audio/Video'}
                             <Upload size={14} />
@@ -154,13 +169,16 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
 
                         <button
                             className={styles.btnSave}
+                            disabled={disabled}
                             style={{
                                 width: 'auto',
                                 background: '#10b981', /* green-500 */
                                 fontSize: '13px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px'
+                                gap: '6px',
+                                opacity: disabled ? 0.6 : 1,
+                                cursor: disabled ? 'not-allowed' : 'pointer'
                             }}
                             onClick={async () => {
                                 const hoy = new Date().toISOString().split('T')[0];
@@ -177,7 +195,16 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                     </div>
                 </div>
 
-                <button className={styles.btnSave} onClick={handleSave} style={{ background: 'var(--secondary-color)' }}>
+                <button
+                    className={styles.btnSave}
+                    onClick={handleSave}
+                    style={{
+                        background: 'var(--secondary-color)',
+                        opacity: disabled ? 0.6 : 1,
+                        cursor: disabled ? 'not-allowed' : 'pointer'
+                    }}
+                    disabled={disabled}
+                >
                     Guardar
                 </button>
 
@@ -239,7 +266,17 @@ export const InfoCaso = ({ caso, catalogs, onUpdate }: InfoCasoProps) => {
                     <div className={styles.field}><label className={styles.label}>Localidad (R)</label><input className={styles.input} value={form.localidad_r || ''} onChange={e => handleChange('localidad_r', e.target.value)} /></div>
                     <div className={styles.field}><label className={styles.label}>Provincia (R)</label><input className={styles.input} value={form.provincia_r || ''} onChange={e => handleChange('provincia_r', e.target.value)} /></div>
 
-                    <button className={styles.btnSave} onClick={handleSave} style={{ marginTop: '20px', background: 'var(--secondary-color)' }}>
+                    <button
+                        className={styles.btnSave}
+                        onClick={handleSave}
+                        style={{
+                            marginTop: '20px',
+                            background: 'var(--secondary-color)',
+                            opacity: disabled ? 0.6 : 1,
+                            cursor: disabled ? 'not-allowed' : 'pointer'
+                        }}
+                        disabled={disabled}
+                    >
                         Guardar
                     </button>
                 </>

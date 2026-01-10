@@ -151,8 +151,68 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         y += 6;
         addText('Nota aclaratoria:', 9, true, 4);
         addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 8.5, false, 3.5);
-
         doc.save(`Nota_Efectivo_${n_siniestro}.pdf`);
+    };
+
+    const generateNotaOrdenCompra = () => {
+        const total = calculateTotalFromDanos(caso.tabla_daños, true); // true means ONLY provider = orden de compra
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const margin = 30;
+        let y = 25;
+
+        const addText = (text: string, size = 11, bold = false, spacing = 5.5) => {
+            doc.setFontSize(size);
+            doc.setFont('times', bold ? 'bold' : 'normal');
+            const lines = doc.splitTextToSize(text, 150);
+            doc.text(lines, margin, y);
+            const increment = lines.length * spacing;
+            y += increment;
+            return increment;
+        };
+
+        addText(`SR GERENTE\n${cia || '.....................'}`, 11, true);
+        y += 5;
+        addText('De mi mayor consideración:', 11);
+        y += 5;
+
+        doc.setFontSize(11);
+        doc.setFont('times', 'bold');
+        doc.text(`REF: Póliza Nro: ${poliza || '.......'}`, margin, y); y += 6;
+        doc.text(`STRO Nro.: ${n_siniestro || '.......'}`, margin, y); y += 6;
+        doc.text(`Fecha de Siniestro: ${caso.fecha_siniestro || '.......'}`, margin, y); y += 6;
+        doc.text(`ASEGURADO: ${asegurado || '.......'}`, margin, y); y += 10;
+
+        addText('Habiendo aportado toda la información y/o documentación solicitada por el Estudio Gibert en el día de la fecha, acepto dadas las condiciones contractuales en carácter de indemnización la siguiente liquidación:', 11);
+
+        y += 5;
+        const montoStrQuery = numeroALetras(total);
+        addText(`•  ORDEN DE COMPRA EN ON CITY $ ${total.toLocaleString('es-AR')} (${montoStrQuery}).`, 11, true);
+
+        y += 5;
+        addText('De percibir la indemnización mencionada, dejo sin efecto cualquier otro reclamo.', 11);
+        y += 2;
+        addText(`Manifiesto que la única póliza vigente es la contratada a través de ${cia || '.......'}.`, 11);
+        y += 2;
+        addText('Ratifico en un todo las circunstancias que rodearon el evento.', 11);
+        y += 2;
+        addText('Asimismo, declaro No encontrarme incluido y/o alcanzado dentro de la "Nómina de Personas Expuestas Políticamente".', 11);
+        y += 5;
+        addText('Sin otro particular saludo al Sr. Gerente muy Atte.', 11);
+
+        y += 10;
+        addText('FIRMA:', 11, true);
+        y += 5;
+        addText(`ACLARACION: ${asegurado || '.....................'}`, 11, true);
+        y += 2;
+        addText(`DNI: ${dni || '.....................'}`, 11, true);
+
+        y = 255;
+        doc.setLineWidth(0.2);
+        doc.line(margin, y, 180, y);
+        y += 6;
+        addText('Se deja expresa constancia que el presente en una propuesta de indemnización elevada por el estudio liquidador a la aseguradora, la que quedara firme una vez que esta la apruebe. Hasta tanto eso ocurra la aseguradora no contrae ninguna obligación o promesa de pago alguno que pueda invocarse por el damnificado y/o asegurado.', 9, false, 4);
+
+        doc.save(`Nota_Orden_Compra_${n_siniestro}.pdf`);
     };
 
     const handleAction = async (action: string) => {
@@ -179,6 +239,8 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
             await onStatusUpdate?.({ sub_estado: 'NOTA PENDIENTE' });
             if (action === 'Nota Efectivo') {
                 generateNotaEfectivo();
+            } else if (action === 'Nota Orden de Compra') {
+                generateNotaOrdenCompra();
             } else {
                 alert(`Acción "${action}" iniciada. Sub-estado actualizado a NOTA PENDIENTE.`);
             }

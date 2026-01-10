@@ -117,7 +117,7 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
 
         y += 3;
         const montoStrQuery = numeroALetras(total);
-        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery})`, 11, true);
+        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery}).`, 11, true);
 
         y += 3;
         addText(`Solicito, asimismo, que el monto mencionado sea transferido a la siguiente cuenta bancaria de mi titularidad en el Banco ________________________:`, 11);
@@ -143,7 +143,7 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         y += 3;
         addText(`DNI: ${dni || '.....................'}`, 11, true, 7);
 
-        y += 25;
+        y += 10; // Reducido el espacio drásticamente de y += 25 a y += 10
         doc.setLineWidth(0.2);
         doc.line(margin, y, 190, y);
         y += 6;

@@ -6,6 +6,18 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Lista.module.css';
 import { read, utils } from 'xlsx';
 
+interface FilterState {
+    id: string;
+    siniestro: string;
+    asegurado: string;
+    dni: string;
+    compania: string;
+    analista: string;
+    estado: string[];
+    subEstado: string[];
+    misCasos: boolean;
+}
+
 export const Lista = () => {
     const { user, profile } = useAuth();
     const navigate = useNavigate();
@@ -19,17 +31,32 @@ export const Lista = () => {
         sub_estados: [] as any[]
     });
 
-    const [filters, setFilters] = useState({
-        id: '',
-        siniestro: '',
-        asegurado: '',
-        dni: '',
-        compania: '',
-        analista: '',
-        estado: [] as string[],
-        subEstado: [] as string[],
-        misCasos: false
+    const [filters, setFilters] = useState<FilterState>(() => {
+        const saved = localStorage.getItem('lista_filtros');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Error parsing saved filters:", e);
+            }
+        }
+        return {
+            id: '',
+            siniestro: '',
+            asegurado: '',
+            dni: '',
+            compania: '',
+            analista: '',
+            estado: [],
+            subEstado: [],
+            misCasos: false
+        };
     });
+
+    // Persist filters
+    useEffect(() => {
+        localStorage.setItem('lista_filtros', JSON.stringify(filters));
+    }, [filters]);
     const [showEstadoDropdown, setShowEstadoDropdown] = useState(false);
     const [showSubEstadoDropdown, setShowSubEstadoDropdown] = useState(false);
 
@@ -170,15 +197,15 @@ export const Lista = () => {
         setSortConfig({ key, direction });
     };
 
-    const handleFilterChange = (field: string, value: any) => {
+    const handleFilterChange = (field: keyof FilterState, value: any) => {
         setFilters(prev => ({ ...prev, [field]: value }));
     };
 
     const toggleEstadoFilter = (estado: string) => {
-        setFilters(prev => {
+        setFilters((prev: FilterState) => {
             const current = prev.estado;
             if (current.includes(estado)) {
-                return { ...prev, estado: current.filter(e => e !== estado) };
+                return { ...prev, estado: current.filter((e: string) => e !== estado) };
             } else {
                 return { ...prev, estado: [...current, estado] };
             }
@@ -186,14 +213,30 @@ export const Lista = () => {
     };
 
     const toggleSubEstadoFilter = (subEstado: string) => {
-        setFilters(prev => {
+        setFilters((prev: FilterState) => {
             const current = prev.subEstado;
             if (current.includes(subEstado)) {
-                return { ...prev, subEstado: current.filter(e => e !== subEstado) };
+                return { ...prev, subEstado: current.filter((e: string) => e !== subEstado) };
             } else {
                 return { ...prev, subEstado: [...current, subEstado] };
             }
         });
+    };
+
+    const clearFilters = () => {
+        const defaults: FilterState = {
+            id: '',
+            siniestro: '',
+            asegurado: '',
+            dni: '',
+            compania: '',
+            analista: '',
+            estado: [],
+            subEstado: [],
+            misCasos: false
+        };
+        setFilters(defaults);
+        localStorage.removeItem('lista_filtros');
     };
 
     const handleSaveNewCase = async () => {
@@ -568,7 +611,10 @@ export const Lista = () => {
 
             {/* PANEL FILTROS */}
             <div className={styles.filterPanel}>
-                <div className={styles.filterHeader}>FILTROS DE BÚSQUEDA</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <div className={styles.filterHeader} style={{ margin: 0 }}>FILTROS DE BÚSQUEDA</div>
+                    <button className={styles.clearBtn} onClick={clearFilters}>Limpiar Filtros</button>
+                </div>
                 <div className={styles.filters}>
                     <div className={styles.filterGroup}>
                         <label>N° Caso (ID)</label>

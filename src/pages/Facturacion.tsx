@@ -36,6 +36,7 @@ export const Facturacion = () => {
     const [periodoFilter, setPeriodoFilter] = useState('');
     const [analistaFilter, setAnalistaFilter] = useState('');
     const [ciaFilter, setCiaFilter] = useState('');
+    const [summaryMonth, setSummaryMonth] = useState(new Date().toISOString().slice(0, 7));
 
     // Selection
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -169,8 +170,7 @@ export const Facturacion = () => {
 
     // --- ANALYST SUMMARY LOGIC ---
     const summaryByAnalyst = useMemo(() => {
-        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-        const monthFacturas = facturas.filter(f => f.fecha_emision?.startsWith(currentMonth));
+        const monthFacturas = facturas.filter(f => f.fecha_emision?.startsWith(summaryMonth));
 
         const analystsMap: Record<string, { total: number, cias: Record<string, number> }> = {};
 
@@ -192,7 +192,7 @@ export const Facturacion = () => {
             total: data.total,
             cias: Object.entries(data.cias).sort((a, b) => b[1] - a[1]) // Sort by amount desc
         })).sort((a, b) => b.total - a.total);
-    }, [facturas]);
+    }, [facturas, summaryMonth]);
 
     return (
         <Layout>
@@ -201,9 +201,21 @@ export const Facturacion = () => {
                 <p style={{ color: 'var(--muted-color)', fontSize: '14px' }}>Control de facturas, pagos y cobranzas.</p>
             </div>
 
-            {/* RESUMEN POR ANALISTA (Mes Actual) */}
+            {/* RESUMEN POR ANALISTA (Mes) */}
             <div className={styles.summarySection}>
-                <h3 className={styles.sectionTitle}>Resumen de Facturación (Monto Neto) - Mes Actual</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Resumen de Facturación (Monto Neto)</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label style={{ fontSize: '13px', color: 'var(--muted-color)' }}>Filtrar Mes:</label>
+                        <input
+                            type="month"
+                            className={styles.input}
+                            value={summaryMonth}
+                            onChange={e => setSummaryMonth(e.target.value)}
+                            style={{ padding: '4px 10px', height: '32px' }}
+                        />
+                    </div>
+                </div>
                 <div className={styles.analystSummaryGrid}>
                     {summaryByAnalyst.map(stat => (
                         <div key={stat.name} className={styles.analystSumCard}>

@@ -22,11 +22,9 @@ interface TablaDanosProps {
 }
 
 export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
-    // Local state to handle edits before syncing up
     const [coberturas, setCoberturas] = useState<Cobertura[]>(data || []);
 
     useEffect(() => {
-        // Map old data format to new format if necessary
         const mappedData = (data || []).map(cob => ({
             ...cob,
             items: (cob.items || []).map((item: any) => ({
@@ -60,6 +58,14 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
     const updateCoberturaField = (index: number, field: keyof Cobertura, value: any) => {
         const copy = [...coberturas];
         copy[index] = { ...copy[index], [field]: value };
+
+        // If suma reaches items, trigger recalculation for all items in this coverage
+        if (field === 'suma') {
+            const items = [...copy[index].items];
+            const sa = parseMonto(value);
+            copy[index].items = items.map(item => recalculateItem(item, sa));
+        }
+
         handleUpdate(copy);
     };
 
@@ -82,19 +88,31 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
         handleUpdate(copy);
     };
 
+    const recalculateItem = (item: ItemDano, sumaAsegurada: number): ItemDano => {
+        const vm = parseMonto(item.valorMercado);
+        const porc = parseMonto(item.deduccionPorcentaje);
+
+        if (vm > 0) {
+            // Apply limiting factor: Base = min(Valor Mercado, Suma Asegurada)
+            // If Suma Asegurada is 0 or empty, we use Valor Mercado
+            const base = (sumaAsegurada > 0 && sumaAsegurada < vm) ? sumaAsegurada : vm;
+            const calculated = base * (1 - (porc / 100));
+            return {
+                ...item,
+                montoIndemnizacion: calculated % 1 === 0 ? calculated.toString() : calculated.toFixed(2)
+            };
+        }
+        return item;
+    };
+
     const updateItem = (coberturaIndex: number, itemIndex: number, field: keyof ItemDano, value: any) => {
         const copy = [...coberturas];
         const items = [...copy[coberturaIndex].items];
         let newItem = { ...items[itemIndex], [field]: value };
 
-        // Auto-calculate if valorMercado or deduccionPorcentaje changes
         if (field === 'valorMercado' || field === 'deduccionPorcentaje') {
-            const vm = parseMonto(newItem.valorMercado);
-            const porc = parseMonto(newItem.deduccionPorcentaje);
-            if (vm > 0) {
-                const calculated = vm * (1 - (porc / 100));
-                newItem.montoIndemnizacion = calculated.toFixed(2);
-            }
+            const sa = parseMonto(copy[coberturaIndex].suma);
+            newItem = recalculateItem(newItem, sa);
         }
 
         items[itemIndex] = newItem;
@@ -102,14 +120,21 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
         handleUpdate(copy);
     };
 
-    const parseMonto = (val: string | number) => {
+    const parseMonto = (val: string | number): number => {
         if (typeof val === 'number') return val;
         if (!val) return 0;
         let s = String(val).trim();
+        s = s.replace(/\$/g, '');
         s = s.replace(/\./g, '');
         s = s.replace(',', '.');
         const num = parseFloat(s);
         return isNaN(num) ? 0 : num;
+    };
+
+    const formatCurrencyDisplay = (val: string | number) => {
+        const num = parseMonto(val);
+        if (num === 0 && !val) return '';
+        return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(num);
     };
 
     // --- Totals Logic ---
@@ -118,10 +143,16 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
     let totalEfectivo = 0;
 
     coberturas.forEach(cob => {
+        const sa = parseMonto(cob.suma);
         (cob.items || []).forEach(item => {
             const vm = parseMonto(item.valorMercado);
             const ind = parseMonto(item.montoIndemnizacion);
-            totalAhorro += (vm - ind);
+
+            // Saving parameter logic: Base = min(SA, VM)
+            // Ahorro = Base - Indemnizacion
+            const base = (sa > 0 && sa < vm) ? sa : vm;
+            totalAhorro += (base - ind);
+
             if (item.esProveedor) {
                 totalOrdenCompra += ind;
             } else {
@@ -134,6 +165,39 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
+    };
+
+    // Helper component for formatting currency on blur/focus
+    const CurrencyInput = ({ value, onChange, placeholder, style, className }: any) => {
+        const [isFocused, setIsFocused] = useState(false);
+        const [displayValue, setDisplayValue] = useState(value?.toString() || '');
+
+        useEffect(() => {
+            if (!isFocused) {
+                setDisplayValue(formatCurrencyDisplay(value));
+            }
+        }, [value, isFocused]);
+
+        return (
+            <input
+                className={className}
+                style={style}
+                placeholder={placeholder}
+                value={isFocused ? displayValue : formatCurrencyDisplay(value)}
+                onFocus={() => {
+                    setIsFocused(true);
+                    // Keep it raw for editing but clean
+                    const raw = value?.toString() || '';
+                    setDisplayValue(raw);
+                }}
+                onBlur={() => {
+                    setIsFocused(false);
+                    const numValue = parseMonto(displayValue);
+                    onChange(numValue === 0 ? '' : numValue);
+                }}
+                onChange={(e) => setDisplayValue(e.target.value)}
+            />
+        );
     };
 
     return (
@@ -159,10 +223,10 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
                             </div>
                             <div className={styles.coberturaInputGroup} style={{ flex: 1 }}>
                                 <span className={styles.label}>Suma Asegurada</span>
-                                <input
+                                <CurrencyInput
                                     className={styles.input}
                                     value={cob.suma}
-                                    onChange={e => updateCoberturaField(idxCob, 'suma', e.target.value)}
+                                    onChange={(v: any) => updateCoberturaField(idxCob, 'suma', v)}
                                     placeholder="0"
                                 />
                             </div>
@@ -186,11 +250,11 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
                                     onChange={e => updateItem(idxCob, idxItem, 'concepto', e.target.value)}
                                     placeholder="Descripción..."
                                 />
-                                <input
+                                <CurrencyInput
                                     style={{ flex: 1 }}
                                     className={styles.input}
                                     value={item.valorMercado}
-                                    onChange={e => updateItem(idxCob, idxItem, 'valorMercado', e.target.value)}
+                                    onChange={(v: any) => updateItem(idxCob, idxItem, 'valorMercado', v)}
                                     placeholder="0.00"
                                 />
                                 <input
@@ -200,11 +264,11 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
                                     onChange={e => updateItem(idxCob, idxItem, 'deduccionPorcentaje', e.target.value)}
                                     placeholder="%"
                                 />
-                                <input
+                                <CurrencyInput
                                     style={{ flex: 1 }}
                                     className={styles.input}
                                     value={item.montoIndemnizacion}
-                                    onChange={e => updateItem(idxCob, idxItem, 'montoIndemnizacion', e.target.value)}
+                                    onChange={(v: any) => updateItem(idxCob, idxItem, 'montoIndemnizacion', v)}
                                     placeholder="0.00"
                                 />
                                 <div style={{ flex: 0.6, display: 'flex', justifyContent: 'center' }}>
@@ -264,4 +328,5 @@ export const TablaDanos = ({ data, onUpdate }: TablaDanosProps) => {
         </div>
     );
 };
+
 

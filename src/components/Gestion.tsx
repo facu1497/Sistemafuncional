@@ -85,12 +85,12 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
     };
 
     const generateNotaEfectivo = () => {
-        const total = calculateTotalFromDanos(caso.tabla_daños, false); // false means NOT provider = efectivo
-        const doc = new jsPDF();
+        const total = calculateTotalFromDanos(caso.tabla_daños, false);
+        const doc = new jsPDF('p', 'mm', 'a4');
         const margin = 20;
-        let y = 30;
+        let y = 20;
 
-        const addText = (text: string, size = 11, bold = false, spacing = 6) => {
+        const addText = (text: string, size = 11, bold = false, spacing = 5.5) => {
             doc.setFontSize(size);
             doc.setFont('times', bold ? 'bold' : 'normal');
             const lines = doc.splitTextToSize(text, 170);
@@ -101,47 +101,53 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         };
 
         const fecha = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
-
         doc.setFontSize(11);
         doc.setFont('times', 'normal');
         doc.text(`Buenos Aires, ${fecha}`, 190, y, { align: 'right' });
-        y += 20;
+        y += 15;
 
         addText(`Sr. Gerente\n${cia || '.....................'}`, 11, true);
-        y += 5;
+        y += 4;
         addText('De mi mayor consideración:', 11);
-        y += 10;
-        addText(`Referencia:\nSINIESTRO ${n_siniestro || '.......'} / POLIZA ${poliza || '.......'}`, 11, true);
-        y += 10;
-
-        const body1 = `Por la presente, informo que, habiendo cumplido con la entrega de toda la información y documentación requerida por el Estudio Gibert con fecha actual, acepto, conforme a las condiciones contractuales vigentes, la siguiente liquidación en concepto de indemnización:`;
-        addText(body1, 11);
-
         y += 5;
+        addText(`Referencia:\nSINIESTRO ${n_siniestro || '.......'} / POLIZA ${poliza || '.......'}`, 11, true);
+        y += 6;
+
+        addText(`Por la presente, informo que, habiendo cumplido con la entrega de toda la información y documentación requerida por el Estudio Gibert con fecha actual, acepto, conforme a las condiciones contractuales vigentes, la siguiente liquidación en concepto de indemnización:`, 11);
+
+        y += 3;
         const montoStrQuery = numeroALetras(total);
         addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery}).`, 11, true);
 
-        y += 10;
+        y += 6;
         addText(`Solicito, asimismo, que el monto mencionado sea transferido a la siguiente cuenta bancaria de mi titularidad en el Banco ________________________:`, 11);
-        y += 5;
-        addText('TIPO DE CUENTA:\nNRO DE CUENTA:\nCBU:\nFILIAL:', 11, true, 8);
+
+        y += 3;
+        addText('TIPO DE CUENTA:\nNRO DE CUENTA:\nCBU:\nFILIAL:', 11, true, 7);
+
+        y += 4;
+        addText(`Declaro que, una vez percibida la indemnización señalada, renuncio expresamente a cualquier otro reclamo relacionado con el presente caso.`, 11);
+        y += 1;
+        addText(`Asimismo, confirmo que la única póliza vigente relacionada con el siniestro es aquella contratada con ${cia || '.......'} y ratifico íntegramente las circunstancias que dieron lugar al evento denunciado.`, 11);
+        y += 1;
+        addText(`Adicionalmente, declaro bajo juramento que no me encuentro incluido ni alcanzado dentro de la categoría de "Personas Expuestas Políticamente" según la normativa vigente.`, 11);
+        y += 1;
+        addText(`Quedo a disposición para cualquier aclaración adicional y, sin otro particular, saludo a usted con la mayor consideración.`, 11);
+
         y += 10;
-        const body2 = `Declaro que, una vez percibida la indemnización señalada, renuncio expresamente a cualquier otro reclamo relacionado con el presente caso.\n\nAsimismo, confirmo que la única póliza vigente relacionada con el siniestro es aquella contratada con ${cia || '.......'} y ratifico íntegramente las circunstancias que dieron lugar al evento denunciado.\n\nAdicionalmente, declaro bajo juramento que no me encuentro incluido ni alcanzado dentro de la categoría de "Personas Expuestas Políticamente" según la normativa vigente.\n\nQuedo a disposición para cualquier aclaración adicional y, sin otro particular, saludo a usted con la mayor consideración.`;
-        addText(body2, 11);
-
-        y += 20;
         addText('Atentamente,', 11);
-        y += 25;
-        addText('FIRMA', 11, true, 8);
-        addText(`Aclaración: ${asegurado || '.....................'}`, 11, true, 8);
-        addText(`DNI: ${dni || '.....................'}`, 11, true, 8);
+        y += 15;
+        addText('FIRMA', 11, true);
+        y += 12;
+        addText(`Aclaración: ${asegurado || '.....................'}`, 11, true, 7);
+        addText(`DNI: ${dni || '.....................'}`, 11, true, 7);
 
-        y = 250;
-        doc.setLineWidth(0.3);
+        y = 265;
+        doc.setLineWidth(0.2);
         doc.line(margin, y, 190, y);
-        y += 8;
+        y += 6;
         addText('Nota aclaratoria:', 9, true, 4);
-        addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 9, false, 4.5);
+        addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 8.5, false, 3.5);
 
         doc.save(`Nota_Efectivo_${n_siniestro}.pdf`);
     };

@@ -90,7 +90,7 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         const margin = 20;
         let y = 20;
 
-        const addText = (text: string, size = 12, bold = false, spacing = 5.5) => {
+        const addText = (text: string, size = 11, bold = false, spacing = 5.5) => {
             doc.setFontSize(size);
             doc.setFont('times', bold ? 'bold' : 'normal');
             const lines = doc.splitTextToSize(text, 170);
@@ -143,7 +143,7 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         y += 3;
         addText(`DNI: ${dni || '.....................'}`, 11, true, 7);
 
-        y = 25;
+        y += 25;
         doc.setLineWidth(0.2);
         doc.line(margin, y, 190, y);
         y += 6;

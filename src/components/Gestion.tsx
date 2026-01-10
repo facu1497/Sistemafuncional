@@ -175,11 +175,18 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         addText('De mi mayor consideración:', 11);
         y += 5;
 
+        const formatFecha = (f: string) => {
+            if (!f) return '.......';
+            const parts = f.split('-');
+            if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            return f;
+        };
+
         doc.setFontSize(11);
         doc.setFont('times', 'bold');
         doc.text(`REF: Póliza Nro: ${poliza || '.......'}`, margin, y); y += 6;
         doc.text(`STRO Nro.: ${n_siniestro || '.......'}`, margin, y); y += 6;
-        doc.text(`Fecha de Siniestro: ${caso.fecha_siniestro || '.......'}`, margin, y); y += 6;
+        doc.text(`Fecha de Siniestro: ${formatFecha(caso.fecha_siniestro)}`, margin, y); y += 6;
         doc.text(`ASEGURADO: ${asegurado || '.......'}`, margin, y); y += 10;
 
         addText('Habiendo aportado toda la información y/o documentación solicitada por el Estudio Gibert en el día de la fecha, acepto dadas las condiciones contractuales en carácter de indemnización la siguiente liquidación:', 11);

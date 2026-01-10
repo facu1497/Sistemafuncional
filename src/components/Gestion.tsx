@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import { Dropzone } from './Dropzone';
 import { numeroALetras } from '../utils/NumberToWords';
 import { useAuth } from '../contexts/AuthContext';
+import jsPDF from 'jspdf';
 
 interface GestionProps {
     caso: any;
@@ -77,9 +78,73 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
             const items = cob.items || [];
             return sum + items.reduce((iSum: number, item: any) => {
                 if (soloProveedor && !item.esProveedor) return iSum;
+                if (!soloProveedor && item.esProveedor) return iSum; // Inverse
                 return iSum + parseMonto(item.montoIndemnizacion);
             }, 0);
         }, 0);
+    };
+
+    const generateNotaEfectivo = () => {
+        const total = calculateTotalFromDanos(caso.tabla_daños, false); // false means NOT provider = efectivo
+        const doc = new jsPDF();
+        const margin = 20;
+        let y = 30;
+
+        const addText = (text: string, size = 11, bold = false) => {
+            doc.setFontSize(size);
+            doc.setFont('times', bold ? 'bold' : 'normal');
+            const lines = doc.splitTextToSize(text, 170);
+            doc.text(lines, margin, y);
+            y += (lines.length * (size * 0.5)) + 5;
+        };
+
+        const fecha = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        doc.setFontSize(10);
+        doc.text(`Buenos Aires, ${fecha}`, 190, y, { align: 'right' });
+        y += 15;
+
+        addText(`Sr. Gerente\n${cia || '.....................'}`, 11, true);
+        y += 5;
+        addText('De mi mayor consideración:', 11);
+        y += 5;
+        addText(`Referencia:\nSINIESTRO ${n_siniestro || '.......'} / POLIZA ${poliza || '.......'}`, 11, true);
+        y += 10;
+
+        const body1 = `Por la presente, informo que, habiendo cumplido con la entrega de toda la información y documentación requerida por el Estudio Gibert con fecha actual, acepto, conforme a las condiciones contractuales vigentes, la siguiente liquidación en concepto de indemnización:`;
+        addText(body1, 11);
+
+        y += 5;
+        const montoStrQuery = numeroALetras(total);
+        addText(`Indemnización dineraria: $ ${total.toLocaleString('es-AR')} (${montoStrQuery} PESOS).`, 11, true);
+
+        y += 5;
+        addText(`Solicito, asimismo, que el monto mencionado sea transferido a la siguiente cuenta bancaria de mi titularidad en el Banco ________________________:`, 11);
+
+        y += 5;
+        addText('TIPO DE CUENTA:\nNRO DE CUENTA:\nCBU:\nFILIAL:', 11, true);
+
+        y += 10;
+        const body2 = `Declaro que, una vez percibida la indemnización señalada, renuncio expresamente a cualquier otro reclamo relacionado con el presente caso.\n\nAsimismo, confirmo que la única póliza vigente relacionada con el siniestro es aquella contratada con ${cia || '.......'} y ratifico íntegramente las circunstancias que dieron lugar al evento denunciado.\n\nAdicionalmente, declaro bajo juramento que no me encuentro incluido ni alcanzado dentro de la categoría de "Personas Expuestas Políticamente" según la normativa vigente.\n\nQuedo a disposición para cualquier aclaración adicional y, sin otro particular, saludo a usted con la mayor consideración.`;
+        addText(body2, 11);
+
+        y += 15;
+        addText('Atentamente,', 11);
+        y += 20;
+        addText('FIRMA', 11, true);
+        addText(`Aclaración: ${asegurado || '.....................'}`, 11, true);
+        addText(`DNI: ${dni || '.....................'}`, 11, true);
+
+        y += 10;
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, 190, y);
+        y += 10;
+
+        addText('Nota aclaratoria:', 10, true);
+        y -= 3;
+        addText(`Se deja expresa constancia de que el presente constituye una propuesta de indemnización formulada por el estudio liquidador para ser evaluada y aprobada por la aseguradora. Hasta tanto dicha aprobación sea emitida, ${cia || '.......'} no asume obligación ni compromiso alguno de pago respecto del asegurado o damnificado.`, 9);
+
+        doc.save(`Nota_Efectivo_${n_siniestro}.pdf`);
     };
 
     const handleAction = async (action: string) => {
@@ -105,7 +170,7 @@ export const Gestion = ({ caso, onStatusUpdate }: GestionProps) => {
         if (noteActions.includes(action)) {
             await onStatusUpdate?.({ sub_estado: 'NOTA PENDIENTE' });
             if (action === 'Nota Efectivo') {
-                navigate(`/nota-efectivo/${id}`);
+                generateNotaEfectivo();
             } else {
                 alert(`Acción "${action}" iniciada. Sub-estado actualizado a NOTA PENDIENTE.`);
             }

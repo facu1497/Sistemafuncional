@@ -440,6 +440,7 @@ export const Detalle = () => {
                             <Checklist
                                 data={caso.checklist || []}
                                 causa={caso.causa}
+                                isClosed={isClosed}
                                 onUpdate={handleSaveChecklist}
                                 onStatusUpdate={handleStatusUpdate}
                             />

@@ -18,6 +18,14 @@ const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
   return session ? children : <Navigate to="/login" />;
 };
 
+const AdminRoute = ({ children }: { children: React.ReactElement }) => {
+  const { profile, user, loading } = useAuth();
+  if (loading) return <div>Cargando...</div>;
+
+  const isAdmin = profile?.rol === 'Administrador' || user?.user_metadata?.rol === 'Administrador';
+  return isAdmin ? children : <Navigate to="/lista" />;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -40,19 +48,19 @@ function App() {
             </PrivateRoute>
           } />
           <Route path="/facturacion" element={
-            <PrivateRoute>
+            <AdminRoute>
               <Facturacion />
-            </PrivateRoute>
+            </AdminRoute>
           } />
           <Route path="/reportes" element={
-            <PrivateRoute>
+            <AdminRoute>
               <Reportes />
-            </PrivateRoute>
+            </AdminRoute>
           } />
           <Route path="/administracion" element={
-            <PrivateRoute>
+            <AdminRoute>
               <Administracion />
-            </PrivateRoute>
+            </AdminRoute>
           } />
           <Route path="/informe/:id" element={
             <PrivateRoute>

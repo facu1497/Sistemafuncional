@@ -8,6 +8,7 @@ export const Sidebar = () => {
 
     const userName = profile?.nombre || user?.user_metadata?.nombre || user?.email || 'Usuario';
     const userRole = profile?.rol || user?.user_metadata?.rol || 'Gestor';
+    const isAdmin = userRole === 'Administrador';
 
     return (
         <aside className={styles.sidebar}>
@@ -21,18 +22,23 @@ export const Sidebar = () => {
                     <CheckSquare size={18} />
                     <span>Tareas</span>
                 </NavLink>
-                <NavLink to="/facturacion" className={({ isActive }) => isActive ? `${styles.item} ${styles.active}` : styles.item}>
-                    <FileText size={18} />
-                    <span>Facturación</span>
-                </NavLink>
-                <NavLink to="/reportes" className={({ isActive }) => isActive ? `${styles.item} ${styles.active}` : styles.item}>
-                    <FileBarChart size={18} />
-                    <span>Reportes</span>
-                </NavLink>
-                <NavLink to="/administracion" className={({ isActive }) => isActive ? `${styles.item} ${styles.active}` : styles.item}>
-                    <Settings size={18} />
-                    <span>Administración</span>
-                </NavLink>
+
+                {isAdmin && (
+                    <>
+                        <NavLink to="/facturacion" className={({ isActive }) => isActive ? `${styles.item} ${styles.active}` : styles.item}>
+                            <FileText size={18} />
+                            <span>Facturación</span>
+                        </NavLink>
+                        <NavLink to="/reportes" className={({ isActive }) => isActive ? `${styles.item} ${styles.active}` : styles.item}>
+                            <FileBarChart size={18} />
+                            <span>Reportes</span>
+                        </NavLink>
+                        <NavLink to="/administracion" className={({ isActive }) => isActive ? `${styles.item} ${styles.active}` : styles.item}>
+                            <Settings size={18} />
+                            <span>Administración</span>
+                        </NavLink>
+                    </>
+                )}
             </nav>
 
             <div className={styles.footer}>

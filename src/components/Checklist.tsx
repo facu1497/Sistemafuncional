@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './Checklist.module.css';
 import { Plus, Trash2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ChecklistItem {
     text: string;
@@ -10,6 +11,7 @@ interface ChecklistItem {
 interface ChecklistProps {
     data: ChecklistItem[];
     causa: string;
+    isClosed?: boolean;
     onUpdate: (items: ChecklistItem[]) => void;
     onStatusUpdate?: (status: { estado?: string, sub_estado?: string, fecha_documentacion_completa?: string | null }) => void;
 }
@@ -22,9 +24,13 @@ const CHECKLIST_MAP: Record<string, string[]> = {
 
 const DEFAULT_ITEMS = ["DNI", "DOCUMENTACIÓN RESPALDATORIA", "FOTOS / PRUEBAS", "OBSERVACIONES"];
 
-export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistProps) => {
+export const Checklist = ({ data, causa, isClosed = false, onUpdate, onStatusUpdate }: ChecklistProps) => {
+    const { profile, user } = useAuth();
     const [items, setItems] = useState<ChecklistItem[]>([]);
     const [newItemText, setNewItemText] = useState('');
+
+    const isAdmin = profile?.rol === 'Administrador' || user?.user_metadata?.rol === 'Administrador';
+    const disabled = isClosed && !isAdmin;
 
     useEffect(() => {
         // Init logic: if data exists (and is array), use it.
@@ -90,6 +96,7 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
                                 className={styles.checkbox}
                                 checked={item.checked}
                                 onChange={() => toggleItem(index)}
+                                disabled={disabled}
                             />
                             <span className={styles.label}>{item.text}</span>
                         </div>
@@ -97,6 +104,8 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
                             className={styles.btnDelete}
                             onClick={() => deleteItem(index)}
                             title="Eliminar item"
+                            disabled={disabled}
+                            style={{ opacity: disabled ? 0.3 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
                         >
                             <Trash2 size={14} />
                         </button>
@@ -112,8 +121,9 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
                     value={newItemText}
                     onChange={(e) => setNewItemText(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    disabled={disabled}
                 />
-                <button className={styles.btnAdd} onClick={addItem}>
+                <button className={styles.btnAdd} onClick={addItem} disabled={disabled} style={{ opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
                     <Plus size={16} /> Agregar
                 </button>
             </div>
@@ -131,8 +141,11 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
                     letterSpacing: '1px',
                     display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    opacity: (disabled || (!isAdmin && items.some(i => !i.checked))) ? 0.5 : 1,
+                    cursor: (disabled || (!isAdmin && items.some(i => !i.checked))) ? 'not-allowed' : 'pointer'
                 }}
+                disabled={disabled || (!isAdmin && items.some(i => !i.checked))}
                 onClick={() => {
                     const hoy = new Date().toISOString().split('T')[0];
                     onStatusUpdate?.({
@@ -141,7 +154,7 @@ export const Checklist = ({ data, causa, onUpdate, onStatusUpdate }: ChecklistPr
                     });
                 }}
             >
-                Documentación completada
+                {(!isAdmin && items.some(i => !i.checked)) ? 'Faltan requisitos' : 'Documentación completada'}
             </button>
         </div>
     );

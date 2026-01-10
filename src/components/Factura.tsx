@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import styles from './Factura.module.css';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Download, FileText } from 'lucide-react';
 import { Dropzone } from './Dropzone';
 
 import * as pdfjsLib from 'pdfjs-dist';
@@ -18,18 +18,18 @@ interface FacturaItem {
     aplicaIva: boolean;
 }
 
-
-
 interface FacturaProps {
     nSiniestro: string;
     onSave?: () => void;
 }
 
 const IVA_ALICUOTA = 0.21;
+const BUCKET = 'documentos';
 
 export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [existingFile, setExistingFile] = useState<{ name: string, url: string } | null>(null);
 
     // Header Fields
     const [pv, setPv] = useState('');
@@ -41,8 +41,29 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
     const [items, setItems] = useState<FacturaItem[]>([{ concepto: '', neto: 0, aplicaIva: true }]);
 
     useEffect(() => {
-        if (nSiniestro) loadFactura();
+        if (nSiniestro) {
+            loadFactura();
+            fetchExistingFile();
+        }
     }, [nSiniestro]);
+
+    const fetchExistingFile = async () => {
+        try {
+            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${nSiniestro}`);
+            if (files) {
+                const invoiceFile = files
+                    .filter(f => f.name.startsWith('FACTURA_'))
+                    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+
+                if (invoiceFile) {
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${invoiceFile.name}`);
+                    setExistingFile({ name: invoiceFile.name, url: data.publicUrl });
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching existing invoice file:", err);
+        }
+    };
 
     const loadFactura = async () => {
         setLoading(true);
@@ -68,15 +89,7 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
 
     const handleSave = async () => {
         setSaving(true);
-
-        // Calculate totals for backend redundancy if needed, but mainly for display
         const { totalNeto, totalIva, totalGeneral } = calculateTotals();
-
-        // Ensure 'fecha' (which might be DD-MM-YYYY from parser) is valid for DB (YYYY-MM-DD)
-        // Actually parser returns YYYY-MM-DD but let's double check inputs.
-        // If input type='date', it expects YYYY-MM-DD.
-        // If parser logic returned successfully, it is YYYY-MM-DD.
-        // But if user typed manually or logic failed, ensure it's valid or null.
         const validDate = fecha ? fecha : null;
 
         const payload = {
@@ -89,7 +102,6 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
             total_neto: totalNeto,
             total_iva: totalIva,
             total_general: totalGeneral,
-            // Logic state
             estado_pago: (nf && validDate) ? 'PENDIENTE' : 'SIN_FACTURAR'
         };
 
@@ -126,7 +138,6 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
     // CALCULATIONS
     const parseMonto = (val: any) => {
         if (typeof val === 'number') return val;
-        // Basic parse logic similar to previous tabs
         let s = String(val || '').trim().replace(/\./g, '').replace(',', '.');
         return parseFloat(s) || 0;
     };
@@ -147,7 +158,6 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
 
     const totals = calculateTotals();
 
-    // Updated for Dropzone (accepts File directly)
     const handleFileDrop = async (files: File[]) => {
         const file = files[0];
         if (!file) return;
@@ -157,10 +167,11 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
 
             // 1. Upload file to storage
             const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-            const filePath = `casos/${nSiniestro}/FACTURA_${Date.now()}_${sanitizedName}`;
+            const fileName = `FACTURA_${Date.now()}_${sanitizedName}`;
+            const filePath = `casos/${nSiniestro}/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
-                .from('documentos')
+                .from(BUCKET)
                 .upload(filePath, file, {
                     cacheControl: '3600',
                     upsert: false
@@ -168,8 +179,10 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
 
             if (uploadError) {
                 console.error("Error uploading invoice file:", uploadError);
-                // We continue with parsing even if upload fails, but alert the user
                 alert(`Error al subir archivo de factura: ${uploadError.message}. Se intentará procesar los datos igualmente.`);
+            } else {
+                const { data } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+                setExistingFile({ name: file.name, url: data.publicUrl });
             }
 
             // 2. Parse PDF contents
@@ -184,7 +197,6 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
                 fullText += strings.join(" ") + " ";
             }
 
-            // Extract logic
             const cabecera = procesarCabeceraFactura(fullText);
             const nuevosItems = extraerItemsDesdeTextoFactura(fullText);
 
@@ -194,7 +206,6 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
             if (cabecera.cae) setCae(cabecera.cae);
 
             if (nuevosItems && nuevosItems.length > 0) {
-                // Ensure state update triggers re-render
                 setItems([...nuevosItems]);
             } else {
                 alert("No se detectaron ítems en el PDF. Revisa el formato.");
@@ -208,15 +219,41 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
         }
     };
 
+    const handleDownload = () => {
+        if (existingFile) {
+            window.open(existingFile.url, '_blank');
+        }
+    };
+
     if (loading) return <div style={{ color: 'var(--muted-color)', padding: '20px' }}>Cargando...</div>;
 
     return (
         <div className={styles.wrapper}>
             <div className={styles.pdfBox} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-                <span className={styles.pdfLabel} style={{ marginBottom: '8px' }}>Auto-completar desde PDF:</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span className={styles.pdfLabel}>Auto-completar desde PDF:</span>
+                    {existingFile && (
+                        <button
+                            onClick={handleDownload}
+                            className={styles.btn}
+                            style={{
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                background: 'rgba(54, 153, 255, 0.1)',
+                                borderColor: 'rgba(54, 153, 255, 0.2)',
+                                color: '#3699ff'
+                            }}
+                        >
+                            <FileText size={14} /> Ver Factura Actual <Download size={14} />
+                        </button>
+                    )}
+                </div>
                 <Dropzone
                     onFileSelect={handleFileDrop}
-                    label="Arrastrá tu factura aquí (PDF)"
+                    label={existingFile ? existingFile.name : "Arrastrá tu factura aquí (PDF)"}
                     subLabel="o click para seleccionar"
                     accept="application/pdf"
                 />
@@ -320,3 +357,4 @@ export const Factura = ({ nSiniestro, onSave }: FacturaProps) => {
         </div>
     );
 };
+

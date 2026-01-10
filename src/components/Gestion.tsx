@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Gestion.module.css';
-import { FileText, Mail, FileCheck, ArrowRight, Printer, Paperclip } from 'lucide-react';
+import { FileText, Mail, FileCheck, ArrowRight, Printer, Paperclip, Download } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { Dropzone } from './Dropzone';
 
@@ -20,6 +20,30 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
     const navigate = useNavigate();
     const [uploadingReport, setUploadingReport] = useState(false);
     const [reportFile, setReportFile] = useState<{ name: string, url: string } | null>(null);
+
+    useEffect(() => {
+        if (nSiniestro) {
+            fetchExistingReport();
+        }
+    }, [nSiniestro]);
+
+    const fetchExistingReport = async () => {
+        try {
+            const { data: files } = await supabase.storage.from(BUCKET).list(`casos/${nSiniestro}`);
+            if (files) {
+                const reportFileFromStorage = files
+                    .filter(f => f.name.startsWith('INFORME_GESTION_'))
+                    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+
+                if (reportFileFromStorage) {
+                    const { data } = supabase.storage.from(BUCKET).getPublicUrl(`casos/${nSiniestro}/${reportFileFromStorage.name}`);
+                    setReportFile({ name: reportFileFromStorage.name.split('_').slice(2).join('_'), url: data.publicUrl });
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching existing report:", err);
+        }
+    };
 
     const handleAction = async (action: string) => {
         if (action === 'Generar Informe') {
@@ -131,6 +155,12 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
         }
     };
 
+    const handleDownloadReport = () => {
+        if (reportFile) {
+            window.open(reportFile.url, '_blank');
+        }
+    };
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.grid}>
@@ -229,7 +259,28 @@ export const Gestion = ({ nSiniestro, id, mail = '', checklist = [], onStatusUpd
 
                     {/* NUEVO CAMPO ADJUNTAR PDF */}
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--line-color)' }}>
-                        <div className={styles.title} style={{ borderBottom: 'none', margin: 0, padding: 0, fontSize: '12px' }}>Adjuntar Informe PDF (Gestión)</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <div className={styles.title} style={{ borderBottom: 'none', margin: 0, padding: 0, fontSize: '12px' }}>Adjuntar Informe PDF (Gestión)</div>
+                            {reportFile && (
+                                <button
+                                    onClick={handleDownloadReport}
+                                    style={{
+                                        padding: '4px 10px',
+                                        fontSize: '11px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        background: 'rgba(54, 153, 255, 0.1)',
+                                        border: '1px solid rgba(54, 153, 255, 0.2)',
+                                        borderRadius: '4px',
+                                        color: '#3699ff',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <FileText size={12} /> Ver Informe Actual <Download size={12} />
+                                </button>
+                            )}
+                        </div>
                         {uploadingReport ? (
                             <div style={{ textAlign: 'center', padding: '10px', color: 'var(--primary-color)' }}>Subiendo...</div>
                         ) : (
